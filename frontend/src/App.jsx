@@ -7,7 +7,7 @@ import AuthProvider from "./components/providers/AuthProvider";
 
 function App() {
   return (
-    <div className="flex flex-col gap-2 bg-white dark:bg-gray-900 text-black dark:text-white">
+    <div className="min-h-screen flex flex-col justify-between bg-white dark:bg-gray-900 text-black dark:text-white">
       <AuthProvider>
         <MenuProvider>
           <Header />

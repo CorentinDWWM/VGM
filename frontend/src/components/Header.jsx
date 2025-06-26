@@ -33,30 +33,30 @@ export default function Header() {
       <nav className="flex items-center gap-8 max-header:hidden">
         <Link
           to="/"
-          className="text-main-text-light dark:text-main-text-dark hover:text-hobg-hover-light transition-colors duration-200"
+          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
         >
           Accueil
         </Link>
         <Link
           to="/mygames"
-          className="text-main-text-light dark:text-main-text-dark hover:text-hobg-hover-light transition-colors duration-200"
+          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
         >
           Mes Jeux
         </Link>
         <Link
           to="/stats"
-          className="text-main-text-light dark:text-main-text-dark hover:text-hobg-hover-light transition-colors duration-200"
+          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
         >
           Stats
         </Link>
         <Link
           to="/decouvertes"
-          className="text-main-text-light dark:text-main-text-dark hover:text-hobg-hover-light transition-colors duration-200"
+          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
         >
           Découvertes
         </Link>
       </nav>
-      <div className="w-[300px] bg-white dark:bg-gray-900 border dark:border-white flex justify-between items-center p-2.5 rounded-md max-header:hidden">
+      <div className="max-w-[300px] w-full bg-white dark:bg-gray-900 border dark:border-white flex justify-between items-center p-2.5 rounded-md max-header:hidden">
         <input
           type="text"
           placeholder="Rechercher..."
