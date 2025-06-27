@@ -20,7 +20,6 @@ const createTokenResetPassword = (email) => {
 };
 
 const signup = async (req, res) => {
-  console.log(req.body);
   try {
     // on déstructure les données reçues depuis l'application front (REACT)
     const { username, email, password } = req.body;
@@ -95,18 +94,17 @@ const verifyMail = async (req, res) => {
 const signin = async (req, res) => {
   try {
     // récupération des données envoyées depuis l'application Web
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
     // vérification que l'utilisateur existe
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
 
     // si non feedback non explicite
     if (!user) {
       return res
         .status(400)
-        .json({ message: "Email et/ou mot de passe incorrect" });
+        .json({ message: "Pseudo et/ou mot de passe incorrect" });
     }
-    // console.log(user);
 
     if (await bcrypt.compare(password, user.password)) {
       // on déstructure pour récupérer un objet sans le mot de passe
@@ -123,7 +121,7 @@ const signin = async (req, res) => {
       });
       res.status(200).json(userWithoutPassword);
     } else {
-      res.status(400).json({ message: "Email et/ou mot de passe incorrect" });
+      res.status(400).json({ message: "Pseudo et/ou mot de passe incorrect" });
     }
   } catch (error) {
     console.log(error);
@@ -162,7 +160,6 @@ const resetPassword = async (req, res) => {
       email: updatedUser.email,
       password: hashPassword,
     });
-    console.log(updatedUser);
     await sendPasswordReset(updatedUser.email);
     await newUser.save();
     res.status(201).json({
@@ -178,7 +175,6 @@ const resetPassword = async (req, res) => {
 // méthodes pour mettre à jour les utilisateurs
 
 const updateUser = async (req, res) => {
-  console.log(req.body);
   try {
     // récupération en déstructurant les données reçues depuis l'application web
     const { _id, username, email } = req.body;
@@ -202,7 +198,6 @@ const updateUser = async (req, res) => {
 };
 
 const updateAvatar = async (req, res) => {
-  console.log(req.body);
   try {
     const { _id, avatar } = req.body;
 
@@ -224,7 +219,6 @@ const updateAvatar = async (req, res) => {
 
 const currentUser = async (req, res) => {
   const { token } = req.cookies;
-  // console.log(token);
   if (token) {
     try {
       const decodedToken = jwt.verify(token, SECRET_KEY);

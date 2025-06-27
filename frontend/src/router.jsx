@@ -6,12 +6,16 @@ import Login from "./pages/forms/Login";
 import Register from "./pages/forms/Register";
 import ForgotPassword from "./pages/forms/password/ForgotPassword";
 import ResetPassword from "./pages/forms/password/ResetPassword";
-import Utilisateurs from "./pages/Users/Utilisateurs";
+import { rootLoader } from "./loaders/rootLoader";
+import UserNotConnected from "./components/ProtectedRoutes/UserNotConnected";
+import UserConnected from "./components/ProtectedRoutes/UserConnected";
+import Profil from "./pages/Users/Profil";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     errorElement: <ErrorPage />,
+    loader: rootLoader,
     element: <App />,
     children: [
       {
@@ -20,23 +24,43 @@ export const router = createBrowserRouter([
       },
       {
         path: "/login",
-        element: <Login />,
+        element: (
+          <UserNotConnected>
+            <Login />
+          </UserNotConnected>
+        ),
       },
       {
         path: "/register",
-        element: <Register />,
+        element: (
+          <UserNotConnected>
+            <Register />
+          </UserNotConnected>
+        ),
       },
       {
         path: "/forgot",
-        element: <ForgotPassword />,
+        element: (
+          <UserConnected>
+            <ForgotPassword />
+          </UserConnected>
+        ),
       },
       {
         path: "/reset",
-        element: <ResetPassword />,
+        element: (
+          <UserConnected>
+            <ResetPassword />
+          </UserConnected>
+        ),
       },
       {
-        path: "/user",
-        element: <Utilisateurs />,
+        path: "/profil",
+        element: (
+          <UserConnected>
+            <Profil />
+          </UserConnected>
+        ),
       },
     ],
   },
