@@ -13,7 +13,7 @@ import { IoKeyOutline } from "react-icons/io5";
 export default function Accueil() {
   return (
     <div className="flex flex-col items-center">
-      {/* Intro */} {}
+      {/* Intro */}
       <section className="m-4 rounded py-16 text-center">
         <h2 className="text-4xl font-bold mb-4 text-main-text-light dark:text-main-text-dark">
           Bienvenue sur <br />{" "}
@@ -30,6 +30,7 @@ export default function Accueil() {
           Commencer maintenant
         </button>
       </section>
+
       {/* Fonctionnalités */}
       <section className="w-fit m-4 rounded p-16 max-sm:p-8 border shadow-xl dark:shadow-white/20">
         <div className="flex justify-center items-center mb-12 gap-2">
@@ -88,6 +89,7 @@ export default function Accueil() {
           ))}
         </div>
       </section>
+
       {/* Pour qui ? */}
       <section className="m-2 rounded px-6 py-16">
         <h3 className="text-3xl font-semibold mb-8 text-center text-primary-light dark:text-primary-dark">

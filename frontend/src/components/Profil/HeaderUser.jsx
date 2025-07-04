@@ -26,23 +26,23 @@ export default function HeaderUser() {
   }, []);
 
   return (
-    <div className="w-full flex justify-center items-center shadow-xl">
+    <div className="w-full max-md:overflow-x-auto flex justify-center items-center max-md:justify-start shadow-xl hide-scrollbar">
       <div className="w-fit h-fit flex items-center gap-[50px]">
         <div
           id="my_profil"
-          className={`w-[150px] h-[60px] flex flex-col items-center justify-center gap-2.5`}
+          className={`w-[150px] h-[60px] max-sm:h-[50px] flex flex-col items-center justify-center gap-2.5`}
         >
           <Link to="/profil">Mon Profil</Link>
         </div>
         <div
           id="my_library"
-          className={`w-[150px] h-[60px] flex flex-col items-center justify-center gap-2.5`}
+          className={`w-[150px] h-[60px] max-sm:h-[50px] flex flex-col items-center justify-center gap-2.5`}
         >
           <Link to="/profil/library">Ma Bibliothèque</Link>
         </div>
         <div
           id="my_statistics"
-          className={`w-[150px] h-[60px] flex flex-col items-center justify-center gap-2.5`}
+          className={`w-[150px] h-[60px] max-sm:h-[50px] flex flex-col items-center justify-center gap-2.5`}
         >
           <Link to="/profil/statistics">Mes Statistiques</Link>
         </div>

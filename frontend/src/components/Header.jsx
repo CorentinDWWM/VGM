@@ -30,7 +30,7 @@ export default function Header() {
           />
         </Link>
       )}
-      <nav className="flex items-center gap-8 max-header:hidden">
+      <nav className="flex items-center gap-8 max-1000:hidden">
         <Link
           to="/"
           className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
@@ -56,7 +56,7 @@ export default function Header() {
           Découvertes
         </Link>
       </nav>
-      <div className="max-w-[300px] w-full bg-white dark:bg-gray-900 border dark:border-white flex justify-between items-center p-2.5 rounded-md max-header:hidden">
+      <div className="max-w-[300px] w-full bg-white dark:bg-gray-900 border dark:border-white flex justify-between items-center p-2.5 rounded-md max-1000:hidden">
         <input
           type="text"
           placeholder="Rechercher..."
@@ -64,7 +64,7 @@ export default function Header() {
         />
         <Search className="cursor-pointer text-black dark:text-white" />
       </div>
-      <div className="flex items-center justify-center gap-4 max-header:hidden">
+      <div className="flex items-center justify-center gap-4 max-1000:hidden">
         <Sun
           onClick={toggleTheme}
           className="text-black dark:text-white cursor-pointer"
@@ -83,7 +83,7 @@ export default function Header() {
       ) : (
         <IoMenu
           onClick={toggleBurger}
-          className="hidden max-header:block text-2xl cursor-pointer"
+          className="hidden max-1000:block text-2xl cursor-pointer"
         />
       )}
     </header>

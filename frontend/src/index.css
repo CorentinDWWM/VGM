@@ -40,7 +40,7 @@
   --color-neutral-dark: #facc15;
   --color-alert-light: #dc2626;
   --color-alert-dark: #ef4444;
-  --breakpoint-header: 1000px;
+  --breakpoint-1000: 1000px;
 }
 
 .active {
