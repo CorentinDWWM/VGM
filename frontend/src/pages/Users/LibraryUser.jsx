@@ -49,7 +49,7 @@ export default function LibraryUser() {
       <h2 className="text-center text-2xl max-sm:text-lg font-bold">
         Ma bibliothèque
       </h2>
-      <div className="flex max-xl:flex-col max-xl:items-center justify-evenly max-xl:gap-10 px-10">
+      <div className="flex max-xl:flex-col max-xl:items-center justify-evenly max-xl:gap-10 px-10 pb-10">
         <div className="w-full flex flex-col gap-[50px] overflow-hidden">
           <div className="w-full flex flex-col gap-5">
             <h3>Jeux dans ma bibliothèque</h3>
@@ -73,7 +73,7 @@ export default function LibraryUser() {
             </div>
           </div>
           <div className="w-full flex flex-col gap-5">
-            <h3>Jeux dans ma bibliothèque</h3>
+            <h3>Jeux terminés</h3>
             <div
               className="w-full overflow-x-auto hide-scrollbar cursor-grab"
               ref={scroll2.scrollRef}
@@ -94,7 +94,7 @@ export default function LibraryUser() {
             </div>
           </div>
           <div className="w-full flex flex-col gap-5">
-            <h3>Jeux dans ma bibliothèque</h3>
+            <h3>Jeux en cours</h3>
             <div
               className="w-full overflow-x-auto hide-scrollbar cursor-grab"
               ref={scroll3.scrollRef}
