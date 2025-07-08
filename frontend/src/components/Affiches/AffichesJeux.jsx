@@ -6,7 +6,7 @@ export default function AffichesJeux({ name, rating, platforms, img }) {
 
   return (
     <div
-      className="h-[250px] w-[170px] relative"
+      className="h-[250px] w-[170px] relative cursor-default"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -26,12 +26,12 @@ export default function AffichesJeux({ name, rating, platforms, img }) {
             </div>
           </div>
           {/* Info jeu */}
-          <div className="w-full h-fit flex flex-col justify-center items-center gap-2.5 px-2.5">
+          <div className="w-full h-1/2 flex flex-col justify-center items-center gap-2.5 px-2.5">
             <p className="text-sm max-sm:text-xs font-bold text-center text-white underline">
               {name}
             </p>
             <p className="text-xs max-sm:text-[10px] text-center text-white">
-              Disponible sur : <br /> {platforms?.join(", ")}
+              Disponible sur : {platforms?.join(", ")}
             </p>
             <Bouton text="En savoir plus sur le jeu" textStyle="text-[10px]" />
           </div>

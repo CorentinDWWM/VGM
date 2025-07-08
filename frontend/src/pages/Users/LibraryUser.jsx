@@ -50,14 +50,13 @@ export default function LibraryUser() {
         Ma bibliothèque
       </h2>
       <div className="flex max-xl:flex-col max-xl:items-center justify-evenly max-xl:gap-10 px-10 pb-10">
-        <div className="w-full flex flex-col gap-[50px] overflow-hidden">
+        <div className="w-full flex flex-col gap-[25px]">
           <div className="w-full flex flex-col gap-5">
-            <h3>Jeux dans ma bibliothèque</h3>
+            <h3>Jeux dans ma bibliothèque :</h3>
             <div
-              className="w-full overflow-x-auto hide-scrollbar cursor-grab"
+              className="w-full overflow-x-auto hide-scrollbar cursor-grab pb-10 select-none"
               ref={scroll1.scrollRef}
               onMouseDown={scroll1.onMouseDown}
-              style={{ minHeight: 250 }}
             >
               <div className="flex items-center gap-[50px] min-w-max">
                 {games.map((game, index) => (
@@ -73,12 +72,11 @@ export default function LibraryUser() {
             </div>
           </div>
           <div className="w-full flex flex-col gap-5">
-            <h3>Jeux terminés</h3>
+            <h3>Jeux terminés :</h3>
             <div
-              className="w-full overflow-x-auto hide-scrollbar cursor-grab"
+              className="w-full overflow-x-auto hide-scrollbar cursor-grab pb-10 select-none"
               ref={scroll2.scrollRef}
               onMouseDown={scroll2.onMouseDown}
-              style={{ minHeight: 250 }}
             >
               <div className="flex items-center gap-[50px] min-w-max">
                 {games.map((game, index) => (
@@ -94,12 +92,11 @@ export default function LibraryUser() {
             </div>
           </div>
           <div className="w-full flex flex-col gap-5">
-            <h3>Jeux en cours</h3>
+            <h3>Jeux en cours :</h3>
             <div
-              className="w-full overflow-x-auto hide-scrollbar cursor-grab"
+              className="w-full overflow-x-auto hide-scrollbar cursor-grab pb-10 select-none"
               ref={scroll3.scrollRef}
               onMouseDown={scroll3.onMouseDown}
-              style={{ minHeight: 250 }}
             >
               <div className="flex items-center gap-[50px] min-w-max">
                 {games.map((game, index) => (

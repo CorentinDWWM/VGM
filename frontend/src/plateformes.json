@@ -1,0 +1,32 @@
+{
+  "plateformes": [
+    {
+      "nom": "PC"
+    },
+    {
+      "nom": "PlayStation",
+      "consoles": ["PS1", "PS2", "PSP", "PS3", "PSVita", "PS4", "PS5"]
+    },
+    {
+      "nom": "Xbox",
+      "consoles": ["1ère Xbox", "Xbox 360", "Xbox One", "Xbox Series X/S"]
+    },
+    {
+      "nom": "Nintendo",
+      "consoles": [
+        "Gameboy",
+        "N64",
+        "Gameboy Color",
+        "Gameboy Advance",
+        "GameCube",
+        "DS",
+        "3DS/2DS",
+        "New 3DS/New 2DS",
+        "Wii",
+        "Wii U",
+        "Switch 1",
+        "Switch 2"
+      ]
+    }
+  ]
+}

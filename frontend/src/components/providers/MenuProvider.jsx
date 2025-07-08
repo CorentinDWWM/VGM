@@ -32,12 +32,38 @@ export default function MenuProvider({ children }) {
     setMenuGenres((prev) => !prev);
   };
 
+  // Séléction du genre
+
+  const [selectedGenres, setSelectedGenres] = useState("");
+  const selectedGenresRef = useRef(null);
+
+  const toggleSelectedGenres = (nom) => {
+    setSelectedGenres(nom);
+  };
+
   // Menu Plateformes
   const [menuPlateformes, setMenuPlateformes] = useState(false);
   const menuPlateformesRef = useRef(null);
 
   const toggleMenuPlateformes = () => {
     setMenuPlateformes((prev) => !prev);
+  };
+
+  const [menuConsoles, setMenuConsoles] = useState("");
+  const menuConsolesRef = useRef(null);
+
+  const toggleMenuConsoles = (nom) => {
+    setMenuConsoles(nom);
+  };
+
+  // Séléction de la plateformes
+
+  const [selectedPlateformes, setSelectedPlateformes] = useState("");
+  const selectedPlateformesRef = useRef(null);
+
+  const toggleSelectedPlateformes = (nom) => {
+    setSelectedPlateformes(nom);
+    console.log(selectedPlateformes);
   };
 
   // Un seul useEffect pour gérer tous les clics extérieurs
@@ -80,16 +106,25 @@ export default function MenuProvider({ children }) {
       ) {
         setMenuPlateformes(false);
       }
+
+      // Menu Consoles
+      if (
+        menuConsoles &&
+        menuConsolesRef.current &&
+        !menuConsolesRef.current.contains(event.target)
+      ) {
+        setMenuConsoles("");
+      }
     };
 
-    if (burger || menuAuth || menuGenres || menuPlateformes) {
+    if (burger || menuAuth || menuGenres || menuPlateformes || menuConsoles) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [burger, menuAuth, menuGenres, menuPlateformes]);
+  }, [burger, menuAuth, menuGenres, menuPlateformes, menuConsoles]);
 
   // Fermer tous les menus au changement de page
   useEffect(() => {
@@ -115,6 +150,15 @@ export default function MenuProvider({ children }) {
         menuPlateformes,
         toggleMenuPlateformes,
         menuPlateformesRef,
+        menuConsoles,
+        menuConsolesRef,
+        toggleMenuConsoles,
+        selectedGenres,
+        selectedGenresRef,
+        toggleSelectedGenres,
+        selectedPlateformes,
+        selectedPlateformesRef,
+        toggleSelectedPlateformes,
       }}
     >
       {children}

@@ -32,7 +32,7 @@ export default function Accueil() {
       </section>
 
       {/* Fonctionnalités */}
-      <section className="w-fit m-4 rounded p-16 max-sm:p-8 border shadow-xl dark:shadow-white/20">
+      <section className="w-fit m-4 rounded p-16 max-sm:p-8 border shadow-xl dark:shadow-white/10">
         <div className="flex justify-center items-center mb-12 gap-2">
           <IoKeyOutline className="mt-1 text-2xl" />
           <h3 className="text-3xl font-semibold text-center text-primary-light dark:text-primary-dark">
@@ -74,7 +74,7 @@ export default function Accueil() {
           ].map(([icon, title, desc], index) => (
             <div
               key={index}
-              className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-2xl hover:shadow-primary-light/50 dark:shadow-white/25 dark:hover:shadow-primary-dark/50 transition"
+              className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-xl hover:shadow-primary-light/50 dark:shadow-white/10 dark:hover:shadow-primary-dark/50 transition"
             >
               <div className="flex items-center gap-2">
                 {icon}

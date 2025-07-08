@@ -2,24 +2,33 @@ import { useContext } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { MenuContext } from "../../../context/MenuContext";
 import { genres } from "../../../genres.json";
+import { IoClose } from "react-icons/io5";
 
 export default function Genres() {
-  const { menuGenres, toggleMenuGenres, menuGenresRef } =
-    useContext(MenuContext);
+  const {
+    menuGenres,
+    toggleMenuGenres,
+    menuGenresRef,
+    selectedGenres,
+    selectedGenresRef,
+    toggleSelectedGenres,
+  } = useContext(MenuContext);
 
   return (
     <>
       {menuGenres ? (
-        <div className="w-[200px] flex flex-col justify-center items-center">
+        <div
+          ref={menuGenresRef}
+          className="w-[200px] flex flex-col justify-center items-center"
+        >
           <div
-            ref={menuGenresRef}
             onClick={toggleMenuGenres}
             className="flex items-center gap-5 px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl"
           >
             <p>Genres</p>
             <FaChevronUp className="pt-0.5" />
           </div>
-          <div className="w-[200px] flex flex-col items-center justify-center gap-2.5 px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl">
+          <div className="absolute top-[138px] w-[200px] flex flex-col items-center justify-center gap-2.5 px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl">
             {genres.map((g, index) => (
               <div
                 key={index}
@@ -31,14 +40,31 @@ export default function Genres() {
                     {g.nb_jeux}
                   </p>
                 </div>
+                {selectedGenres === g.nom ? (
+                  <div
+                    ref={selectedGenresRef}
+                    onClick={() => toggleSelectedGenres(g.nom)}
+                    className="flex items-center justify-center w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm"
+                  >
+                    <IoClose className="absolute w-[25px] h-[25px] text-black dark:text-white cursor-pointer" />
+                  </div>
+                ) : (
+                  <div
+                    ref={selectedGenresRef}
+                    onClick={() => toggleSelectedGenres(g.nom)}
+                    className="w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm"
+                  ></div>
+                )}
               </div>
             ))}
           </div>
         </div>
       ) : (
-        <div className="w-[200px] flex flex-col justify-center items-center">
+        <div
+          ref={menuGenresRef}
+          className="w-[200px] flex flex-col justify-center items-center"
+        >
           <div
-            ref={menuGenresRef}
             onClick={toggleMenuGenres}
             className="flex items-center gap-5 px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl"
           >
