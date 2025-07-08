@@ -38,10 +38,10 @@ export default function Header() {
           Accueil
         </Link>
         <Link
-          to="/mygames"
+          to="/games"
           className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
         >
-          Mes Jeux
+          Jeux
         </Link>
         <Link
           to="/stats"

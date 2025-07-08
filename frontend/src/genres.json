@@ -1,0 +1,68 @@
+{
+  "genres": [
+    {
+      "nom": "Action",
+      "nb_jeux": "1452"
+    },
+    {
+      "nom": "Aventure",
+      "nb_jeux": "1123"
+    },
+    {
+      "nom": "Coop",
+      "nb_jeux": "896"
+    },
+    {
+      "nom": "Course",
+      "nb_jeux": "391"
+    },
+    {
+      "nom": "Drame",
+      "nb_jeux": "952"
+    },
+    {
+      "nom": "Énigmes",
+      "nb_jeux": "476"
+    },
+    {
+      "nom": "FPS",
+      "nb_jeux": "1389"
+    },
+    {
+      "nom": "Horreur",
+      "nb_jeux": "427"
+    },
+    {
+      "nom": "Jeux de rôle",
+      "nb_jeux": "511"
+    },
+    {
+      "nom": "MMO",
+      "nb_jeux": "421"
+    },
+    {
+      "nom": "Multijoueur",
+      "nb_jeux": "2485"
+    },
+    {
+      "nom": "Plateforme",
+      "nb_jeux": "1126"
+    },
+    {
+      "nom": "RPG",
+      "nb_jeux": "325"
+    },
+    {
+      "nom": "Simulation",
+      "nb_jeux": "579"
+    },
+    {
+      "nom": "Solo",
+      "nb_jeux": "3589"
+    },
+    {
+      "nom": "Survie",
+      "nb_jeux": "864"
+    }
+  ]
+}

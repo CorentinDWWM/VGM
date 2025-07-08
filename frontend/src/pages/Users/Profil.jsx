@@ -19,7 +19,7 @@ export default function Profil() {
   };
 
   return (
-    <div className="flex flex-col gap-5 border border-black mx-24 my-12 max-sm:mx-8 max-sm:my-0">
+    <div className="flex flex-col gap-5 border border-black dark:border-white mx-24 my-12 max-sm:mx-8 max-sm:my-0">
       <HeaderUser />
       <h2 className="text-center text-2xl max-sm:text-lg font-bold">
         Mon Profil
@@ -28,7 +28,7 @@ export default function Profil() {
         {/* Info User */}
         <div className="w-fit h-fit flex flex-col gap-[30px] justify-center">
           {/* Carte profil */}
-          <div className="flex flex-col gap-2.5 bg-white border border-black shadow-xl rounded-xl">
+          <div className="flex flex-col gap-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
             <div className="flex flex-col justify-center gap-2.5 px-2.5 pt-2.5">
               <div className="flex items-center gap-5">
                 <img
@@ -42,7 +42,7 @@ export default function Profil() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col border-t border-black">
+            <div className="flex flex-col border-t border-black dark:border-white">
               <div className="flex items-center px-[15px] py-2.5">
                 <p className="max-sm:text-sm">
                   Inscrit depuis le {formatDate(user.createdAt)}
@@ -56,19 +56,19 @@ export default function Profil() {
               Backlog de mes jeux
             </h3>
             <div className="flex max-md:flex-col justify-center items-center gap-5">
-              <div className="flex flex-col gap-2.5 p-5 border border-black shadow-xl rounded-xl">
+              <div className="flex flex-col gap-2.5 p-5 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
                 <div className="min-w-[100px] flex flex-col items-center justify-center gap-2.5">
                   <p>Terminés</p>
                   <p>48</p>
                 </div>
               </div>
-              <div className="flex flex-col gap-2.5 p-5 border border-black shadow-xl rounded-xl">
+              <div className="flex flex-col gap-2.5 p-5 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
                 <div className="min-w-[100px] flex flex-col items-center justify-center gap-2.5">
                   <p>En cours</p>
                   <p>12</p>
                 </div>
               </div>
-              <div className="flex flex-col gap-2.5 p-5 border border-black shadow-xl rounded-xl">
+              <div className="flex flex-col gap-2.5 p-5 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
                 <div className="min-w-[100px] flex flex-col items-center justify-center gap-2.5">
                   <p>Dans ma liste</p>
                   <p>102</p>
@@ -92,8 +92,8 @@ export default function Profil() {
           </div>
         </div>
         {/* Jeux terminés */}
-        <div className="flex flex-col justify-center items-center gap-[30px] px-28 max-sm:px-12 max-2xl:px-24 py-5 border border-b-0 border-black">
-          <h3 className="text-xl max-sm:text-base text-primary-light font-semibold">
+        <div className="flex flex-col justify-center items-center gap-[30px] px-28 max-sm:px-12 max-2xl:px-24 py-5 border border-b-0 border-black dark:border-white">
+          <h3 className="text-xl max-sm:text-base text-primary-light dark:text-primary-dark font-semibold">
             Jeux terminés :
           </h3>
           <div className="flex flex-col items-center overflow-y-auto hide-scrollbar">

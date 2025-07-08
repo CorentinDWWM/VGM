@@ -6,7 +6,7 @@ export default function AffichesJeux({ name, rating, platforms, img }) {
 
   return (
     <div
-      className="h-[250px] w-[170px] max-sm:h-[200px] relative"
+      className="h-[250px] w-[170px] relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

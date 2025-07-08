@@ -12,6 +12,7 @@ import UserConnected from "./components/ProtectedRoutes/UserConnected";
 import Profil from "./pages/Users/Profil";
 import LibraryUser from "./pages/Users/LibraryUser";
 import StatisticsUser from "./pages/Users/StatisticsUser";
+import GamesPage from "./pages/Games/GamesPage";
 
 export const router = createBrowserRouter([
   {
@@ -84,6 +85,10 @@ export const router = createBrowserRouter([
             ),
           },
         ],
+      },
+      {
+        path: "/games",
+        element: <GamesPage />,
       },
     ],
   },
