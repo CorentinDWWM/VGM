@@ -8,7 +8,7 @@ import UserProfilProvider from "./components/providers/UserProfilProvider";
 
 function App() {
   return (
-    <div className="min-h-screen max-sm:gap-8 font-inter flex flex-col justify-between bg-white dark:bg-gray-900 text-black dark:text-white">
+    <div className="min-h-screen font-inter flex flex-col justify-between bg-white dark:bg-gray-900 text-black dark:text-white">
       <AuthProvider>
         <UserProfilProvider>
           <MenuProvider>

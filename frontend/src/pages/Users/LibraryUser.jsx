@@ -44,7 +44,7 @@ export default function LibraryUser() {
   const scroll3 = useHorizontalScroll();
 
   return (
-    <div className="flex flex-col gap-5 border border-black dark:border-white mx-24 my-12 max-sm:mx-8 max-sm:my-0">
+    <div className="flex flex-col gap-5 border border-black dark:border-white mx-24 my-12 max-sm:m-8">
       <HeaderUser />
       <h2 className="text-center text-2xl max-sm:text-lg font-bold">
         Ma bibliothèque

@@ -30,7 +30,7 @@ export default function Plateformes() {
             <p>Plateformes</p>
             <FaChevronUp className="pt-0.5" />
           </div>
-          <div className="absolute top-[138px] w-[200px] flex flex-col items-center justify-center gap-2.5 px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl">
+          <div className="absolute top-[138px] w-[200px] flex flex-col items-center justify-center px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl">
             {plateformes.map((p, index) => (
               <div
                 key={index}
@@ -79,18 +79,18 @@ export default function Plateformes() {
                           className="flex justify-between items-center"
                         >
                           <p className="text-black dark:text-white">{c}</p>
-                          {selectedPlateformes === c.nom ? (
+                          {selectedPlateformes === c ? (
                             <div
                               ref={selectedPlateformesRef}
-                              onClick={() => toggleSelectedPlateformes(c.nom)}
-                              className="w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm"
+                              onClick={() => toggleSelectedPlateformes(c)}
+                              className="flex items-center justify-center w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm"
                             >
                               <IoClose className="absolute w-[25px] h-[25px] text-black dark:text-white cursor-pointer" />
                             </div>
                           ) : (
                             <div
                               ref={selectedPlateformesRef}
-                              onClick={() => toggleSelectedPlateformes(c.nom)}
+                              onClick={() => toggleSelectedPlateformes(c)}
                               className="w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm"
                             ></div>
                           )}

@@ -53,7 +53,11 @@ export default function MenuProvider({ children }) {
   const menuConsolesRef = useRef(null);
 
   const toggleMenuConsoles = (nom) => {
-    setMenuConsoles(nom);
+    if (menuConsoles === nom) {
+      setMenuConsoles("");
+    } else {
+      setMenuConsoles(nom);
+    }
   };
 
   // Séléction de la plateformes
@@ -64,6 +68,15 @@ export default function MenuProvider({ children }) {
   const toggleSelectedPlateformes = (nom) => {
     setSelectedPlateformes(nom);
     console.log(selectedPlateformes);
+  };
+
+  // Menu Burger Filtres
+
+  const [burgerFiltres, setBurgerFiltres] = useState(false);
+  const burgerFiltresRef = useRef(null);
+
+  const toggleBurgerFiltres = () => {
+    setBurgerFiltres((prev) => !prev);
   };
 
   // Un seul useEffect pour gérer tous les clics extérieurs
@@ -159,6 +172,9 @@ export default function MenuProvider({ children }) {
         selectedPlateformes,
         selectedPlateformesRef,
         toggleSelectedPlateformes,
+        burgerFiltres,
+        burgerFiltresRef,
+        toggleBurgerFiltres,
       }}
     >
       {children}

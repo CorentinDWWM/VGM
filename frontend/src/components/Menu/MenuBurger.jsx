@@ -69,7 +69,7 @@ export default function MenuBurger() {
           Accueil
         </Link>
         <Link
-          to="/mygames"
+          to="/games"
           className="text-main-text-light dark:text-main-text-dark"
         >
           Mes Jeux

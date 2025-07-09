@@ -83,7 +83,7 @@ export default function Register() {
     }
   }
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex py-10 justify-center items-center">
       <div className="p-10 max-sm:p-4 border bg-white shadow-xl rounded-xl dark:bg-gray-900">
         <form
           onSubmit={handleSubmit(submit)}
