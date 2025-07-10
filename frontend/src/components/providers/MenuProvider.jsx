@@ -128,16 +128,37 @@ export default function MenuProvider({ children }) {
       ) {
         setMenuConsoles("");
       }
+      if (
+        burgerFiltres &&
+        burgerFiltresRef.current &&
+        !burgerFiltresRef.current.contains(event.target)
+      ) {
+        setBurgerFiltres(false);
+      }
     };
 
-    if (burger || menuAuth || menuGenres || menuPlateformes || menuConsoles) {
+    if (
+      burger ||
+      menuAuth ||
+      menuGenres ||
+      menuPlateformes ||
+      menuConsoles ||
+      burgerFiltres
+    ) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [burger, menuAuth, menuGenres, menuPlateformes, menuConsoles]);
+  }, [
+    burger,
+    menuAuth,
+    menuGenres,
+    menuPlateformes,
+    menuConsoles,
+    burgerFiltres,
+  ]);
 
   // Fermer tous les menus au changement de page
   useEffect(() => {

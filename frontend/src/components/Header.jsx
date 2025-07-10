@@ -50,7 +50,7 @@ export default function Header() {
           Stats
         </Link>
         <Link
-          to="/decouvertes"
+          to="/discover"
           className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
         >
           Découvertes

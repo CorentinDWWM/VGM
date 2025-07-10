@@ -81,7 +81,7 @@ export default function MenuBurger() {
           Stats
         </Link>
         <Link
-          to="/decouvertes"
+          to="/discover"
           className="text-main-text-light dark:text-main-text-dark"
         >
           Découvertes

@@ -13,6 +13,8 @@ import Profil from "./pages/Users/Profil";
 import LibraryUser from "./pages/Users/LibraryUser";
 import StatisticsUser from "./pages/Users/StatisticsUser";
 import GamesPage from "./pages/Games/GamesPage";
+import GlobalStats from "./pages/Stats/GlobalStats";
+import Decouvertes from "./pages/Discovers/Decouvertes";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +26,18 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <Accueil />,
+      },
+      {
+        path: "/games",
+        element: <GamesPage />,
+      },
+      {
+        path: "/stats",
+        element: <GlobalStats />,
+      },
+      {
+        path: "/discover",
+        element: <Decouvertes />,
       },
       {
         path: "/login",
@@ -85,10 +99,6 @@ export const router = createBrowserRouter([
             ),
           },
         ],
-      },
-      {
-        path: "/games",
-        element: <GamesPage />,
       },
     ],
   },

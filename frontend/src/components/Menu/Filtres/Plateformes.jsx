@@ -30,7 +30,7 @@ export default function Plateformes() {
             <p>Plateformes</p>
             <FaChevronUp className="pt-0.5" />
           </div>
-          <div className="absolute top-[138px] w-[200px] flex flex-col items-center justify-center px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl">
+          <div className="absolute max-sm:relative top-[138px] max-sm:top-0 w-[200px] flex flex-col items-center justify-center px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl">
             {plateformes.map((p, index) => (
               <div
                 key={index}

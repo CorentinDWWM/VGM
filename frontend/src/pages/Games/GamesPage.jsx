@@ -8,8 +8,7 @@ import { MenuContext } from "../../context/MenuContext";
 import MenuBurgerFiltres from "../../components/Menu/MenuBurgerFiltres";
 
 export default function GamesPage() {
-  const { burgerFiltres, burgerFiltresRef, toggleBurgerFiltres } =
-    useContext(MenuContext);
+  const { burgerFiltres, toggleBurgerFiltres } = useContext(MenuContext);
   return (
     <div className="flex flex-col items-center pb-5">
       <div className="w-full flex items-center justify-center py-2.5 bg-white dark:bg-gray-900 border-t border-black dark:border-white shadow-xl dark:shadow-white/10 max-sm:hidden z-10">
