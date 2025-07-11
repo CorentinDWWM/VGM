@@ -15,6 +15,8 @@ import StatisticsUser from "./pages/Users/StatisticsUser";
 import GamesPage from "./pages/Games/GamesPage";
 import GlobalStats from "./pages/Stats/GlobalStats";
 import Decouvertes from "./pages/Discovers/Decouvertes";
+import GenderDiscover from "./pages/Discovers/GenderDiscover";
+import DiscoverNews from "./pages/Discovers/DiscoverNews";
 
 export const router = createBrowserRouter([
   {
@@ -37,7 +39,20 @@ export const router = createBrowserRouter([
       },
       {
         path: "/discover",
-        element: <Decouvertes />,
+        children: [
+          {
+            index: true,
+            element: <Decouvertes />,
+          },
+          {
+            path: "/discover/news",
+            element: <DiscoverNews />,
+          },
+          {
+            path: "/discover/:id",
+            element: <GenderDiscover />,
+          },
+        ],
       },
       {
         path: "/login",

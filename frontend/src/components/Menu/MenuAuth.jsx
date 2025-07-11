@@ -33,7 +33,6 @@ export default function MenuAuth({ onSelect }) {
       {user ? (
         <div className="flex flex-col items-end gap-2 justify-evenly">
           <Link to="/profil">Profil</Link>
-          <Link to="/">Paramètres</Link>
           <Link to="/" onClick={logout}>
             Déconnexion
           </Link>

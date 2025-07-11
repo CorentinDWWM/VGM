@@ -1,5 +1,5 @@
 import Header from "./components/Header";
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Footer from "./components/Footer";
 import MenuProvider from "./components/providers/MenuProvider";
@@ -19,6 +19,7 @@ function App() {
           </MenuProvider>
         </UserProfilProvider>
       </AuthProvider>
+      <ScrollRestoration />
     </div>
   );
 }
