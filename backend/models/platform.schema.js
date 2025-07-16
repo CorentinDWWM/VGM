@@ -5,13 +5,13 @@ const platformSchema = new mongoose.Schema(
     igdbID: { type: Number, required: true },
     abbreviation: { type: String },
     name: { type: String, required: true },
+    platform_logo_id: { type: Number, required: true },
     slug: { type: String },
     logo: {
       type: {
         id: { type: Number, required: true },
         url: { type: String, required: true },
       },
-      default: null,
     },
   },
   {

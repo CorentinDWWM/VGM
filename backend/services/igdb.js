@@ -19,8 +19,10 @@ const getIGDBHeaders = () => ({
 // Requête IGDB avec gestion d'erreur améliorée
 const makeRequest = async (endpoint, body = "") => {
   try {
-    console.log(`📡 Requête IGDB: ${endpoint}`);
-    console.log(`📝 Body: ${body}`);
+    if (endpoint !== "platform_logos") {
+      console.log(`📡 Requête IGDB: ${endpoint}`);
+      console.log(`📝 Body: ${body}`);
+    }
 
     const response = await fetch(`${IGDB_BASE_URL}/${endpoint}`, {
       method: "POST",
@@ -28,7 +30,9 @@ const makeRequest = async (endpoint, body = "") => {
       body: body,
     });
 
-    console.log(`📊 Status: ${response.status}`);
+    if (endpoint !== "platform_logos") {
+      console.log(`📊 Status: ${response.status}`);
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -37,9 +41,12 @@ const makeRequest = async (endpoint, body = "") => {
         `HTTP error! status: ${response.status}, message: ${errorText}`
       );
     }
-
     const data = await response.json();
-    console.log(`✅ Données reçues: ${data.length} éléments`);
+
+    if (endpoint !== "platform_logos") {
+      console.log(`✅ Données reçues: ${data.length} éléments`);
+    }
+
     return data;
   } catch (error) {
     console.error(`❌ Erreur IGDB ${endpoint}:`, error.message);
@@ -57,142 +64,14 @@ const getGameById = async (gameId) => {
   return await makeRequest("games", body);
 };
 
-// Version simplifiée pour tester
-const getPopularGames = async (req, res) => {
-  try {
-    const body = `fields name, rating, platforms.name, first_release_date; where rating != null & rating > 80; sort rating desc; limit 20;`;
-    const data = await makeRequest("games", body);
-    res.status(200).json(data);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 const getGamesByGenre = async (genreId, limit = 20) => {
   const body = `fields name, rating, first_release_date; where genres = ${genreId} & rating != null; sort rating desc; limit ${limit};`;
   return await makeRequest("games", body);
 };
 
-// Version simplifiée pour tester
 const getGenres = async () => {
   const body = "fields name; limit 50;";
   return await makeRequest("genres", body);
-};
-
-const getSonyPlatforms = async () => {
-  try {
-    const body =
-      "fields id, name, abbreviation, slug; where platform_family = 1; limit 50;";
-    const data = await makeRequest("platforms", body);
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getMicrosoftPlatforms = async () => {
-  try {
-    const body =
-      "fields id, name, abbreviation, slug; where platform_family = 3; limit 50;";
-    const data = await makeRequest("platforms", body);
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getNintendoPlatforms = async () => {
-  try {
-    const body =
-      "fields id, name, abbreviation, slug; where platform_family = 5; limit 50;";
-    const data = await makeRequest("platforms", body);
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getPCPlatforms = async () => {
-  try {
-    const body = "fields id, name, abbreviation, slug; where id = 6; limit 50;";
-    const data = await makeRequest("platforms", body);
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getLogoPlatforms = async (id) => {
-  try {
-    const body = `fields url; where id = ${id};`;
-    const data = await makeRequest("platform_logos", body);
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getPlatforms = async (req, res) => {
-  const platforms = [];
-  try {
-    // Sony
-    const sony = await getSonyPlatforms();
-    for (const s of sony) {
-      if (s.platform_logo) {
-        const logo = await getLogoPlatforms(s.platform_logo);
-        platforms.push({
-          ...s,
-          logo: logo[0],
-        });
-      }
-    }
-    // Microsoft
-    const microsoft = await getMicrosoftPlatforms();
-    for (const m of microsoft) {
-      if (m.platform_logo) {
-        const logo = await getLogoPlatforms(m.platform_logo);
-        platforms.push({
-          ...m,
-          logo: logo[0],
-        });
-      }
-    }
-    // Nintendo
-    const nintendo = await getNintendoPlatforms();
-    for (const n of nintendo) {
-      if (n.platform_logo) {
-        const logo = await getLogoPlatforms(n.platform_logo);
-        platforms.push({
-          ...n,
-          logo: logo[0],
-        });
-      }
-    }
-    // PC
-    const pc = await getPCPlatforms();
-    for (const p of pc) {
-      if (p.platform_logo) {
-        const logo = await getLogoPlatforms(p.platform_logo);
-        platforms.push({
-          ...p,
-          logo: logo[0],
-        });
-      }
-    }
-    res.status(200).json(platforms);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getPlatformsFamilies = async (req, res) => {
-  try {
-    const body = `fields checksum,name,slug;`;
-    const data = await makeRequest("platform_families", body);
-    res.status(200).json(data);
-  } catch (error) {
-    console.log(error);
-  }
 };
 
 const getUpcomingGames = async (limit = 20) => {
@@ -216,13 +95,11 @@ const testConnection = async () => {
 };
 
 module.exports = {
+  makeRequest,
   searchGames,
   getGameById,
-  getPopularGames,
   getGamesByGenre,
   getGenres,
-  getPlatforms,
-  getPlatformsFamilies,
   getUpcomingGames,
   testConnection,
 };

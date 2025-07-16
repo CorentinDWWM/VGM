@@ -1,16 +1,12 @@
-const {
-  getPopularGames,
-  getGenres,
-  getPlatforms,
-  getPlatformsFamilies,
-} = require("../services/igdb");
+const { getPopularGames } = require("../controllers/games.controller");
+const { getPlatforms } = require("../controllers/platforms.controller");
+const { getGenres } = require("../services/igdb");
 
 const router = require("express").Router();
 
 router.get("/popular", getPopularGames);
 router.get("/genres", getGenres);
 router.get("/plateformes", getPlatforms);
-router.get("/plateformFamilies", getPlatformsFamilies);
 
 module.exports = router;
 
