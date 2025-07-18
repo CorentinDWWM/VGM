@@ -16,18 +16,15 @@ const getPopularGames = async (req, res) => {
         id,
         name,
         summary,
-        storyline,
-        rating,
-        rating_count,
-        first_release_date,
-        game_status,
+        total_rating,
+        total_rating_count,
+        release_dates,
         category,
         url,
         slug,
-        created_at,
-        updated_at,
-        version_parent,
-        version_title,
+
+        game_status.id,
+        game_status.status,
 
         cover.id,
         cover.url,
@@ -50,7 +47,6 @@ const getPopularGames = async (req, res) => {
         videos.id,
         videos.name,
         videos.video_id,
-        videos.checksum,
         
         genres.id,
         genres.name,
@@ -107,10 +103,6 @@ const getPopularGames = async (req, res) => {
         expansions.name,
         expansions.slug,
         
-        franchise.id,
-        franchise.name,
-        franchise.slug,
-        
         franchises.id,
         franchises.name,
         franchises.slug,
@@ -164,7 +156,6 @@ const getPopularGames = async (req, res) => {
         standalone_expansions.slug,
         
         release_dates.id,
-        release_dates.date,
         release_dates.human,
         release_dates.platform.id,
         release_dates.platform.name,
@@ -177,8 +168,9 @@ const getPopularGames = async (req, res) => {
         websites.trusted,
         websites.url;
         
-      where rating != null; 
-      sort rating desc;
+      where rating > 8; 
+      sort total_rating_count desc;
+      limit 200;
     `;
 
     const data = await makeRequest("games", body);
