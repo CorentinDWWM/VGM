@@ -19,10 +19,10 @@ const getIGDBHeaders = () => ({
 // Requête IGDB avec gestion d'erreur améliorée
 const makeRequest = async (endpoint, body = "") => {
   try {
-    if (endpoint !== "platform_logos") {
-      console.log(`📡 Requête IGDB: ${endpoint}`);
-      console.log(`📝 Body: ${body}`);
-    }
+    // if (endpoint !== "platform_logos") {
+    //   console.log(`📡 Requête IGDB: ${endpoint}`);
+    //   console.log(`📝 Body: ${body}`);
+    // }
 
     const response = await fetch(`${IGDB_BASE_URL}/${endpoint}`, {
       method: "POST",
@@ -30,9 +30,9 @@ const makeRequest = async (endpoint, body = "") => {
       body: body,
     });
 
-    if (endpoint !== "platform_logos") {
-      console.log(`📊 Status: ${response.status}`);
-    }
+    // if (endpoint !== "platform_logos") {
+    //   console.log(`📊 Status: ${response.status}`);
+    // }
 
     if (!response.ok) {
       const errorText = await response.text();
