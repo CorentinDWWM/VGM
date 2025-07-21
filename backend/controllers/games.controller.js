@@ -171,7 +171,8 @@ const getPopularGames = async (req, res) => {
         
       where rating > 8; 
       sort total_rating_count desc;
-      limit 5;
+      offset 1500;
+      limit 500;
     `;
 
     const data = await makeRequest("games", body);
@@ -182,7 +183,7 @@ const getPopularGames = async (req, res) => {
 
     for (const oneGame of data) {
       try {
-        const existingGame = await Game.findOne({ igdbId: oneGame.id });
+        const existingGame = await Game.findOne({ igdbID: oneGame.id });
         if (existingGame) {
           errorCount++;
           console.log(`⏩ Jeu déjà en base : ${oneGame.name}`);
