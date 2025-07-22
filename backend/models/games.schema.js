@@ -11,6 +11,16 @@ const gameSchema = new mongoose.Schema(
     category: { type: Number },
     url: { type: String },
     slug: { type: String },
+    timeToBeat: {
+      type: {
+        game_id: { type: Number },
+        count: { type: Number },
+        hastily: { type: Number },
+        normally: { type: Number },
+        completely: { type: Number },
+      },
+      default: {},
+    },
     game_status: {
       type: {
         id: { type: Number, required: true },

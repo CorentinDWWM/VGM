@@ -43,9 +43,9 @@ const makeRequest = async (endpoint, body = "") => {
     }
     const data = await response.json();
 
-    if (endpoint !== "platform_logos") {
-      console.log(`✅ Données reçues: ${data.length} éléments`);
-    }
+    // if (endpoint !== "platform_logos" || endpoint !== "game_time_to_beats") {
+    //   console.log(`✅ Données reçues: ${data.length} éléments`);
+    // }
 
     return data;
   } catch (error) {
@@ -67,11 +67,6 @@ const getGameById = async (gameId) => {
 const getGamesByGenre = async (genreId, limit = 20) => {
   const body = `fields name, rating, first_release_date; where genres = ${genreId} & rating != null; sort rating desc; limit ${limit};`;
   return await makeRequest("games", body);
-};
-
-const getGenres = async () => {
-  const body = "fields name; limit 50;";
-  return await makeRequest("genres", body);
 };
 
 const getUpcomingGames = async (limit = 20) => {
@@ -99,7 +94,6 @@ module.exports = {
   searchGames,
   getGameById,
   getGamesByGenre,
-  getGenres,
   getUpcomingGames,
   testConnection,
 };

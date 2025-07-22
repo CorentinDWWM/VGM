@@ -1,16 +1,16 @@
 const Game = require("../models/games.schema");
 const { makeRequest } = require("../services/igdb");
 
-// const getPopularGames = async (req, res) => {
-//   try {
-//     const body = `fields age_ratings, aggregated_rating, aggregated_rating_count, alternative_names, collection, cover, dlcs, expanded_games, expansions, first_release_date, franchise, game_engines, game_localizations, game_modes, game_status, game_type, genres, involved_companies, keywords; where rating != null & rating > 80; sort rating desc;`;
-//     const data = await makeRequest("games", body);
-//     res.status(200).json(data);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-const getPopularGames = async (req, res) => {
+const getGames = async (req, res) => {
+  try {
+    const games = await Game.find();
+    res.status(200).json(games);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getMostPopularGames = async (req, res) => {
   try {
     const body = `
       fields 
@@ -171,23 +171,141 @@ const getPopularGames = async (req, res) => {
         
       where rating > 8; 
       sort total_rating_count desc;
-      offset 1500;
+      offset 2000;
       limit 500;
     `;
 
     const data = await makeRequest("games", body);
+
+    if (res) {
+      res.status(200).json(data);
+    } else {
+      return data;
+    }
+  } catch (error) {
+    if (res) {
+      res.status(400).json({
+        message: "Erreur lors de la récupération des jeux les plus populaires",
+      });
+    }
+    return console.log(
+      "Erreur lors de la récupération des jeux les plus populaires"
+    );
+  }
+};
+
+const importGamesIntoBDD = async (req, res) => {
+  try {
+    const data = await getMostPopularGames();
     console.log(`🔍 Début import de ${data.length} jeux...`);
 
     let importCount = 0;
     let errorCount = 0;
+    let existingCount = 0;
+    let timeToBeatCount = 0;
+    let timeToBeatErrorCount = 0;
 
     for (const oneGame of data) {
       try {
         const existingGame = await Game.findOne({ igdbID: oneGame.id });
         if (existingGame) {
-          errorCount++;
+          existingCount++;
           console.log(`⏩ Jeu déjà en base : ${oneGame.name}`);
+
+          // Vérifier si les données TimeToBeat existent déjà
+          const hasTimeToBeatData = (game) => {
+            return (
+              game.timeToBeat &&
+              (game.timeToBeat.game_id ||
+                game.timeToBeat.count ||
+                game.timeToBeat.hastily ||
+                game.timeToBeat.normally ||
+                game.timeToBeat.completely)
+            );
+          };
+
+          // Si le jeu existe mais n'a pas de données TimeToBeat, les ajouter
+          if (!hasTimeToBeatData(existingGame)) {
+            try {
+              const timeToBeatBody = `
+                fields 
+                  game_id,
+                  count,
+                  hastily,
+                  normally,
+                  completely;
+                
+                where game_id = ${oneGame.id}; 
+              `;
+
+              const timeToBeatData = await makeRequest(
+                "game_time_to_beats",
+                timeToBeatBody
+              );
+              if (timeToBeatData && timeToBeatData.length > 0) {
+                await Game.findOneAndUpdate(
+                  { igdbID: oneGame.id },
+                  {
+                    $set: {
+                      timeToBeat: {
+                        game_id: timeToBeatData[0].game_id,
+                        count: timeToBeatData[0].count,
+                        hastily: timeToBeatData[0].hastily,
+                        normally: timeToBeatData[0].normally,
+                        completely: timeToBeatData[0].completely,
+                      },
+                    },
+                  },
+                  { new: true }
+                );
+                timeToBeatCount++;
+                console.log(`⏰ TimeToBeat ajouté pour : ${oneGame.name}`);
+              }
+            } catch (timeToBeatError) {
+              timeToBeatErrorCount++;
+              console.error(
+                `❌ Erreur TimeToBeat pour ${oneGame.name}:`,
+                timeToBeatError.message
+              );
+            }
+          }
           continue;
+        }
+
+        // Récupérer les données TimeToBeat pour le nouveau jeu
+        let timeToBeatData = null;
+        try {
+          const timeToBeatBody = `
+            fields 
+              game_id,
+              count,
+              hastily,
+              normally,
+              completely;
+            
+            where game_id = ${oneGame.id}; 
+          `;
+
+          const timeToBeatResponse = await makeRequest(
+            "game_time_to_beats",
+            timeToBeatBody
+          );
+          if (timeToBeatResponse && timeToBeatResponse.length > 0) {
+            timeToBeatData = {
+              game_id: timeToBeatResponse[0].game_id,
+              count: timeToBeatResponse[0].count,
+              hastily: timeToBeatResponse[0].hastily,
+              normally: timeToBeatResponse[0].normally,
+              completely: timeToBeatResponse[0].completely,
+            };
+            timeToBeatCount++;
+          }
+        } catch (timeToBeatError) {
+          timeToBeatErrorCount++;
+          console.error(
+            `❌ Erreur TimeToBeat pour ${oneGame.name}:`,
+            timeToBeatError.message
+          );
         }
 
         const game = new Game({
@@ -201,7 +319,9 @@ const getPopularGames = async (req, res) => {
           url: oneGame.url,
           slug: oneGame.slug,
 
-          // Vérification de l'existence avant d'accéder aux propriétés
+          // Ajouter les données TimeToBeat si disponibles
+          timeToBeat: timeToBeatData,
+
           game_status: oneGame.game_status
             ? {
                 id: oneGame.game_status.id,
@@ -307,7 +427,6 @@ const getPopularGames = async (req, res) => {
                 }))
               : [],
 
-          // ✅ CORRIGÉ: involved_companies au lieu de companies
           companies:
             oneGame.involved_companies && oneGame.involved_companies.length > 0
               ? oneGame.involved_companies.map((company) => ({
@@ -423,7 +542,6 @@ const getPopularGames = async (req, res) => {
                 }))
               : [],
 
-          // ✅ CORRIGÉ: Vérification de l'existence de parent_game
           parent_game: oneGame.parent_game
             ? {
                 id: oneGame.parent_game.id,
@@ -508,7 +626,11 @@ const getPopularGames = async (req, res) => {
 
         await game.save();
         importCount++;
-        console.log(`✅ Jeu importé : ${oneGame.name}`);
+        console.log(
+          `✅ Jeu importé : ${oneGame.name}${
+            timeToBeatData ? " (avec TimeToBeat)" : ""
+          }`
+        );
       } catch (error) {
         errorCount++;
         console.error(
@@ -519,20 +641,24 @@ const getPopularGames = async (req, res) => {
     }
 
     console.log(
-      `📊 Import terminé: ${importCount} réussis, ${errorCount} erreurs`
+      `📊 Import terminé: ${importCount} jeux réussis, ${existingCount} déjà dans la bdd, ${errorCount} erreurs`
     );
+    console.log(
+      `⏰ TimeToBeat: ${timeToBeatCount} ajoutés, ${timeToBeatErrorCount} erreurs`
+    );
+
     res.status(200).json({
-      success: true,
-      imported: importCount,
-      errors: errorCount,
-      games: data,
+      message: `Import terminé: ${importCount} jeux réussis, ${existingCount} déjà dans la bdd, ${errorCount} erreurs. TimeToBeat: ${timeToBeatCount} ajoutés, ${timeToBeatErrorCount} erreurs`,
     });
   } catch (error) {
-    console.log(error);
     res
-      .status(500)
-      .json({ error: "Erreur lors de la récupération des jeux populaires" });
+      .status(400)
+      .json({ message: "Erreur dans l'import des jeux les plus populaires" });
   }
 };
 
-module.exports = { getPopularGames };
+module.exports = {
+  getGames,
+  getMostPopularGames,
+  importGamesIntoBDD,
+};
