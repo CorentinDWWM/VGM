@@ -54,46 +54,13 @@ const makeRequest = async (endpoint, body = "") => {
   }
 };
 
-const searchGames = async (query, limit = 10) => {
-  const body = `search "${query}"; fields name, summary, rating, first_release_date, platforms.name, cover.url, genres.name; limit ${limit};`;
-  return await makeRequest("games", body);
-};
-
-const getGameById = async (gameId) => {
-  const body = `fields name, summary, storyline, rating, rating_count, first_release_date, platforms.name, cover.url, genres.name; where id = ${gameId};`;
-  return await makeRequest("games", body);
-};
-
-const getGamesByGenre = async (genreId, limit = 20) => {
-  const body = `fields name, rating, first_release_date; where genres = ${genreId} & rating != null; sort rating desc; limit ${limit};`;
-  return await makeRequest("games", body);
-};
-
 const getUpcomingGames = async (limit = 20) => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const body = `fields name,first_release_date; where first_release_date > ${currentTimestamp}; sort first_release_date asc; limit ${limit};`;
   return await makeRequest("games", body);
 };
 
-// Fonction de test simple
-const testConnection = async () => {
-  try {
-    console.log("🔍 Test de connexion IGDB...");
-    const body = "fields name; limit 1;";
-    const result = await makeRequest("games", body);
-    console.log("✅ Connexion réussie!", result);
-    return true;
-  } catch (error) {
-    console.error("❌ Échec de la connexion:", error.message);
-    return false;
-  }
-};
-
 module.exports = {
   makeRequest,
-  searchGames,
-  getGameById,
-  getGamesByGenre,
   getUpcomingGames,
-  testConnection,
 };
