@@ -6,14 +6,14 @@ export default function AffichesJeux({ name, rating, platforms, img }) {
 
   return (
     <div
-      className="h-[250px] w-[170px] relative cursor-default"
+      className="w-[250px] relative cursor-default"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <img
-        src={img}
+        src={`//images.igdb.com/igdb/image/upload/t_cover_big/${img.image_id}.webp`}
         alt={name}
-        className="w-full h-full object-cover border border-black dark:border-white shadow-xl dark:shadow-white/10"
+        className={`border border-black dark:border-white shadow-xl dark:shadow-white/10 object-contain w-full h-full`}
       />
       {isHovered && (
         <div className="absolute inset-0 bg-black/50 flex flex-col items-end gap-2.5 max-sm:gap-0">

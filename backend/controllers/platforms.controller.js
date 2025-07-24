@@ -3,6 +3,15 @@ const { makeRequest } = require("../services/igdb");
 
 // Plateformes
 
+const getPlatforms = async (req, res) => {
+  try {
+    const platforms = await Platform.find();
+    res.status(200).json(platforms);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const getSonyPlatforms = async () => {
   try {
     const body =
@@ -57,7 +66,7 @@ const getLogoPlatforms = async (id) => {
   }
 };
 
-const getPlatforms = async (req, res) => {
+const getPlatformsFromIGDB = async (req, res) => {
   const platforms = [];
   try {
     // Sony
@@ -137,4 +146,4 @@ const getPlatforms = async (req, res) => {
   }
 };
 
-module.exports = { getPlatforms };
+module.exports = { getPlatforms, getPlatformsFromIGDB };

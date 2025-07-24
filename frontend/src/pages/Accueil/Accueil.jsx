@@ -9,8 +9,15 @@ import { TbTargetArrow } from "react-icons/tb";
 import { GiBrain } from "react-icons/gi";
 import { WiMoonAltThirdQuarter } from "react-icons/wi";
 import { IoKeyOutline } from "react-icons/io5";
+import { useContext } from "react";
+import { DataContext } from "../../context/DataContext";
+import { useLoaderData } from "react-router-dom";
 
 export default function Accueil() {
+  // const { gamesData } = useLoaderData();
+  // const { games } = useContext(DataContext);
+  // console.log(gamesData);
+
   return (
     <div className="flex flex-col items-center">
       {/* Intro */}

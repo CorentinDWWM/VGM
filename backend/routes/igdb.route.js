@@ -11,7 +11,10 @@ const {
   getKeywords,
   getKeywordsFromIGDB,
 } = require("../controllers/keywords.controller");
-const { getPlatforms } = require("../controllers/platforms.controller");
+const {
+  getPlatforms,
+  getPlatformsFromIGDB,
+} = require("../controllers/platforms.controller");
 const {
   getThemes,
   getThemesFromIGDB,
@@ -29,6 +32,7 @@ router.get("/themes/import", getThemesFromIGDB);
 router.get("/keywords", getKeywords);
 router.get("/keywords/import", getKeywordsFromIGDB);
 router.get("/plateformes", getPlatforms);
+router.get("/plateformes/import", getPlatformsFromIGDB);
 
 module.exports = router;
 
