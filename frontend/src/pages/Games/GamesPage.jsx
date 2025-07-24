@@ -6,47 +6,41 @@ import { useContext } from "react";
 import { MenuContext } from "../../context/MenuContext";
 import MenuBurgerFiltres from "../../components/Menu/MenuBurgerFiltres";
 import { DataContext } from "../../context/DataContext";
-import LoadingPage from "../../components/Loading/LoadingPage";
 
 export default function GamesPage() {
   const { burgerFiltres, toggleBurgerFiltres } = useContext(MenuContext);
-  const { isLoading, games, genres, themes, keywords, plateformes } =
-    useContext(DataContext);
-
-  console.log(games);
+  const { games, loadMoreGames, hasMore } = useContext(DataContext);
 
   return (
     <>
-      {isLoading ? (
-        <LoadingPage />
-      ) : (
-        <div className="flex flex-col items-center pb-5">
-          <div className="w-full flex items-center justify-center py-2.5 bg-white dark:bg-gray-900 border-t border-black dark:border-white shadow-xl dark:shadow-white/10 max-sm:hidden z-10">
-            <Genres />
-            <Plateformes />
-          </div>
-          <div className="w-full items-center justify-center py-2.5 bg-white dark:bg-gray-900 border-t border-black dark:border-white shadow-xl dark:shadow-white/10 hidden max-sm:flex z-10">
-            {burgerFiltres ? (
-              <>
-                <IoMenu
-                  onClick={toggleBurgerFiltres}
-                  className="text-2xl cursor-pointer"
-                />
-                <MenuBurgerFiltres />
-              </>
-            ) : (
+      <div className="flex flex-col items-center pb-5">
+        <div className="w-full flex items-center justify-center py-2.5 bg-white dark:bg-gray-900 border-t border-black dark:border-white shadow-xl dark:shadow-white/10 max-sm:hidden z-10">
+          <Genres />
+          <Plateformes />
+        </div>
+        <div className="w-full items-center justify-center py-2.5 bg-white dark:bg-gray-900 border-t border-black dark:border-white shadow-xl dark:shadow-white/10 hidden max-sm:flex z-10">
+          {burgerFiltres ? (
+            <>
               <IoMenu
                 onClick={toggleBurgerFiltres}
                 className="text-2xl cursor-pointer"
               />
-            )}
-          </div>
-          <div className="w-full h-full flex flex-col  gap-[30px] px-[50px] pt-[30px] max-sm:px-[20px]">
-            <h2 className="w-full text-center text-2xl font-semibold text-black dark:text-white">
-              Catalogue de jeux disponibles sur le site
-            </h2>
-            <div className="w-full h-full flex flex-wrap justify-center items-center gap-[20px]">
-              {games.slice(0, 100).map((game) => (
+              <MenuBurgerFiltres />
+            </>
+          ) : (
+            <IoMenu
+              onClick={toggleBurgerFiltres}
+              className="text-2xl cursor-pointer"
+            />
+          )}
+        </div>
+        <div className="w-full h-full flex flex-col  gap-[30px] px-[50px] pt-[30px] max-sm:px-[20px]">
+          <h2 className="w-full text-center text-2xl font-semibold text-black dark:text-white">
+            Catalogue de jeux disponibles sur le site
+          </h2>
+          <div className="w-full h-full flex flex-wrap justify-center items-center gap-[20px]">
+            {games &&
+              games.map((game) => (
                 <AffichesJeux
                   key={game._id}
                   img={game.cover}
@@ -55,10 +49,17 @@ export default function GamesPage() {
                   platforms={game.platforms}
                 />
               ))}
-            </div>
+            {hasMore && (
+              <button
+                className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                onClick={loadMoreGames}
+              >
+                Voir plus
+              </button>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }

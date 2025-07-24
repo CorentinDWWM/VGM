@@ -10,54 +10,49 @@ import {
 
 export default function DataProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [games, setGames] = useState();
+  const [games, setGames] = useState([]);
   const [genres, setGenres] = useState();
   const [themes, setThemes] = useState();
   const [keywords, setKeywords] = useState();
   const [plateformes, setPlateformes] = useState();
+  const [loaded, setLoaded] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    async function handleData() {
+    async function loadInitialGames() {
       try {
-        if (!games || !keywords || !plateformes) {
-          // pour les jeux
-          const getGamesData = await getGames();
-          setGames(getGamesData);
-          setIsLoading(false);
-        } else if (!genres) {
-          // pour les genres
-          const getGenresData = await getGenres();
-          setGenres(getGenresData);
-          setIsLoading(false);
-        } else if (!themes) {
-          // pour les themes
-          const getThemesData = await getThemes();
-          setThemes(getThemesData);
-          setIsLoading(false);
-        } else if (!keywords) {
-          // pour les mots clés
-          const getKeywordsData = await getKeywords();
-          setKeywords(getKeywordsData);
-          setIsLoading(false);
-        } else if (!plateformes) {
-          // pour les plateformes
-          const getPlatformsData = await getPlateformes();
-          setPlateformes(getPlatformsData);
-          setIsLoading(false);
-        } else {
-          setIsLoading(false);
-        }
+        const getGamesData = await getGames(100, 0);
+        setGames(getGamesData);
+        setLoaded(getGamesData.length);
+        setHasMore(getGamesData.length === 100);
+        setIsLoading(false);
       } catch (error) {
         console.error("Erreur lors du chargement:", error);
         setIsLoading(false);
       }
     }
-    handleData();
+    loadInitialGames();
   }, []);
+
+  async function loadMoreGames() {
+    const getGamesData = await getGames(100, loaded);
+    setGames((prev) => [...prev, ...getGamesData]);
+    setLoaded((prev) => prev + getGamesData.length);
+    setHasMore(getGamesData.length === 100);
+  }
 
   return (
     <DataContext.Provider
-      value={{ isLoading, games, genres, themes, keywords, plateformes }}
+      value={{
+        isLoading,
+        games,
+        genres,
+        themes,
+        keywords,
+        plateformes,
+        loadMoreGames,
+        hasMore,
+      }}
     >
       {children}
     </DataContext.Provider>

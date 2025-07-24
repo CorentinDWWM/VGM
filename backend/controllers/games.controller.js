@@ -3,7 +3,10 @@ const { makeRequest } = require("../services/igdb");
 
 const getGames = async (req, res) => {
   try {
-    const games = await Game.find();
+    // Limite et pagination via query string
+    const limit = parseInt(req.query.limit) || 100;
+    const skip = parseInt(req.query.skip) || 0;
+    const games = await Game.find().skip(skip).limit(limit);
     res.status(200).json(games);
   } catch (error) {
     res.status(500).json({ error: error.message });
