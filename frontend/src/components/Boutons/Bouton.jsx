@@ -1,9 +1,20 @@
-export default function Bouton({ text, textStyle }) {
+export default function Bouton({ text, textStyle, onClick }) {
   return (
-    <button
-      className={`w-fit h-fit flex justify-center items-center bg-primary-light text-white hover:bg-primary-dark hover:text-black gap-2.5 px-5 py-2 max-sm:px-2.5 max-sm:py-1 rounded-xl cursor-pointer ${textStyle}`}
-    >
-      {text}
-    </button>
+    <>
+      {onClick ? (
+        <button
+          className={`w-fit h-fit flex justify-center items-center bg-primary-light text-white hover:bg-primary-dark hover:text-black gap-2.5 px-5 py-2 max-sm:px-2.5 max-sm:py-1 rounded-xl cursor-pointer ${textStyle}`}
+          onClick={onClick}
+        >
+          {text}
+        </button>
+      ) : (
+        <button
+          className={`w-fit h-fit flex justify-center items-center bg-primary-light text-white hover:bg-primary-dark hover:text-black gap-2.5 px-5 py-2 max-sm:px-2.5 max-sm:py-1 rounded-xl cursor-pointer ${textStyle}`}
+        >
+          {text}
+        </button>
+      )}
+    </>
   );
 }

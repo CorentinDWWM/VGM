@@ -31,7 +31,7 @@ export default function AffichesJeux({ name, rating, platforms, img }) {
               {name}
             </p>
             <p className="text-xs max-sm:text-[10px] text-center text-white">
-              Disponible sur : {platforms?.join(", ")}
+              Disponible sur : {platforms?.map((p) => p.name).join(", ")}
             </p>
             <Bouton text="En savoir plus sur le jeu" textStyle="text-[10px]" />
           </div>

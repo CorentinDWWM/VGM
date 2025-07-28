@@ -3,6 +3,7 @@ import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { MenuContext } from "../../../context/MenuContext";
 import { genres } from "../../../genres.json";
 import { IoClose } from "react-icons/io5";
+import { DataContext } from "../../../context/DataContext";
 
 export default function Genres() {
   const {
@@ -13,6 +14,8 @@ export default function Genres() {
     selectedGenresRef,
     toggleSelectedGenres,
   } = useContext(MenuContext);
+
+  const { genres } = useContext(DataContext);
 
   return (
     <>
@@ -35,15 +38,15 @@ export default function Genres() {
                 className="w-full flex items-center justify-between"
               >
                 <div className="flex items-center gap-1">
-                  <p>{g.nom}</p>
+                  <p>{g.name}</p>
                   <p className="text-secondary-text-light dark:text-secondary-text-dark">
-                    {g.nb_jeux}
+                    {g.count}
                   </p>
                 </div>
-                {selectedGenres === g.nom ? (
+                {selectedGenres === g.name ? (
                   <div
                     ref={selectedGenresRef}
-                    onClick={() => toggleSelectedGenres(g.nom)}
+                    onClick={() => toggleSelectedGenres(g.name)}
                     className="flex items-center justify-center w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm"
                   >
                     <IoClose className="absolute w-[25px] h-[25px] text-black dark:text-white cursor-pointer" />
@@ -51,7 +54,7 @@ export default function Genres() {
                 ) : (
                   <div
                     ref={selectedGenresRef}
-                    onClick={() => toggleSelectedGenres(g.nom)}
+                    onClick={() => toggleSelectedGenres(g.name)}
                     className="w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm"
                   ></div>
                 )}

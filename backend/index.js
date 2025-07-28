@@ -21,13 +21,39 @@ const routes = require("./routes");
 
 app.use(routes);
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("Connexion Mongo DB OK");
-  })
-  .catch((err) => console.log(err));
+// Configuration optimisée de la connexion MongoDB
+const mongoOptions = {
+  maxPoolSize: 10, // Limite le nombre de connexions simultanées
+  serverSelectionTimeoutMS: 5000, // Timeout de sélection du serveur
+  socketTimeoutMS: 45000, // Timeout des sockets
+};
 
-app.listen(3000);
+// Gestion optimisée de la connexion MongoDB
+const connectDB = async () => {
+  try {
+    console.log("🔄 Connexion à MongoDB en cours...");
+    await mongoose.connect(process.env.MONGO_URI, mongoOptions);
+    console.log("✅ Connexion MongoDB réussie");
+  } catch (error) {
+    console.error("❌ Erreur de connexion MongoDB:", error.message);
+    process.exit(1);
+  }
+};
+
+// Connexion à la base de données
+connectDB();
+
+// Gestion des événements de connexion
+mongoose.connection.on("error", (err) => {
+  console.error("❌ Erreur MongoDB:", err);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.log("⚠️ MongoDB déconnecté");
+});
+
+app.listen(3000, () => {
+  console.log("🚀 Serveur démarré sur le port 3000");
+});
 
 // localhost:3000
