@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const gameSchema = new mongoose.Schema(
   {
-    igdbID: { type: Number, required: true },
-    name: { type: String, required: true },
+    igdbID: { type: Number, required: true, index: true },
+    name: { type: String, required: true, index: true },
     summary: { type: String },
     votes: { type: String },
     total_votes: { type: String },
@@ -334,6 +334,9 @@ const gameSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Index composé pour optimiser la pagination
+gameSchema.index({ createdAt: 1, _id: 1 });
 
 const Game = mongoose.model("Game", gameSchema);
 

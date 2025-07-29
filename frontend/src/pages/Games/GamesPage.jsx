@@ -11,8 +11,15 @@ import LoadingPage from "../../components/Loading/LoadingPage";
 
 export default function GamesPage() {
   const { burgerFiltres, toggleBurgerFiltres } = useContext(MenuContext);
-  const { isLoading, games, loadMoreGames, hasMore, genres, genresWithCount } =
-    useContext(DataContext);
+  const {
+    isLoading,
+    games,
+    loadMoreGames,
+    hasMore,
+    genres,
+    genresWithCount,
+    isLoadingMore,
+  } = useContext(DataContext);
   console.log(genresWithCount);
 
   return (
@@ -56,14 +63,18 @@ export default function GamesPage() {
                     <AffichesJeux
                       key={game._id}
                       img={game.cover}
-                      rating={game.rating}
+                      rating={game.votes}
                       name={game.name}
                       platforms={game.platforms}
                     />
                   ))}
                 </div>
                 {hasMore && (
-                  <Bouton onClick={loadMoreGames} text={"Voir Plus"} />
+                  <Bouton
+                    onClick={loadMoreGames}
+                    text={isLoadingMore ? "Chargement..." : "Voir Plus"}
+                    disabled={isLoadingMore}
+                  />
                 )}
               </>
             )}

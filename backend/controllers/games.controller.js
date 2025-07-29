@@ -6,7 +6,15 @@ const getGames = async (req, res) => {
     // Limite et pagination via query string
     const limit = parseInt(req.query.limit) || 100;
     const skip = parseInt(req.query.skip) || 0;
-    const games = await Game.find().skip(skip).limit(limit);
+
+    // Optimisation : sélectionner seulement les champs nécessaires
+    const games = await Game.find()
+      .select("igdbID name votes total_votes cover platforms genres")
+      .sort({ createdAt: 1, _id: 1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(); // Utiliser lean() pour des objets JavaScript simples plus rapides
+
     res.status(200).json(games);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { DataContext } from "../../context/DataContext";
 import {
   getGames,
@@ -19,6 +19,70 @@ export default function DataProvider({ children }) {
   const [plateformes, setPlateformes] = useState([]);
   const [loaded, setLoaded] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  // Cache avec versioning pour invalidation
+  const [gameCache, setGameCache] = useState(new Map());
+  const [cacheVersion, setCacheVersion] = useState(0);
+
+  // Afficher le cache dans la console
+  const cacheSizeInBytes = JSON.stringify(
+    Array.from(gameCache.entries())
+  ).length;
+  const cacheSizeInMB = (cacheSizeInBytes / (1024 * 1024)).toFixed(2);
+
+  // Compter le nombre total de jeux dans le cache
+  const totalGamesInCache = Array.from(gameCache.values()).reduce(
+    (total, games) => total + games.length,
+    0
+  );
+
+  // Récupérer les noms des jeux pour chaque clé
+  const cacheDetails = Array.from(gameCache.entries()).map(([key, games]) => ({
+    clé: key,
+    nombreJeux: games.length,
+    jeux: games
+      .slice(0, 50)
+      .map((game) => game.name || game.title || "Nom inconnu"), // Afficher les 3 premiers jeux
+    tousLesJeux: games.length > 3 ? `... et ${games.length - 3} autres` : "",
+  }));
+
+  // Log pour vérifier le caches
+  // console.log("🗂️ Cache:", {
+  //   taille: gameCache.size,
+  //   tailleMB: `${cacheSizeInMB} MB`,
+  //   totalJeux: totalGamesInCache,
+  //   version: cacheVersion,
+  //   détails: cacheDetails,
+  // });
+
+  // Fonction pour invalider le cache
+  const invalidateCache = useCallback(() => {
+    setGameCache(new Map());
+    setCacheVersion((prev) => prev + 1);
+  }, []);
+
+  // Fonction pour mettre à jour un jeu spécifique dans le cache
+  const updateGameInCache = useCallback((gameId, updatedGame) => {
+    setGameCache((prev) => {
+      const newCache = new Map(prev);
+      // Mettre à jour dans tous les lots du cache
+      for (const [key, games] of newCache.entries()) {
+        const updatedGames = games.map((game) =>
+          game._id === gameId ? { ...game, ...updatedGame } : game
+        );
+        newCache.set(key, updatedGames);
+      }
+      return newCache;
+    });
+
+    // Mettre à jour aussi dans l'état local
+    setGames((prev) =>
+      prev.map((game) =>
+        game._id === gameId ? { ...game, ...updatedGame } : game
+      )
+    );
+  }, []);
 
   // Mettre à jour les genres avec le count quand les jeux changent
   // useEffect(() => {
@@ -86,6 +150,11 @@ export default function DataProvider({ children }) {
         setLoaded(getGamesData.length);
         setHasMore(getGamesData.length === 50);
 
+        // Mettre aussi les 50 premiers en cache
+        setGameCache((prev) =>
+          new Map(prev).set(`games_0_v${cacheVersion}`, getGamesData)
+        );
+
         // const getGenresData = await getGenres();
         // setGenres(getGenresData);
 
@@ -116,14 +185,34 @@ export default function DataProvider({ children }) {
     // }
 
     // loadAllGames();
-  }, []);
+  }, [cacheVersion]);
 
-  async function loadMoreGames() {
-    const getGamesData = await getGames(50, loaded);
-    setGames((prev) => [...prev, ...getGamesData]);
-    setLoaded((prev) => prev + getGamesData.length);
-    setHasMore(getGamesData.length === 50);
-  }
+  const loadMoreGames = useCallback(async () => {
+    if (isLoadingMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      // Vérifier le cache d'abord avec version
+      const cacheKey = `games_${loaded}_v${cacheVersion}`;
+      let getGamesData;
+
+      if (gameCache.has(cacheKey)) {
+        getGamesData = gameCache.get(cacheKey);
+      } else {
+        getGamesData = await getGames(50, loaded);
+        // Mettre en cache pour les prochaines fois
+        setGameCache((prev) => new Map(prev).set(cacheKey, getGamesData));
+      }
+
+      setGames((prev) => [...prev, ...getGamesData]);
+      setLoaded((prev) => prev + getGamesData.length);
+      setHasMore(getGamesData.length === 50);
+    } catch (error) {
+      console.error("Erreur lors du chargement de plus de jeux:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [loaded, isLoadingMore, gameCache, cacheVersion]);
 
   return (
     <DataContext.Provider
@@ -136,6 +225,9 @@ export default function DataProvider({ children }) {
         plateformes,
         loadMoreGames,
         hasMore,
+        isLoadingMore,
+        invalidateCache,
+        updateGameInCache,
       }}
     >
       {children}

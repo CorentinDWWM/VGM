@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Bouton from "../Boutons/Bouton";
+import { useLocation } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function AffichesJeux({ name, rating, platforms, img }) {
   const [isHovered, setIsHovered] = useState(false);
+  const location = useLocation();
+  const { user } = useContext(AuthContext);
 
   return (
     <div
@@ -18,22 +22,44 @@ export default function AffichesJeux({ name, rating, platforms, img }) {
       {isHovered && (
         <div className="absolute inset-0 bg-black/50 flex flex-col items-end gap-2.5 max-sm:gap-0">
           {/* Note */}
-          <div className="flex flex-col justify-center items-end gap-2.5 p-2.5">
-            <div className="w-[40px] h-[40px] max-sm:w-[35px] max-sm:h-[35px] bg-primary-light rounded-3xl border border-black flex justify-center items-center">
-              <p className="text-xs max-sm:text-[10px] text-white">
-                {rating}/10
+          <div
+            className={`w-full flex ${
+              location.pathname !== "my_profil"
+                ? "justify-between"
+                : "justify-end"
+            } items-center gap-2.5 p-2.5`}
+          >
+            {location.pathname !== "/my_profil" && (
+              <>
+                {user.games?.contains(name) ? (
+                  <div className="w-[25px] h-[25px] bg-alert-light rounded-4xl flex border border-black justify-center items-center ml-2">
+                    <p className="text-center text-white pb-0.5">-</p>
+                  </div>
+                ) : (
+                  <div className="w-[25px] h-[25px] bg-primary-light rounded-4xl flex border border-black justify-center items-center ml-2">
+                    <p className="text-center text-white pb-0.5">+</p>
+                  </div>
+                )}
+              </>
+            )}
+            <div className="w-[55px] h-[55px] bg-primary-light rounded-4xl border border-black flex justify-center items-center">
+              <p className="text-xs text-center text-white">
+                {Number(rating).toFixed(2)} <br />
+                sur <br />
+                100
               </p>
             </div>
           </div>
           {/* Info jeu */}
           <div className="w-full h-1/2 flex flex-col justify-center items-center gap-2.5 px-2.5">
-            <p className="text-sm max-sm:text-xs font-bold text-center text-white underline">
-              {name}
-            </p>
-            <p className="text-xs max-sm:text-[10px] text-center text-white">
+            <p className="font-bold text-center text-white underline">{name}</p>
+            <p className="text-sm text-center text-white">
               Disponible sur : {platforms?.map((p) => p.name).join(", ")}
             </p>
-            <Bouton text="En savoir plus sur le jeu" textStyle="text-[10px]" />
+            <Bouton
+              text="En savoir plus sur le jeu"
+              textStyle="max-sm:px-5 max-sm:py-2"
+            />
           </div>
         </div>
       )}
