@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 export default function LoadingPage() {
   return (
     <div className="min-h-screen bg-gray-50 mt-5">

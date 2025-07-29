@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import HeaderUser from "../../components/Profil/HeaderUser";
 import { AuthContext } from "../../context/AuthContext";
 import { Search } from "lucide-react";

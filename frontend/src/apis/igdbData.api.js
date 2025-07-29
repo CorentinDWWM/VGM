@@ -1,6 +1,6 @@
 import { BASE_URL } from "../utils/url";
 
-export async function getGames(limit = 100, skip = 0) {
+export async function getGames(limit, skip) {
   try {
     const response = await fetch(
       `${BASE_URL}/igdb/games?limit=${limit}&skip=${skip}`,

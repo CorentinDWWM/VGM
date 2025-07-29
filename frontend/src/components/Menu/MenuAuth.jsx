@@ -28,7 +28,7 @@ export default function MenuAuth({ onSelect }) {
   return (
     <div
       ref={menuAuthRef}
-      className="absolute top-[60px] right-6 flex flex-col gap-4 p-4 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-lg w-[200px]"
+      className="absolute z-50 top-[60px] right-6 flex flex-col gap-4 p-4 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-lg w-[200px]"
     >
       {user ? (
         <div className="flex flex-col items-end gap-2 justify-evenly">

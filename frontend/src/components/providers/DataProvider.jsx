@@ -86,17 +86,17 @@ export default function DataProvider({ children }) {
         setLoaded(getGamesData.length);
         setHasMore(getGamesData.length === 50);
 
-        const getGenresData = await getGenres();
-        setGenres(getGenresData);
+        // const getGenresData = await getGenres();
+        // setGenres(getGenresData);
 
-        const getThemesData = await getThemes();
-        setThemes(getThemesData);
+        // const getThemesData = await getThemes();
+        // setThemes(getThemesData);
 
-        const getKeywordsData = await getKeywords();
-        setKeywords(getKeywordsData);
+        // const getKeywordsData = await getKeywords();
+        // setKeywords(getKeywordsData);
 
-        const getPlatformesData = await getPlateformes();
-        setPlateformes(getPlatformesData);
+        // const getPlatformesData = await getPlateformes();
+        // setPlateformes(getPlatformesData);
 
         setIsLoading(false);
       } catch (error) {
@@ -106,16 +106,16 @@ export default function DataProvider({ children }) {
     }
     loadData();
 
-    async function loadAllGames() {
-      try {
-        const getAllGamesData = await getGames(2500, 0);
-        setAllGames(getAllGamesData);
-      } catch (error) {
-        console.log(error);
-      }
-    }
+    // async function loadAllGames() {
+    //   try {
+    //     const getAllGamesData = await getGames(2500, 0);
+    //     setAllGames(getAllGamesData);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
 
-    loadAllGames();
+    // loadAllGames();
   }, []);
 
   async function loadMoreGames() {
