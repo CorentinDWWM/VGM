@@ -135,3 +135,18 @@ export async function signOut() {
     credentials: "include",
   });
 }
+
+export async function addAGameToCurrentUser(values) {
+  try {
+    const response = await fetch(`${BASE_URL}/user/:id/games/update`, {
+      method: "PUT",
+      body: JSON.stringify(values),
+      credentials: "include",
+    });
+    const updatedUser = await response.json();
+
+    return updatedUser;
+  } catch (error) {
+    console.log(error);
+  }
+}

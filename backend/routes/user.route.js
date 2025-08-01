@@ -8,6 +8,7 @@ const {
   verifyMail,
   forgotPassword,
   resetPassword,
+  updateGameInUser,
 } = require("../controllers/user.controller");
 
 const router = require("express").Router();
@@ -27,6 +28,8 @@ router.get("/verifyMail/:token", verifyMail);
 router.post("/forgotPassword", forgotPassword);
 router.post("/resetPassword", resetPassword);
 router.delete("/deleteToken", logoutUser);
+
+router.put("/:id/games/update", updateGameInUser);
 
 module.exports = router;
 

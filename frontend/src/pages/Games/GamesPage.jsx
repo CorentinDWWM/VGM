@@ -20,7 +20,6 @@ export default function GamesPage() {
     genresWithCount,
     isLoadingMore,
   } = useContext(DataContext);
-  console.log(genresWithCount);
 
   return (
     <>
@@ -60,13 +59,7 @@ export default function GamesPage() {
               <>
                 <div className="w-full h-full flex flex-wrap justify-center items-center gap-[20px]">
                   {games.map((game) => (
-                    <AffichesJeux
-                      key={game._id}
-                      img={game.cover}
-                      rating={game.votes}
-                      name={game.name}
-                      platforms={game.platforms}
-                    />
+                    <AffichesJeux key={game._id} game={game} />
                   ))}
                 </div>
                 {hasMore && (

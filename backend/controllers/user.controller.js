@@ -244,6 +244,64 @@ const logoutUser = async (req, res) => {
   res.status(200).json({ message: "Déconnexion réussie" });
 };
 
+const updateGameInUser = async (req, res) => {
+  try {
+    const { game, user } = req.body;
+
+    // Vérifications des données reçues
+    if (!user || !user._id) {
+      return res
+        .status(400)
+        .json({ error: "Utilisateur manquant ou invalide" });
+    }
+
+    if (!game) {
+      return res.status(400).json({ error: "Jeu manquant" });
+    }
+
+    // Vérification et gestion de user.games
+    if (user.games !== undefined && !Array.isArray(user.games)) {
+      return res
+        .status(400)
+        .json({ error: "Le champ games doit être un tableau" });
+    }
+
+    // Utilisation défensive : tableau vide si games n'existe pas ou n'est pas un tableau
+    const currentGames = Array.isArray(user.games) ? user.games : [];
+
+    // Optionnel : vérifier les doublons
+    const gameExists = currentGames.some(
+      (existingGame) => existingGame.id === game.id
+    );
+
+    if (gameExists) {
+      return res
+        .status(409)
+        .json({ error: "Ce jeu existe déjà pour cet utilisateur" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        games: [...currentGames, game],
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -254,4 +312,5 @@ module.exports = {
   verifyMail,
   forgotPassword,
   resetPassword,
+  updateGameInUser,
 };
