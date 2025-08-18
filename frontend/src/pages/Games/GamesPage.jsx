@@ -2,12 +2,14 @@ import { IoMenu } from "react-icons/io5";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import Genres from "../../components/Menu/Filtres/Genres";
 import Plateformes from "../../components/Menu/Filtres/Plateformes";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { MenuContext } from "../../context/MenuContext";
 import MenuBurgerFiltres from "../../components/Menu/MenuBurgerFiltres";
 import { DataContext } from "../../context/DataContext";
 import Bouton from "../../components/Boutons/Bouton";
 import LoadingPage from "../../components/Loading/LoadingPage";
+import { UserProfilContext } from "../../context/UserProfilContext";
+import toast from "react-hot-toast";
 
 export default function GamesPage() {
   const { burgerFiltres, toggleBurgerFiltres } = useContext(MenuContext);
@@ -20,6 +22,19 @@ export default function GamesPage() {
     genresWithCount,
     isLoadingMore,
   } = useContext(DataContext);
+
+  const { message, resetMessage } = useContext(UserProfilContext);
+
+  useEffect(() => {
+    if (message) {
+      if (message.includes("ajouté") || message.includes("supprimé")) {
+        toast.success(message);
+      } else if (message.includes("Erreur")) {
+        toast.error(message);
+      }
+      resetMessage();
+    }
+  }, [message, resetMessage]);
 
   return (
     <>

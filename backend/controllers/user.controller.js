@@ -271,7 +271,7 @@ const updateGameInUser = async (req, res) => {
 
     // Optionnel : vérifier les doublons
     const gameExists = currentGames.some(
-      (existingGame) => existingGame.id === game.id
+      (existingGame) => existingGame.igdbID === game.igdbID
     );
 
     if (gameExists) {
@@ -295,7 +295,120 @@ const updateGameInUser = async (req, res) => {
       return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
 
-    res.status(200).json(updatedUser);
+    res.status(200).json({ message: "Succès", updatedUser });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+};
+
+const deleteGameInUser = async (req, res) => {
+  try {
+    const { game, user } = req.body;
+
+    // Vérifications des données reçues
+    if (!user || !user._id) {
+      return res
+        .status(400)
+        .json({ error: "Utilisateur manquant ou invalide" });
+    }
+
+    if (!game) {
+      return res.status(400).json({ error: "Jeu manquant" });
+    }
+
+    // Vérification et gestion de user.games
+    if (user.games !== undefined && !Array.isArray(user.games)) {
+      return res
+        .status(400)
+        .json({ error: "Le champ games doit être un tableau" });
+    }
+
+    // Utilisation défensive : tableau vide si games n'existe pas ou n'est pas un tableau
+    const currentGames = Array.isArray(user.games) ? user.games : [];
+
+    // Filtrer le jeu à supprimer
+    const updatedGames = currentGames.filter(
+      (existingGame) => existingGame.igdbID !== game.igdbID
+    );
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        games: updatedGames,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    res.status(200).json({ message: "Succès", updatedUser });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+};
+
+const updateGameStatusInUser = async (req, res) => {
+  try {
+    const { game, newStatus, user } = req.body;
+
+    // Vérifications des données reçues
+    if (!user || !user._id) {
+      return res
+        .status(400)
+        .json({ error: "Utilisateur manquant ou invalide" });
+    }
+
+    if (!game) {
+      return res.status(400).json({ error: "Jeu manquant" });
+    }
+
+    if (!newStatus) {
+      return res.status(400).json({ error: "Nouveau statut manquant" });
+    }
+
+    // Vérification et gestion de user.games
+    if (user.games !== undefined && !Array.isArray(user.games)) {
+      return res
+        .status(400)
+        .json({ error: "Le champ games doit être un tableau" });
+    }
+
+    // Mise à jour du statut du jeu dans le tableau games
+    const updatedGames = user.games.map((g) =>
+      g.igdbID === game.igdbID ? { ...g, statusUser: newStatus } : g
+    );
+
+    // Vérifier s'il y a eu un changement
+    const gameFound = user.games.some((g) => g.igdbID === game.igdbID);
+    if (!gameFound) {
+      return res
+        .status(404)
+        .json({ error: "Jeu non trouvé dans la liste de l'utilisateur" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        games: updatedGames,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    res.status(200).json({ message: "Succès", updatedUser });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Erreur lors de la mise à jour" });
@@ -313,4 +426,6 @@ module.exports = {
   forgotPassword,
   resetPassword,
   updateGameInUser,
+  deleteGameInUser,
+  updateGameStatusInUser,
 };

@@ -1,4 +1,4 @@
-import { Search, Sun, Bell, User } from "lucide-react";
+import { Search, Sun, Bell, User, Moon } from "lucide-react";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
@@ -65,10 +65,17 @@ export default function Header() {
         <Search className="cursor-pointer text-black dark:text-white" />
       </div>
       <div className="flex items-center justify-center gap-4 max-1000:hidden">
-        <Sun
-          onClick={toggleTheme}
-          className="text-black dark:text-white cursor-pointer"
-        />
+        {theme === "dark" ? (
+          <Sun
+            onClick={toggleTheme}
+            className="text-black dark:text-white cursor-pointer"
+          />
+        ) : (
+          <Moon
+            onClick={toggleTheme}
+            className="text-black dark:text-white cursor-pointer"
+          />
+        )}
         <Bell className="text-black dark:text-white cursor-pointer" />
         <div ref={menuAuthRef}>
           <User

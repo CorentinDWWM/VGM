@@ -1,7 +1,8 @@
-import React, { useRef } from "react";
+import { useContext, useRef } from "react";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import HeaderUser from "../../components/Profil/HeaderUser";
 import { games } from "../../games.json";
+import { AuthContext } from "../../context/AuthContext";
 
 // Handler factory pour chaque scrollable
 function useHorizontalScroll() {
@@ -38,6 +39,7 @@ function useHorizontalScroll() {
 }
 
 export default function LibraryUser() {
+  const { user } = useContext(AuthContext);
   // Un hook par scrollable
   const scroll1 = useHorizontalScroll();
   const scroll2 = useHorizontalScroll();
@@ -59,15 +61,10 @@ export default function LibraryUser() {
               onMouseDown={scroll1.onMouseDown}
             >
               <div className="flex items-center gap-[50px] min-w-max">
-                {games.map((game, index) => (
-                  <AffichesJeux
-                    key={index}
-                    img={game.img}
-                    rating={game.rating}
-                    name={game.name}
-                    platforms={game.platforms}
-                  />
-                ))}
+                {user.games &&
+                  user.games.map((game) => (
+                    <AffichesJeux key={game._id} game={game} />
+                  ))}
               </div>
             </div>
           </div>
@@ -79,15 +76,10 @@ export default function LibraryUser() {
               onMouseDown={scroll2.onMouseDown}
             >
               <div className="flex items-center gap-[50px] min-w-max">
-                {games.map((game, index) => (
-                  <AffichesJeux
-                    key={index}
-                    img={game.img}
-                    rating={game.rating}
-                    name={game.name}
-                    platforms={game.platforms}
-                  />
-                ))}
+                {user.games &&
+                  user.games
+                    .filter((game) => game.statusUser === "Terminé")
+                    .map((game) => <AffichesJeux key={game._id} game={game} />)}
               </div>
             </div>
           </div>
@@ -99,15 +91,10 @@ export default function LibraryUser() {
               onMouseDown={scroll3.onMouseDown}
             >
               <div className="flex items-center gap-[50px] min-w-max">
-                {games.map((game, index) => (
-                  <AffichesJeux
-                    key={index}
-                    img={game.img}
-                    rating={game.rating}
-                    name={game.name}
-                    platforms={game.platforms}
-                  />
-                ))}
+                {user.games &&
+                  user.games
+                    .filter((game) => game.statusUser === "En cours")
+                    .map((game) => <AffichesJeux key={game._id} game={game} />)}
               </div>
             </div>
           </div>

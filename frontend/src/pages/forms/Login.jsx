@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AuthContext } from "../../context/AuthContext";
-import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { signin } from "../../apis/auth.api";
 

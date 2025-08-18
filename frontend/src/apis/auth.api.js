@@ -136,12 +136,48 @@ export async function signOut() {
   });
 }
 
-export async function addAGameToCurrentUser(values) {
+export async function addAGameToCurrentUser(game, user) {
   try {
     const response = await fetch(`${BASE_URL}/user/:id/games/update`, {
       method: "PUT",
-      body: JSON.stringify(values),
-      credentials: "include",
+      body: JSON.stringify({ game, user }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    const updatedUser = await response.json();
+
+    return updatedUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function delAGameInCurrentUser(game, user) {
+  try {
+    const response = await fetch(`${BASE_URL}/user/:id/games/delete`, {
+      method: "DELETE",
+      body: JSON.stringify({ game, user }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    const updatedUser = await response.json();
+
+    return updatedUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function updateStatusInUser(game, newStatus, user) {
+  try {
+    const response = await fetch(`${BASE_URL}/user/:id/games/status/update`, {
+      method: "PUT",
+      body: JSON.stringify({ game, newStatus, user }),
+      headers: {
+        "Content-type": "application/json",
+      },
     });
     const updatedUser = await response.json();
 

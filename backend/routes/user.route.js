@@ -9,6 +9,8 @@ const {
   forgotPassword,
   resetPassword,
   updateGameInUser,
+  deleteGameInUser,
+  updateGameStatusInUser,
 } = require("../controllers/user.controller");
 
 const router = require("express").Router();
@@ -30,6 +32,8 @@ router.post("/resetPassword", resetPassword);
 router.delete("/deleteToken", logoutUser);
 
 router.put("/:id/games/update", updateGameInUser);
+router.delete("/:id/games/delete", deleteGameInUser);
+router.put("/:id/games/status/update", updateGameStatusInUser);
 
 module.exports = router;
 
