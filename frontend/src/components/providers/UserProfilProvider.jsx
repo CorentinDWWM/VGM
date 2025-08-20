@@ -8,7 +8,6 @@ import { UserProfilContext } from "../../context/UserProfilContext";
 export default function UserProfilProvider({ children }) {
   const [message, setMessage] = useState("");
   const resetMessage = () => setMessage("");
-  // faire ici la fonction pour ajouter un jeu dans un profil user
 
   const addGamesToUser = async (game, user) => {
     try {

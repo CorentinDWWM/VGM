@@ -15,8 +15,8 @@ export default function Profil() {
     user.games?.filter((game) => game.statusUser === "Terminé").length || 0;
   const desertedCount =
     user.games?.filter((game) => game.statusUser === "Abandonné").length || 0;
-  // ...existing code...
-  // Format the date to "27 Juin 2025"
+
+  // Formate la date à "JJ MM YYYY"
   const formatDate = (isoDate) => {
     if (!isoDate) return "";
     const date = new Date(isoDate);
@@ -119,13 +119,17 @@ export default function Profil() {
           </div>
         </div>
         {/* Jeux dans ma liste */}
-        <div className="flex flex-col justify-center items-center gap-[30px] px-28 max-sm:px-12 max-2xl:px-24 py-5 border border-b-0 border-black dark:border-white">
+        <div className="flex flex-col justify-center items-center gap-[30px] px-28 max-sm:px-10 max-2xl:px-24 py-5 border border-b-0 border-black dark:border-white">
           <h3 className="text-xl max-sm:text-base text-primary-light dark:text-primary-dark font-semibold">
             Jeux dans ma liste :
           </h3>
           {user.games && user.games.length >= 1 ? (
             <div className="flex flex-col items-center overflow-y-auto hide-scrollbar">
-              <div className="grid grid-cols-2 max-2xl:grid-cols-1 gap-[50px] max-h-[550px]">
+              <div
+                className={`grid ${
+                  user.games.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                } max-2xl:grid-cols-1 gap-[50px] max-h-[550px]`}
+              >
                 {user.games.map((game) => (
                   <AffichesJeux key={game._id} game={game} />
                 ))}

@@ -48,7 +48,7 @@ export default function AffichesJeux({ game }) {
 
   return (
     <div
-      className="w-[250px] relative cursor-default"
+      className="w-[250px] max-md:w-[200px] relative cursor-default"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -60,16 +60,18 @@ export default function AffichesJeux({ game }) {
       {isHovered && (
         <div className="absolute inset-0 bg-black/50 flex flex-col items-center max-sm:gap-0">
           <div
-            className={`w-full flex justify-between items-center gap-2.5 p-3`}
+            className={`w-full flex justify-between items-center gap-2.5 p-3 max-md:py-1`}
           >
             <>
               {user && user.games.length >= 1 && isInCollection ? (
                 <div
                   onClick={handleRemoveGame}
-                  className="w-[25px] h-[25px] bg-alert-light rounded-4xl flex border border-black justify-center items-center cursor-pointer"
+                  className="w-[25px] h-[25px] max-md:w-[20px] max-md:h-[20px] bg-alert-light rounded-4xl flex border border-black justify-center items-center cursor-pointer"
                   title="Supprimer ce jeu de la collection"
                 >
-                  <p className="text-center text-white pb-0.5">-</p>
+                  <p className="text-center text-white pb-0.5 max-md:text-sm">
+                    -
+                  </p>
                 </div>
               ) : (
                 <div
@@ -81,42 +83,42 @@ export default function AffichesJeux({ game }) {
                 </div>
               )}
             </>
-            <div className="w-[45px] h-[45px] bg-primary-light rounded-4xl border border-black flex justify-center items-center">
-              <p className="text-xs text-center text-white">
+            <div className="w-[45px] h-[45px] max-md:w-[35px] max-md:h-[35px] bg-primary-light rounded-4xl border border-black flex justify-center items-center">
+              <p className="text-xs max-md:text-[10px] text-center text-white">
                 {Number(game.votes / 10).toFixed(1)}/10
               </p>
             </div>
           </div>
           {location.pathname === "/profil" ||
-            (location.pathname === "/profil/library" && (
-              <>
-                <select
-                  className="bg-primary-light hover:bg-primary-dark rounded-4xl flex border border-black justify-center items-center text-center p-1 cursor-pointer text-white hover:text-black"
-                  title="Status du jeu"
-                  defaultValue={
-                    user.games.find((g) => g.igdbID === game.igdbID)
-                      ?.statusUser || "Non commencé"
-                  }
-                  onChange={handleStatusChange}
-                >
-                  <option value="Non commencé">Non commencé</option>
-                  <option value="En cours">En cours</option>
-                  <option value="Abandonné">Abandonné</option>
-                  <option value="Terminé">Terminé</option>
-                </select>
-              </>
-            ))}
+          location.pathname === "/profil/library" ? (
+            <>
+              <select
+                className="bg-primary-light hover:bg-primary-dark rounded-4xl flex border border-black justify-center items-center text-center p-1 cursor-pointer text-white hover:text-black max-md:text-xs"
+                title="Status du jeu"
+                defaultValue={
+                  user.games.find((g) => g.igdbID === game.igdbID)
+                    ?.statusUser || "Non commencé"
+                }
+                onChange={handleStatusChange}
+              >
+                <option value="Non commencé">Non commencé</option>
+                <option value="En cours">En cours</option>
+                <option value="Abandonné">Abandonné</option>
+                <option value="Terminé">Terminé</option>
+              </select>
+            </>
+          ) : null}
           {/* Info jeu */}
-          <div className="w-full h-1/2 flex flex-col items-center gap-2.5 px-2.5 mt-5">
-            <p className="font-bold text-center text-white underline">
+          <div className="w-full flex flex-col items-center gap-2.5 px-2.5 mt-5 max-md:mt-2.5">
+            <p className="font-bold text-center text-white underline max-md:text-sm">
               {game.name}
             </p>
-            <p className="text-sm text-center text-white">
+            <p className="text-sm text-center text-white max-md:text-xs">
               Disponible sur : {game.platforms?.map((p) => p.name).join(", ")}
             </p>
             <Bouton
               text="En savoir plus sur le jeu"
-              textStyle="max-sm:px-5 max-sm:py-2"
+              textStyle="max-sm:px-5 max-sm:py-2 max-md:text-xs"
             />
           </div>
         </div>

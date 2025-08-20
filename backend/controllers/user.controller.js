@@ -280,10 +280,20 @@ const updateGameInUser = async (req, res) => {
         .json({ error: "Ce jeu existe déjà pour cet utilisateur" });
     }
 
+    const gameWithTimestamp = {
+      ...game,
+      addedAtUser: new Date(),
+    };
+
+    const gameWithTimePlayed = {
+      ...gameWithTimestamp,
+      timePlayed: 0,
+    };
+
     const updatedUser = await User.findByIdAndUpdate(
       user._id,
       {
-        games: [...currentGames, game],
+        games: [...currentGames, gameWithTimePlayed],
       },
       {
         new: true,
