@@ -10,6 +10,9 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import { ThemeContext } from "../../context/ThemeContext";
 
@@ -87,13 +90,21 @@ export default function StatisticsUser() {
 
   const barColor = theme === "light" ? "#4f46e5" : "#6996f1";
 
+  // Données pour le graphique en camembert des statuts
+  const gamesByStatusData = [
+    { name: "Terminé", value: finishedCount, color: "#10b981" },
+    { name: "En cours", value: inProgressCount, color: "#f59e0b" },
+    { name: "Abandonné", value: desertedCount, color: "#ef4444" },
+    { name: "Non commencé", value: notStartCount, color: "#6b7280" },
+  ].filter((item) => item.value > 0); // Ne garder que les statuts avec au moins 1 jeu
+
   return (
-    <div className="flex flex-col gap-5 border border-black dark:border-white mx-24 my-12 max-sm:m-8">
+    <div className="flex flex-col gap-5 border border-black dark:border-white mx-24 max-md:mx-12 my-12 max-sm:m-8">
       <HeaderUser />
       <h2 className="text-center text-2xl max-sm:text-lg font-bold">
         Mes statistiques
       </h2>
-      <div className="w-full h-full flex flex-col items-center gap-[100px] px-[100px] py-2.5">
+      <div className="w-full h-full flex flex-col items-center gap-[100px] max-sm:gap-10 px-[100px] max-md:px-10 py-2.5">
         {/* Jeux */}
         <div className="flex flex-wrap justify-center items-center gap-5">
           <div className="w-[250px] flex flex-col items-center gap-2.5 p-5 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
@@ -127,47 +138,23 @@ export default function StatisticsUser() {
             </div>
           </div>
         </div>
-        <div className="w-full flex items-center justify-between">
-          <div className="w-[400px] flex flex-col gap-2.5 p-5  bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
-            <h3 className="text-xl font-semibold">Jeux ajoutés par année</h3>
-            <ResponsiveContainer width="100%" height={300}>
+        <div className="w-full flex max-xl:flex-col max-xl:gap-10 items-center justify-between">
+          {/* Jeux par Année */}
+          <div className="w-[400px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
+            <h3 className="text-xl max-sm:text-lg font-semibold">
+              Jeux ajoutés par année
+            </h3>
+            <ResponsiveContainer
+              width="100%"
+              height={300}
+              className="max-sm:hidden"
+            >
               <BarChart data={gamesByYearData}>
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="year"
                   label={{
                     value: "Années",
-                    position: "insideBottom",
-                    offset: -5,
-                  }}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  label={{
-                    value: "Nombre de jeux",
-                    angle: -90,
-                    position: "insideLeft",
-                    offset: 20,
-                  }}
-                />
-                <Tooltip />
-                <Bar dataKey="count" fill={barColor} name="Jeux ajoutés" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          {/* Nouveau graphique : Jeux par genre */}
-          <div className="w-[500px] flex flex-col gap-2.5 p-5 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
-            <h3 className="text-xl font-semibold">Jeux par genre</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={gamesByGenreData}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="genre"
-                  interval={0}
-                  angle={0}
-                  textAnchor="middle"
-                  label={{
-                    value: "Genres",
                     position: "insideBottomRight",
                     offset: -5,
                   }}
@@ -182,10 +169,167 @@ export default function StatisticsUser() {
                   }}
                 />
                 <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill={barColor} name="Jeux par genre" />
+                <Bar
+                  dataKey="count"
+                  fill={barColor}
+                  name="Jeux ajoutés"
+                  barSize={30}
+                />
               </BarChart>
             </ResponsiveContainer>
+
+            {/* Version mobile simplifiée */}
+            <div className="hidden max-sm:block">
+              <div className="grid grid-cols-1 gap-2">
+                {gamesByYearData.map((item) => (
+                  <div
+                    key={item.year}
+                    className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded"
+                  >
+                    <span className="font-medium">{item.year}</span>
+                    <span className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm">
+                      {item.count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Jeux par genre */}
+          <div className="w-[450px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
+            <h3 className="text-xl max-sm:text-lg font-semibold">
+              Jeux par genre
+            </h3>
+            <ResponsiveContainer
+              width="100%"
+              height={350}
+              className="max-sm:hidden"
+            >
+              <BarChart data={gamesByGenreData} margin={{ bottom: 20 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="genre"
+                  interval={0}
+                  angle={-45}
+                  textAnchor="end"
+                  height={50}
+                  label={{
+                    value: "Genres",
+                    position: "insideBottomRight",
+                    offset: 0,
+                  }}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  label={{
+                    value: "Nombre de jeux",
+                    angle: -90,
+                    position: "insideLeft",
+                    offset: 20,
+                  }}
+                />
+                <Tooltip />
+                <Bar
+                  dataKey="count"
+                  fill={barColor}
+                  name="Jeux par genre"
+                  barSize={30}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+
+            {/* Version mobile simplifiée */}
+            <div className="hidden max-sm:block">
+              <div className="space-y-3">
+                {gamesByGenreData.map((item, index) => (
+                  <div key={item.genre} className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-sm">
+                          {item.genre}
+                        </span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {item.count}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div
+                          className="bg-blue-500 h-2 rounded-full"
+                          style={{
+                            width: `${
+                              (item.count /
+                                Math.max(
+                                  ...gamesByGenreData.map((g) => g.count)
+                                )) *
+                              100
+                            }%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Répartition par statut */}
+          <div className="w-[400px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
+            <h3 className="text-xl max-sm:text-lg font-semibold">
+              Répartition par statut
+            </h3>
+            <ResponsiveContainer
+              width="100%"
+              height={300}
+              className="max-sm:hidden"
+            >
+              <PieChart>
+                <Pie
+                  data={gamesByStatusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {gamesByStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* Version mobile simplifiée */}
+            <div className="hidden max-sm:block">
+              <div className="space-y-3">
+                {gamesByStatusData.map((item) => (
+                  <div key={item.name} className="flex items-center gap-3">
+                    <div
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-sm">{item.name}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {item.value} (
+                          {((item.value / user.games.length) * 100).toFixed(0)}
+                          %)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
