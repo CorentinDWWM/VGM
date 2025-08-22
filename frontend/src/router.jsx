@@ -33,10 +33,10 @@ export const router = createBrowserRouter([
         path: "/games",
         element: <GamesPage />,
       },
-      {
-        path: "/stats",
-        element: <GlobalStats />,
-      },
+      // {
+      //   path: "/stats",
+      //   element: <GlobalStats />,
+      // },
       {
         path: "/discover",
         children: [

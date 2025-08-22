@@ -84,64 +84,6 @@ export default function DataProvider({ children }) {
     );
   }, []);
 
-  // Mettre à jour les genres avec le count quand les jeux changent
-  // useEffect(() => {
-  //   // if (games && games.length > 0 && genres && genres.length > 0) {
-  //   //   // Créer un compteur pour chaque genre
-  //   //   const genreCount = {};
-
-  //   //   // Initialiser le compteur à 0 pour chaque genre
-  //   //   genres.forEach((genre) => {
-  //   //     genreCount[genre.igdbID] = 0;
-  //   //   });
-
-  //   //   // Compter les jeux pour chaque genre
-  //   //   games.forEach((game) => {
-  //   //     if (game.genres && Array.isArray(game.genres)) {
-  //   //       game.genres.forEach((genre) => {
-  //   //         // Récupérer l'ID du genre (c'est un objet avec {id, name, slug})
-  //   //         const genreId = genre.igdbID;
-  //   //         if (genreCount[genreId] !== undefined) {
-  //   //           genreCount[genreId]++;
-  //   //         }
-  //   //       });
-  //   //     }
-  //   //   });
-
-  //   //   // Créer le nouveau tableau avec les counts
-  //   //   const genresWithCounts = genres.map((genre) => ({
-  //   //     ...genre,
-  //   //     count: genreCount[genre.igdbID] || 0,
-  //   //   }));
-
-  //   //   setGenresWithCount(genresWithCounts);
-  //   // }
-  //   if (games && games.length > 0 && genres && genres.length > 0) {
-  //     const genreCountMap = {};
-  //     games.forEach((game) => {
-  //       game.genres?.forEach((genreId) => {
-  //         genreCountMap[genreId] = (genreCountMap[genreId] || 0) + 1;
-  //       });
-  //     });
-
-  //     // Ajout du nombre de jeux à chaque genre
-  //     const enrichedGenres = genres.map((genre) => ({
-  //       ...genre,
-  //       nombre_de_jeux: genreCountMap[genre.id] || 0,
-  //     }));
-
-  //     setGenresWithCount(enrichedGenres);
-
-  //     // Créer le nouveau tableau avec les counts
-  //     // const genresWithCounts = genres.map((genre) => ({
-  //     //   ...genre,
-  //     //   count: genreCount[genre.igdbID] || 0,
-  //     // }));
-
-  //     // setGenresWithCount(gamesCount);
-  //   }
-  // }, [games, genres]);
-
   useEffect(() => {
     async function loadData() {
       try {
@@ -155,8 +97,8 @@ export default function DataProvider({ children }) {
           new Map(prev).set(`games_0_v${cacheVersion}`, getGamesData)
         );
 
-        // const getGenresData = await getGenres();
-        // setGenres(getGenresData);
+        const getGenresData = await getGenres();
+        setGenres(getGenresData);
 
         // const getThemesData = await getThemes();
         // setThemes(getThemesData);

@@ -2,12 +2,13 @@ import { useContext, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 import { MenuContext } from "../../context/MenuContext";
 import { Link } from "react-router-dom";
-import { Search, Sun, Bell, User } from "lucide-react";
+import { Search, Sun, Bell, User, Moon } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import MenuAuth from "./MenuAuth";
+import MenuNotification from "./MenuNotification";
 
 export default function MenuBurger() {
-  const { toggleTheme } = useContext(ThemeContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const {
     burger,
     toggleBurger,
@@ -15,6 +16,9 @@ export default function MenuBurger() {
     menuAuth,
     toggleMenuAuth,
     menuAuthRef,
+    menuNotif,
+    toggleMenuNotif,
+    menuNotifRef,
   } = useContext(MenuContext);
 
   useEffect(() => {
@@ -25,6 +29,9 @@ export default function MenuBurger() {
       if (window.innerWidth > 1000 && menuAuth) {
         toggleMenuAuth();
       }
+      if (window.innerWidth > 1000 && menuNotif) {
+        toggleMenuNotif();
+      }
     };
 
     window.addEventListener("resize", handleResize);
@@ -33,7 +40,14 @@ export default function MenuBurger() {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [burger, toggleBurger, menuAuth, toggleMenuAuth]);
+  }, [
+    burger,
+    toggleBurger,
+    menuAuth,
+    toggleMenuAuth,
+    menuNotif,
+    toggleMenuNotif,
+  ]);
 
   return (
     <>
@@ -48,15 +62,30 @@ export default function MenuBurger() {
         className="absolute top-0 right-0 min-h-screen flex flex-col gap-10 px-5 py-6 items-center bg-main-light border-l border-b border-black w-[300px] dark:bg-gray-900 dark:border-white z-50"
       >
         <div className="w-full flex items-center justify-between gap-4">
-          <Sun
-            onClick={toggleTheme}
-            className="text-black dark:text-white cursor-pointer"
-          />
-          <Bell className="text-black dark:text-white cursor-pointer" />
+          {theme === "dark" ? (
+            <Sun
+              onClick={toggleTheme}
+              className="text-black dark:text-white cursor-pointer"
+            />
+          ) : (
+            <Moon
+              onClick={toggleTheme}
+              className="text-black dark:text-white cursor-pointer"
+            />
+          )}
+          <div ref={menuNotifRef}>
+            <Bell
+              onClick={toggleMenuNotif}
+              className="text-black dark:text-white cursor-pointer"
+              data-menu="notification"
+            />
+            {menuNotif ? <MenuNotification onSelect={toggleMenuNotif} /> : null}
+          </div>
           <div ref={menuAuthRef}>
             <User
               onClick={toggleMenuAuth}
               className="text-black dark:text-white cursor-pointer"
+              data-menu="auth"
             />
             {menuAuth ? <MenuAuth onSelect={toggleMenuAuth} /> : null}
           </div>
@@ -74,12 +103,12 @@ export default function MenuBurger() {
         >
           Mes Jeux
         </Link>
-        <Link
+        {/* <Link
           to="/stats"
           className="text-main-text-light dark:text-main-text-dark"
         >
           Stats
-        </Link>
+        </Link> */}
         <Link
           to="/discover"
           className="text-main-text-light dark:text-main-text-dark"

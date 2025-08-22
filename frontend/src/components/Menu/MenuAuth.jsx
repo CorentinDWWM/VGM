@@ -6,6 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 export default function MenuAuth({ onSelect }) {
   const { menuAuth, toggleMenuAuth, menuAuthRef } = useContext(MenuContext);
   const { user, logout } = useContext(AuthContext);
+
   const handleClick = () => {
     onSelect(false);
   };
@@ -13,7 +14,7 @@ export default function MenuAuth({ onSelect }) {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 1000 && menuAuth) {
-        toggleBurger();
+        toggleMenuAuth();
       }
     };
 

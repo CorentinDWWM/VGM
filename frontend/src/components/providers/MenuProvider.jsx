@@ -22,9 +22,19 @@ export default function MenuProvider({ children }) {
     setMenuAuth((prev) => !prev);
   };
 
+  // Menu Notification
+
+  const [menuNotif, setMenuNotif] = useState(false);
+  const menuNotifRef = useRef(null);
+
+  const toggleMenuNotif = () => {
+    setMenuNotif((prev) => !prev);
+  };
+
   // Menu Filtres
 
   // Menu Genres
+
   const [menuGenres, setMenuGenres] = useState(false);
   const menuGenresRef = useRef(null);
 
@@ -42,12 +52,15 @@ export default function MenuProvider({ children }) {
   };
 
   // Menu Plateformes
+
   const [menuPlateformes, setMenuPlateformes] = useState(false);
   const menuPlateformesRef = useRef(null);
 
   const toggleMenuPlateformes = () => {
     setMenuPlateformes((prev) => !prev);
   };
+
+  // Menu Consoles
 
   const [menuConsoles, setMenuConsoles] = useState("");
   const menuConsolesRef = useRef(null);
@@ -93,13 +106,30 @@ export default function MenuProvider({ children }) {
         setBurger(false);
       }
 
-      // Menu Auth
+      // Menu Auth - Exclure l'icône User qui déclenche le menu
       if (
         menuAuth &&
         menuAuthRef.current &&
         !menuAuthRef.current.contains(event.target)
       ) {
-        setMenuAuth(false);
+        // Vérifier si le clic n'est pas sur l'icône User elle-même
+        const userIcon = event.target.closest('[data-menu="auth"]');
+        if (!userIcon) {
+          setMenuAuth(false);
+        }
+      }
+
+      // Menu Notification - Exclure l'icône Bell qui déclenche le menu
+      if (
+        menuNotif &&
+        menuNotifRef.current &&
+        !menuNotifRef.current.contains(event.target)
+      ) {
+        // Vérifier si le clic n'est pas sur l'icône Bell elle-même
+        const bellIcon = event.target.closest('[data-menu="notification"]');
+        if (!bellIcon) {
+          setMenuNotif(false);
+        }
       }
 
       // Menu Genres
@@ -128,6 +158,8 @@ export default function MenuProvider({ children }) {
       ) {
         setMenuConsoles("");
       }
+
+      // Menu Filtres
       if (
         burgerFiltres &&
         burgerFiltresRef.current &&
@@ -140,6 +172,7 @@ export default function MenuProvider({ children }) {
     if (
       burger ||
       menuAuth ||
+      menuNotif ||
       menuGenres ||
       menuPlateformes ||
       menuConsoles ||
@@ -154,6 +187,7 @@ export default function MenuProvider({ children }) {
   }, [
     burger,
     menuAuth,
+    menuNotif,
     menuGenres,
     menuPlateformes,
     menuConsoles,
@@ -164,6 +198,7 @@ export default function MenuProvider({ children }) {
   useEffect(() => {
     setBurger(false);
     setMenuAuth(false);
+    setMenuNotif(false);
     setMenuGenres(false);
     setMenuPlateformes(false);
   }, [location]);
@@ -178,6 +213,9 @@ export default function MenuProvider({ children }) {
         menuAuth,
         toggleMenuAuth,
         menuAuthRef,
+        menuNotif,
+        toggleMenuNotif,
+        menuNotifRef,
         menuGenres,
         toggleMenuGenres,
         menuGenresRef,

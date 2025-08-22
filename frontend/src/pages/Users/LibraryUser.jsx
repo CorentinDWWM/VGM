@@ -116,6 +116,25 @@ export default function LibraryUser() {
                 </div>
               </div>
             </div>
+            <div className="w-full flex flex-col gap-5">
+              <h3 className="text-primary-light dark:text-primary-dark font-medium">
+                Jeux abandonnés :
+              </h3>
+              <div
+                className="w-full overflow-x-auto hide-scrollbar cursor-grab pb-10 select-none"
+                ref={scroll3.scrollRef}
+                onMouseDown={scroll3.onMouseDown}
+              >
+                <div className="flex items-center gap-[50px] min-w-max">
+                  {user.games &&
+                    user.games
+                      .filter((game) => game.statusUser === "Abandonné")
+                      .map((game) => (
+                        <AffichesJeux key={game._id} game={game} />
+                      ))}
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <Bouton text="Découvrez nos jeux" onClick={handleClickToDiscorver} />

@@ -77,6 +77,7 @@ export default function StatisticsUser() {
         }
       });
     }
+    console.log(genreCountMap);
   });
 
   // Trier les genres par nombre décroissant et ne garder que les 8 premiers
@@ -89,13 +90,45 @@ export default function StatisticsUser() {
     }));
 
   const barColor = theme === "light" ? "#4f46e5" : "#6996f1";
+  const textColor = theme === "light" ? "#000000" : "#ffffff";
 
-  // Données pour le graphique en camembert des statuts
+  // Données pour le graphique répartition des statuts
+  const statusColors = {
+    light: {
+      Terminé: "#16a34a",
+      "En cours": "#4f46e5",
+      Abandonné: "#dc2626",
+      "Non commencé": "#ca8a04",
+    },
+    dark: {
+      Terminé: "#22c55e",
+      "En cours": "#6996f1",
+      Abandonné: "#ef4444",
+      "Non commencé": "#facc15",
+    },
+  };
+
   const gamesByStatusData = [
-    { name: "Terminé", value: finishedCount, color: "#10b981" },
-    { name: "En cours", value: inProgressCount, color: "#f59e0b" },
-    { name: "Abandonné", value: desertedCount, color: "#ef4444" },
-    { name: "Non commencé", value: notStartCount, color: "#6b7280" },
+    {
+      name: "Terminé",
+      value: finishedCount,
+      color: statusColors[theme]["Terminé"],
+    },
+    {
+      name: "En cours",
+      value: inProgressCount,
+      color: statusColors[theme]["En cours"],
+    },
+    {
+      name: "Abandonné",
+      value: desertedCount,
+      color: statusColors[theme]["Abandonné"],
+    },
+    {
+      name: "Non commencé",
+      value: notStartCount,
+      color: statusColors[theme]["Non commencé"],
+    },
   ].filter((item) => item.value > 0); // Ne garder que les statuts avec au moins 1 jeu
 
   return (
@@ -104,7 +137,7 @@ export default function StatisticsUser() {
       <h2 className="text-center text-2xl max-sm:text-lg font-bold">
         Mes statistiques
       </h2>
-      <div className="w-full h-full flex flex-col items-center gap-[100px] max-sm:gap-10 px-[100px] max-md:px-10 py-2.5">
+      <div className="w-full h-full flex flex-col items-center gap-[100px] max-sm:gap-10 px-[50px] max-md:px-10 pt-2.5 pb-10">
         {/* Jeux */}
         <div className="flex flex-wrap justify-center items-center gap-5">
           <div className="w-[250px] flex flex-col items-center gap-2.5 p-5 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
@@ -138,9 +171,9 @@ export default function StatisticsUser() {
             </div>
           </div>
         </div>
-        <div className="w-full flex max-xl:flex-col max-xl:gap-10 items-center justify-between">
+        <div className="w-full flex max-2xl:flex-col max-2xl:gap-10 items-center justify-between">
           {/* Jeux par Année */}
-          <div className="w-[400px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
+          <div className="w-[425px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
             <h3 className="text-xl max-sm:text-lg font-semibold">
               Jeux ajoutés par année
             </h3>
@@ -153,22 +186,34 @@ export default function StatisticsUser() {
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="year"
+                  tick={{ fill: textColor }}
+                  height={50}
                   label={{
                     value: "Années",
                     position: "insideBottomRight",
-                    offset: -5,
+                    offset: 0,
+                    style: { fill: textColor },
                   }}
                 />
                 <YAxis
                   allowDecimals={false}
+                  tick={{ fill: textColor }}
                   label={{
                     value: "Nombre de jeux",
                     angle: -90,
                     position: "insideLeft",
-                    offset: 20,
+                    offset: 10,
+                    style: { fill: textColor, textAnchor: "start" },
                   }}
                 />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    color: "#000000",
+                  }}
+                />
                 <Bar
                   dataKey="count"
                   fill={barColor}
@@ -197,39 +242,50 @@ export default function StatisticsUser() {
           </div>
 
           {/* Jeux par genre */}
-          <div className="w-[450px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
+          <div className="w-[425px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
             <h3 className="text-xl max-sm:text-lg font-semibold">
               Jeux par genre
             </h3>
             <ResponsiveContainer
               width="100%"
-              height={350}
+              height={300}
               className="max-sm:hidden"
             >
-              <BarChart data={gamesByGenreData} margin={{ bottom: 20 }}>
+              <BarChart data={gamesByGenreData}>
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="genre"
                   interval={0}
-                  angle={-45}
-                  textAnchor="end"
+                  angle={0}
+                  textAnchor="middle"
                   height={50}
+                  tick={{ fill: textColor }}
                   label={{
                     value: "Genres",
                     position: "insideBottomRight",
                     offset: 0,
+                    style: { fill: textColor },
                   }}
                 />
                 <YAxis
                   allowDecimals={false}
+                  tick={{ fill: textColor }}
                   label={{
                     value: "Nombre de jeux",
                     angle: -90,
                     position: "insideLeft",
-                    offset: 20,
+                    offset: 10,
+                    style: { fill: textColor, textAnchor: "start" },
                   }}
                 />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    color: "#000000",
+                  }}
+                />
                 <Bar
                   dataKey="count"
                   fill={barColor}
@@ -278,7 +334,7 @@ export default function StatisticsUser() {
           </div>
 
           {/* Répartition par statut */}
-          <div className="w-[400px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
+          <div className="w-[425px] max-sm:w-full flex flex-col gap-2.5 p-5 max-sm:p-3 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
             <h3 className="text-xl max-sm:text-lg font-semibold">
               Répartition par statut
             </h3>
@@ -295,14 +351,20 @@ export default function StatisticsUser() {
                   labelLine={false}
                   label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
-                  fill="#8884d8"
                   dataKey="value"
                 >
                   {gamesByStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    color: "#000000",
+                  }}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

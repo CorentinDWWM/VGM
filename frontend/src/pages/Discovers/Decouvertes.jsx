@@ -1,11 +1,71 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
-import { games } from "../../games.json";
-import { genres } from "../../genres.json";
 import { Link } from "react-router-dom";
+import { DataContext } from "../../context/DataContext";
+import { AuthContext } from "../../context/AuthContext";
+import genresData from "../../genres.json";
 
 export default function Decouvertes() {
+  const { user } = useContext(AuthContext);
+  const { games, genres } = useContext(DataContext);
   const [tendancesSelected, setTendancesSelected] = useState("all");
+
+  const formatGenreName = (genreName) => {
+    if (genreName === "Role-playing (RPG)") {
+      return "RPG";
+    }
+    return genreName;
+  };
+
+  // Avoir les genres Favoris
+  const userFavoriteGenres = user?.games
+    ? (() => {
+        const genreCount = {};
+
+        user.games.forEach((userGame) => {
+          if (userGame.genres && Array.isArray(userGame.genres)) {
+            userGame.genres.forEach((genre) => {
+              const genreKey = genre.id;
+              const genreName = genre.name;
+              if (genreCount[genreKey]) {
+                genreCount[genreKey].count += 1;
+              } else {
+                genreCount[genreKey] = {
+                  name: genreName,
+                  count: 1,
+                };
+              }
+            });
+          }
+        });
+        const sortedGenres = Object.entries(genreCount)
+          .sort(([, a], [, b]) => b.count - a.count)
+          .slice(0, 3)
+          .map(([id, genre]) => ({
+            id: id,
+            name: formatGenreName(genre.name),
+          }));
+
+        // console.log("Top 3 genres:", sortedGenres);
+        return sortedGenres;
+      })()
+    : [];
+
+  // Filtre des jeux favoris de l'utilisateur
+  const recommendedGames =
+    userFavoriteGenres.length > 0
+      ? games
+          .filter((game) => {
+            if (!game.genres || !Array.isArray(game.genres)) return false;
+            return game.genres.some((gameGenre) =>
+              userFavoriteGenres.some(
+                (favoriteGenre) => favoriteGenre.id === gameGenre.id.toString()
+              )
+            );
+          })
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 5)
+      : games.slice(0, 5);
 
   const toggleTendancesSelected = (nom) => {
     if (tendancesSelected !== nom) {
@@ -31,17 +91,14 @@ export default function Decouvertes() {
           Recommandé pour vous
         </p>
         <p className="text-secondary-text-light dark:text-secondary-text-dark">
-          Basé sur vos jeux favoris : Zelda, RPG, Aventure
+          Basé sur vos jeux favoris :{" "}
+          {userFavoriteGenres.length > 0
+            ? userFavoriteGenres.map((genre) => genre.name).join(", ")
+            : "Aucun genre défini"}
         </p>
         <div className="flex flex-wrap justify-center items-center gap-6 pt-2.5">
-          {games.slice(0, 5).map((game, index) => (
-            <AffichesJeux
-              key={index}
-              img={game.img}
-              rating={game.rating}
-              name={game.name}
-              platforms={game.platforms}
-            />
+          {recommendedGames.map((game) => (
+            <AffichesJeux key={game._id} game={game} />
           ))}
         </div>
       </div>
@@ -97,14 +154,8 @@ export default function Decouvertes() {
           </div>
         </div>
         <div className="flex flex-wrap justify-center items-center gap-6 pt-2.5">
-          {games.slice(0, 8).map((game, index) => (
-            <AffichesJeux
-              key={index}
-              img={game.img}
-              rating={game.rating}
-              name={game.name}
-              platforms={game.platforms}
-            />
+          {games.slice(0, 8).map((game) => (
+            <AffichesJeux key={game._id} game={game} />
           ))}
         </div>
       </div>
@@ -122,28 +173,22 @@ export default function Decouvertes() {
           </Link>
         </div>
         <div className="flex flex-wrap justify-center items-center gap-6 pt-2.5">
-          {games.slice(0, 5).map((game, index) => (
-            <AffichesJeux
-              key={index}
-              img={game.img}
-              rating={game.rating}
-              name={game.name}
-              platforms={game.platforms}
-            />
+          {games.slice(0, 5).map((game) => (
+            <AffichesJeux key={game._id} game={game} />
           ))}
         </div>
       </div>
+      {/* Genres */}
       <div className="w-fill flex flex-col items-center gap-6">
         <p className="text-black dark:text-white text-2xl font-semibold">
           Explorer par genre
         </p>
         <div className="w-full flex flex-wrap items-center justify-center gap-x-[30px] gap-y-5">
-          {genres.map((g, index) => (
-            <Link key={g.id} to={`/discover/${g.id}`}>
+          {genres.map((g) => (
+            <Link key={g._id} to={`/discover/${g.igdbID}`}>
               <div className="w-[200px] h-[200px] flex flex-col items-center justify-center gap-2.5 py-[30px] rounded-xl bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl shadow-black/10 dark:shadow-white/10 hover:scale-110 cursor-pointer">
-                <p className="text-2xl">{g.emoji}</p>
-                <p className="text-lg font-semibold text-black dark:text-white">
-                  {g.nom}
+                <p className="text-lg font-semibold text-black dark:text-white text-center">
+                  {g.name}
                 </p>
                 <p className="text-secondary-text-light dark:text-secondary-text-dark">
                   {g.nb_jeux} jeux

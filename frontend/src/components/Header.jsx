@@ -6,11 +6,20 @@ import { IoMenu } from "react-icons/io5";
 import { MenuContext } from "../context/MenuContext";
 import MenuBurger from "./Menu/MenuBurger";
 import MenuAuth from "./Menu/MenuAuth";
+import MenuNotification from "./Menu/MenuNotification";
 
 export default function Header() {
   const { theme, toggleTheme } = useContext(ThemeContext);
-  const { burger, toggleBurger, menuAuth, toggleMenuAuth, menuAuthRef } =
-    useContext(MenuContext);
+  const {
+    burger,
+    toggleBurger,
+    menuAuth,
+    toggleMenuAuth,
+    menuAuthRef,
+    menuNotif,
+    toggleMenuNotif,
+    menuNotifRef,
+  } = useContext(MenuContext);
   return (
     <header className="bg-white px-6 py-4 flex justify-between items-center shadow-md dark:bg-gray-900 dark:shadow-white/30">
       {theme === "dark" ? (
@@ -43,12 +52,12 @@ export default function Header() {
         >
           Jeux
         </Link>
-        <Link
+        {/* <Link
           to="/stats"
           className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
         >
           Stats
-        </Link>
+        </Link> */}
         <Link
           to="/discover"
           className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
@@ -76,11 +85,19 @@ export default function Header() {
             className="text-black dark:text-white cursor-pointer"
           />
         )}
-        <Bell className="text-black dark:text-white cursor-pointer" />
+        <div ref={menuNotifRef}>
+          <Bell
+            onClick={toggleMenuNotif}
+            className="text-black dark:text-white cursor-pointer"
+            data-menu="notification"
+          />
+          {menuNotif ? <MenuNotification onSelect={toggleMenuNotif} /> : null}
+        </div>
         <div ref={menuAuthRef}>
           <User
             onClick={toggleMenuAuth}
             className="text-black dark:text-white cursor-pointer"
+            data-menu="auth"
           />
           {menuAuth ? <MenuAuth onSelect={toggleMenuAuth} /> : null}
         </div>
