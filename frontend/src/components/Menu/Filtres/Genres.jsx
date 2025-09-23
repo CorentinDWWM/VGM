@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { MenuContext } from "../../../context/MenuContext";
-import { genres } from "../../../genres.json";
 import { IoClose } from "react-icons/io5";
 import { DataContext } from "../../../context/DataContext";
 
