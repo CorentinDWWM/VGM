@@ -5,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { signup } from "../../apis/auth.api";
+import Bouton from "../../components/Boutons/Bouton";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -183,9 +184,7 @@ export default function Register() {
               Connectez-vous !
             </Link>
           </div>
-          <button className="w-[150px] bg-primary-light hover:bg-primary-dark text-white hover:text-black dark:bg-primary-dark dark:hover:bg-primary-light dark:text-black dark:hover:text-white px-4 py-2 rounded-lg cursor-pointer">
-            S'inscrire
-          </button>
+          <Bouton text="S'inscrire" />
         </form>
       </div>
     </div>

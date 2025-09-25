@@ -1,13 +1,15 @@
 const {
-  getMostPopularGames,
+  getMostPopularGamesAllTime,
   importGamesIntoBDD,
   getGames,
+  getOneGame,
+  // getPopularGamesThisWeek,
 } = require("../controllers/games.controller");
 const {
   getGenres,
   getGenresFromIGDB,
   updateGenresCounts,
-  getGenresWithCount,
+  // getGenresWithCount,
 } = require("../controllers/genres.controller");
 const {
   getKeywords,
@@ -25,18 +27,18 @@ const {
 const router = require("express").Router();
 
 // Jeux
+router.get("/games/:id", getOneGame);
 router.get("/games", getGames);
-router.get("/most-popular", getMostPopularGames);
+router.get("/most-popular/all-time", getMostPopularGamesAllTime);
+// router.get("/most-popular/week", getPopularGamesThisWeek);
 router.get("/most-popular/import", importGamesIntoBDD);
 
 // Genres
 router.get("/genres", getGenres);
 router.get("/genres/import", getGenresFromIGDB);
-// Route pour récupérer les genres avec le nombre de jeux
-router.get("/genres/with-count", getGenresWithCount);
 
 // Route pour mettre à jour les compteurs de jeux par genre
-router.put("/genres/update-counts", updateGenresCounts);
+router.get("/genres/update-counts", updateGenresCounts);
 
 // Thèmes
 router.get("/themes", getThemes);

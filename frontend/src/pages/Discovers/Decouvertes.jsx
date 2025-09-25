@@ -3,7 +3,6 @@ import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import { Link } from "react-router-dom";
 import { DataContext } from "../../context/DataContext";
 import { AuthContext } from "../../context/AuthContext";
-import genresData from "../../genres.json";
 
 export default function Decouvertes() {
   const { user } = useContext(AuthContext);
@@ -63,9 +62,24 @@ export default function Decouvertes() {
               )
             );
           })
+          .filter((game) => {
+            // Exclure les jeux déjà présents dans la liste de l'utilisateur
+            if (user?.games && Array.isArray(user.games)) {
+              return !user.games.some((userGame) => userGame._id === game._id);
+            }
+            return true;
+          })
           .sort(() => Math.random() - 0.5)
           .slice(0, 5)
-      : games.slice(0, 5);
+      : games
+          .filter((game) => {
+            // Exclure les jeux déjà présents dans la liste de l'utilisateur même quand pas de genres favoris
+            if (user?.games && Array.isArray(user.games)) {
+              return !user.games.some((userGame) => userGame._id === game._id);
+            }
+            return true;
+          })
+          .slice(0, 5);
 
   const toggleTendancesSelected = (nom) => {
     if (tendancesSelected !== nom) {
@@ -154,7 +168,7 @@ export default function Decouvertes() {
           </div>
         </div>
         <div className="flex flex-wrap justify-center items-center gap-6 pt-2.5">
-          {games.slice(0, 8).map((game) => (
+          {games.slice(0, 6).map((game) => (
             <AffichesJeux key={game._id} game={game} />
           ))}
         </div>
@@ -179,20 +193,32 @@ export default function Decouvertes() {
         </div>
       </div>
       {/* Genres */}
-      <div className="w-fill flex flex-col items-center gap-6">
+      <div className="w-full flex flex-col items-center gap-6">
         <p className="text-black dark:text-white text-2xl font-semibold">
           Explorer par genre
         </p>
-        <div className="w-full flex flex-wrap items-center justify-center gap-x-[30px] gap-y-5">
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {genres.map((g) => (
             <Link key={g._id} to={`/discover/${g.igdbID}`}>
-              <div className="w-[200px] h-[200px] flex flex-col items-center justify-center gap-2.5 py-[30px] rounded-xl bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl shadow-black/10 dark:shadow-white/10 hover:scale-110 cursor-pointer">
-                <p className="text-lg font-semibold text-black dark:text-white text-center">
-                  {g.name}
-                </p>
-                <p className="text-secondary-text-light dark:text-secondary-text-dark">
-                  {g.nb_jeux} jeux
-                </p>
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 hover:scale-105">
+                {/* Background pattern */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-light/10 to-primary-dark/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                {/* Content */}
+                <div className="relative p-8 flex flex-col items-center justify-center min-h-[160px] text-center">
+                  {/* Genre name */}
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3 group-hover:text-primary-light dark:group-hover:text-primary-dark transition-colors duration-300">
+                    {g.name}
+                  </h3>
+
+                  {/* Number of games */}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                    {g.nb_jeux} jeux disponibles
+                  </p>
+
+                  {/* Hover indicator */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-light to-primary-dark transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                </div>
               </div>
             </Link>
           ))}

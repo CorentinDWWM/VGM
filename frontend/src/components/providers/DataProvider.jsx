@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { DataContext } from "../../context/DataContext";
 import {
-  getGames,
   getGenres,
   getKeywords,
   getPlateformes,
   getThemes,
 } from "../../apis/igdbData.api";
+
+import { getGames, getGameById } from "../../apis/games.api";
 
 export default function DataProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -83,6 +84,29 @@ export default function DataProvider({ children }) {
       )
     );
   }, []);
+
+  // Fonction pour récupérer un jeu par son ID
+  const getAGame = useCallback(
+    async (gameId) => {
+      try {
+        // Vérifier d'abord dans le cache local
+        for (const games of gameCache.values()) {
+          const foundGame = games.find((game) => game._id === gameId);
+          if (foundGame) {
+            return foundGame;
+          }
+        }
+
+        // Si pas trouvé dans le cache, faire un appel API
+        const game = await getGameById(gameId);
+        return game;
+      } catch (error) {
+        console.error("Erreur lors de la récupération du jeu:", error);
+        throw error;
+      }
+    },
+    [gameCache]
+  );
 
   useEffect(() => {
     async function loadData() {
@@ -170,6 +194,7 @@ export default function DataProvider({ children }) {
         isLoadingMore,
         invalidateCache,
         updateGameInCache,
+        getAGame,
       }}
     >
       {children}

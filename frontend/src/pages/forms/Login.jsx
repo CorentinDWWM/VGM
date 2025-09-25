@@ -6,6 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { signin } from "../../apis/auth.api";
+import Bouton from "../../components/Boutons/Bouton";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
@@ -106,9 +107,7 @@ export default function Login() {
               Inscrivez vous !
             </Link>
           </div>
-          <button className="w-[150px] bg-primary-light hover:bg-primary-dark text-white hover:text-black dark:bg-primary-dark dark:hover:bg-primary-light dark:text-black dark:hover:text-white px-4 py-2 rounded-lg cursor-pointer">
-            Se connecter
-          </button>
+          <Bouton text="Se connecter" />
         </form>
       </div>
     </div>

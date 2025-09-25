@@ -12,6 +12,7 @@ import { IoKeyOutline } from "react-icons/io5";
 import { useContext } from "react";
 import { DataContext } from "../../context/DataContext";
 import { useLoaderData } from "react-router-dom";
+import Bouton from "../../components/Boutons/Bouton";
 
 export default function Accueil() {
   // const { gamesData } = useLoaderData();
@@ -21,7 +22,7 @@ export default function Accueil() {
   return (
     <div className="flex flex-col items-center">
       {/* Intro */}
-      <section className="m-4 rounded py-16 text-center">
+      <section className="m-4 rounded py-16 text-center flex flex-col items-center">
         <h2 className="text-4xl font-bold mb-4 text-main-text-light dark:text-main-text-dark">
           Bienvenue sur <br />{" "}
           <span className="text-primary-light dark:text-primary-dark">
@@ -33,9 +34,10 @@ export default function Accueil() {
           obtenez des statistiques sur votre temps de jeu. Compatible
           multi-plateformes !
         </p>
-        <button className="bg-primary-light hover:bg-hover-light dark:bg-primary-dark dark:hover:bg-hover-dark dark:text-main-dark text-main-light px-6 py-3 rounded-xl text-lg font-semibold cursor-pointer">
+        {/* <button className="bg-primary-light hover:bg-hover-light dark:bg-primary-dark dark:hover:bg-hover-dark dark:text-main-dark text-main-light px-6 py-3 rounded-xl text-lg font-semibold cursor-pointer">
           Commencer maintenant
-        </button>
+        </button> */}
+        <Bouton text="Commencer maintenant" navigation="/discover" />
       </section>
 
       {/* Fonctionnalités */}

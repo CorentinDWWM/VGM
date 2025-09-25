@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import Bouton from "../Boutons/Bouton";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { UserProfilContext } from "../../context/UserProfilContext";
 import { updateStatusInUser } from "../../apis/auth.api";
@@ -8,6 +8,7 @@ import { updateStatusInUser } from "../../apis/auth.api";
 export default function AffichesJeux({ game }) {
   const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, setUser } = useContext(AuthContext);
   const { addGamesToUser, delGamesInUser } = useContext(UserProfilContext);
 
@@ -35,94 +36,150 @@ export default function AffichesJeux({ game }) {
 
   const handleStatusChange = async (e) => {
     const newStatus = e.target.value;
-    // Trouver le jeu dans la collection
     const updatedGames = user.games.map((g) =>
       g.igdbID === game.igdbID ? { ...g, statusUser: newStatus } : g
     );
-    // Mettre à jour l'utilisateur
     setUser({ ...user, games: updatedGames });
-    // Si tu veux aussi mettre à jour côté serveur, appelle une fonction ici
     const response = await updateStatusInUser(game, newStatus, user);
     console.log(response);
   };
 
+  const getEarliestReleaseDate = (releaseDates) => {
+    if (!releaseDates || releaseDates.length === 0) return null;
+    const sortedDates = releaseDates
+      .filter((release) => release.date)
+      .map((release) => ({
+        original: release.date,
+        dateObj: new Date(release.date),
+      }))
+      .sort((a, b) => a.dateObj - b.dateObj);
+    return sortedDates.length > 0 ? sortedDates[0].original : null;
+  };
+
   return (
     <div
-      className="w-[250px] max-md:w-[200px] relative cursor-default"
+      className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-lg cursor-pointer relative w-[280px] flex flex-col"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => navigate(`/games/${game.igdbID}`)}
     >
-      <img
-        src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.webp`}
-        alt={game.name}
-        className={`border border-black dark:border-white shadow-xl dark:shadow-white/10 object-contain w-full h-full`}
-      />
-      {isHovered && (
-        <div className="absolute inset-0 bg-black/50 flex flex-col items-center max-sm:gap-0">
-          <div
-            className={`w-full flex justify-between items-center gap-2.5 p-3 max-md:py-1`}
-          >
-            <>
-              {user && user.games.length >= 1 && isInCollection ? (
-                <div
-                  onClick={handleRemoveGame}
-                  className="w-[25px] h-[25px] max-md:w-[20px] max-md:h-[20px] bg-alert-light rounded-4xl flex border border-black justify-center items-center cursor-pointer"
-                  title="Supprimer ce jeu de la collection"
-                >
-                  <p className="text-center text-white pb-0.5 max-md:text-sm">
-                    -
-                  </p>
-                </div>
-              ) : (
-                <div
-                  onClick={handleAddGame}
-                  className="w-[25px] h-[25px] bg-primary-light rounded-4xl flex border border-black justify-center items-center cursor-pointer"
-                  title="Ajouter ce jeu à la collection"
-                >
-                  <p className="text-center text-white pb-0.5">+</p>
-                </div>
+      <div className="aspect-[3/4] overflow-hidden relative flex-shrink-0">
+        <img
+          src={
+            game.cover?.image_id
+              ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
+              : "/placeholder-game.jpg"
+          }
+          alt={game.name}
+          className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-105"
+        />
+
+        {/* Overlay with buttons - only show on hover */}
+        {isHovered && (
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+            <div className="flex gap-2">
+              {user && (
+                <>
+                  {isInCollection ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveGame();
+                      }}
+                      className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      title="Retirer de la collection"
+                    >
+                      Retirer de ma liste
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddGame();
+                      }}
+                      className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      title="Ajouter à la collection"
+                    >
+                      Ajouter à ma liste
+                    </button>
+                  )}
+                </>
               )}
-            </>
-            <div className="w-[45px] h-[45px] max-md:w-[35px] max-md:h-[35px] bg-primary-light rounded-4xl border border-black flex justify-center items-center">
-              <p className="text-xs max-md:text-[10px] text-center text-white">
-                {Number(game.votes / 10).toFixed(1)}/10
-              </p>
             </div>
           </div>
-          {location.pathname === "/profil" ||
-          location.pathname === "/profil/library" ? (
-            <>
-              <select
-                className="bg-primary-light hover:bg-primary-dark rounded-4xl flex border border-black justify-center items-center text-center p-1 cursor-pointer text-white hover:text-black max-md:text-xs"
-                title="Status du jeu"
-                defaultValue={
-                  user.games.find((g) => g.igdbID === game.igdbID)
-                    ?.statusUser || "Non commencé"
-                }
-                onChange={handleStatusChange}
-              >
-                <option value="Non commencé">Non commencé</option>
-                <option value="En cours">En cours</option>
-                <option value="Abandonné">Abandonné</option>
-                <option value="Terminé">Terminé</option>
-              </select>
-            </>
-          ) : null}
-          {/* Info jeu */}
-          <div className="w-full flex flex-col items-center gap-2.5 px-2.5 mt-5 max-md:mt-2.5">
-            <p className="font-bold text-center text-white underline max-md:text-sm">
-              {game.name}
-            </p>
-            <p className="text-sm text-center text-white max-md:text-xs">
-              Disponible sur : {game.platforms?.map((p) => p.name).join(", ")}
-            </p>
-            <Bouton
-              text="En savoir plus sur le jeu"
-              textStyle="max-sm:px-5 max-sm:py-2 max-md:text-xs"
-            />
+        )}
+      </div>
+
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="font-semibold text-black dark:text-white mb-2 line-clamp-2 h-12 overflow-hidden">
+            {game.name}
+          </h3>
+
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {game.release_dates && game.release_dates.length > 0
+                ? new Date(
+                    getEarliestReleaseDate(game.release_dates)
+                  ).getFullYear()
+                : "TBA"}
+            </span>
+            {game.votes && (
+              <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                {Math.round(game.votes) / 10}/10
+              </span>
+            )}
           </div>
+
+          {/* Status selector for profile pages */}
+          {(location.pathname === "/profil" ||
+            location.pathname === "/profil/library") &&
+            isInCollection && (
+              <div className="mb-2">
+                <select
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={handleStatusChange}
+                  defaultValue={
+                    user.games.find((g) => g.igdbID === game.igdbID)
+                      ?.statusUser || "Non commencé"
+                  }
+                  className="w-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded border border-gray-300 dark:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Non commencé">Non commencé</option>
+                  <option value="En cours">En cours</option>
+                  <option value="Abandonné">Abandonné</option>
+                  <option value="Terminé">Terminé</option>
+                </select>
+              </div>
+            )}
         </div>
-      )}
+
+        {game.genres && game.genres.length > 0 && (
+          <div className="overflow-hidden flex items-start">
+            <div className="flex flex-wrap gap-1">
+              {game.genres.slice(0, 2).map((genre) => (
+                <span
+                  key={genre.id}
+                  className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full"
+                  style={{
+                    maxWidth: "100px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {genre.name}
+                </span>
+              ))}
+              {game.genres.length > 2 && (
+                <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
+                  +{game.genres.length - 2}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

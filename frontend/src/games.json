@@ -1,0 +1,72 @@
+{
+  "games": [
+    {
+      "name": "The Legend of Zelda Tears of the Kingdom",
+      "img": "/games/totk.jpg",
+      "rating": "8.9",
+      "platforms": ["Switch 1", "Switch 2"]
+    },
+    {
+      "name": "Astro Bot",
+      "img": "/games/astro_bot.webp",
+      "rating": "9.1",
+      "platforms": ["PS5"]
+    },
+    {
+      "name": "The Legend of Zelda Breath of the Wild",
+      "img": "/games/botw.jpg",
+      "rating": "7.8",
+      "platforms": ["Wii U", "Switch 1", "Switch 2"]
+    },
+    {
+      "name": "Fantasy Life i",
+      "img": "/games/fantasy_life_i.webp",
+      "rating": "8",
+      "platforms": ["Switch 1", "PS5", "Xbox Series X/S", "PC"]
+    },
+    {
+      "name": "God of War III",
+      "img": "/games/god3.jpg",
+      "rating": "7.5",
+      "platforms": ["PS3", "PS4"]
+    },
+    {
+      "name": "Hogwarts Legacy : L'Héritage de Poudlard",
+      "img": "/games/hogwarts_legacy.jpg",
+      "rating": "8.1",
+      "platforms": [
+        "Switch 1",
+        "Switch 2",
+        "PS5",
+        "PS4",
+        "Xbox One",
+        "Xbox Series X/S",
+        "PC"
+      ]
+    },
+    {
+      "name": "The Legend of Zelda Link's Awakening",
+      "img": "/games/link_awakening.jpg",
+      "rating": "7.2",
+      "platforms": ["Switch 1"]
+    },
+    {
+      "name": "Marvel's Spider-Man: Miles Morales",
+      "img": "/games/miles_morales.jpg",
+      "rating": "8.7",
+      "platforms": ["PS4", "PS5", "PC"]
+    },
+    {
+      "name": "Pokémon Violet",
+      "img": "/games/pokemon_violet.jpg",
+      "rating": "6.9",
+      "platforms": ["Switch 1"]
+    },
+    {
+      "name": "PowerWash Simulator",
+      "img": "/games/powerwash.jpg",
+      "rating": "7.3",
+      "platforms": ["PS5", "Switch 1", "Xbox Series X/S", "PC"]
+    }
+  ]
+}

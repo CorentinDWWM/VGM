@@ -1,24 +1,5 @@
 import { BASE_URL } from "../utils/url";
 
-export async function getGames(limit, skip) {
-  try {
-    const response = await fetch(
-      `${BASE_URL}/igdb/games?limit=${limit}&skip=${skip}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
-    );
-    if (response.ok) {
-      return await response.json();
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 export async function getGenres() {
   try {
     const response = await fetch(`${BASE_URL}/igdb/genres`, {

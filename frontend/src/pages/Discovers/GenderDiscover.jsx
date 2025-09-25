@@ -1,11 +1,12 @@
 import { useParams } from "react-router-dom";
-import { genres } from "../../genres.json";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { games } from "../../games.json";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
+import { DataContext } from "../../context/DataContext";
 
 export default function GenderDiscover() {
   const { id } = useParams();
+  const { genres } = useContext(DataContext);
   const [genre, setGenre] = useState({});
 
   useEffect(() => {

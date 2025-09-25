@@ -17,6 +17,7 @@ import GlobalStats from "./pages/Stats/GlobalStats";
 import Decouvertes from "./pages/Discovers/Decouvertes";
 import GenderDiscover from "./pages/Discovers/GenderDiscover";
 import DiscoverNews from "./pages/Discovers/DiscoverNews";
+import OneGame from "./pages/OneGame/OneGame";
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
       {
         path: "/games",
         element: <GamesPage />,
+      },
+      {
+        path: "/games/:id",
+        element: <OneGame />,
       },
       // {
       //   path: "/stats",
