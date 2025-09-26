@@ -28,7 +28,7 @@ app.use(routes);
 // app.use(express.static(path.join(__DIRNAME, "../frontend/dist")));
 
 app.get(/(.*)/, (req, res) => {
-  res.sendFile(path.join(__DIRNAME, "../frontend", "dist", "index.html"));
+  res.sendFile(path.join(__DIRNAME, "frontend", "dist", "index.html"));
 });
 
 // Configuration optimisée de la connexion MongoDB
