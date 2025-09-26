@@ -62,13 +62,13 @@ const getGenresFromIGDB = async (req, res) => {
 
 const updateGenresCounts = async (req, res) => {
   try {
-    // Agréger les jeux par genre en utilisant igdbID
+    // Agréger les jeux par genre en utilisant genres.id
     const genreCounts = await Game.aggregate([
       { $unwind: "$genres" },
       {
         $lookup: {
           from: "genres",
-          localField: "genres",
+          localField: "genres.id",
           foreignField: "igdbID",
           as: "genreInfo",
         },
@@ -85,21 +85,24 @@ const updateGenresCounts = async (req, res) => {
     // Mettre à jour chaque genre avec son nb_jeux
     let updateCount = 0;
     for (const genreCount of genreCounts) {
+      const igdbID = Number(genreCount._id);
+
       await Genre.updateOne(
-        { igdbID: genreCount._id },
+        { igdbID: igdbID },
         { $set: { nb_jeux: genreCount.count } }
       );
+
       updateCount++;
     }
 
     // Mettre nb_jeux à 0 pour les genres sans jeux
-    await Genre.updateMany(
-      { igdbID: { $nin: genreCounts.map((g) => g._id) } },
+    const resetResult = await Genre.updateMany(
+      { igdbID: { $nin: genreCounts.map((g) => Number(g._id)) } },
       { $set: { nb_jeux: 0 } }
     );
 
     res.status(200).json({
-      message: `Compteurs mis à jour pour ${updateCount} genres`,
+      message: `Compteurs mis à jour pour ${updateCount} genres, ${resetResult.modifiedCount} remis à zéro`,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -6,6 +6,7 @@ const genreSchema = new mongoose.Schema(
     name: { type: String },
     slug: { type: String },
     url: { type: String },
+    nb_jeux: { type: Number, default: 0 },
   },
   {
     timestamps: true,

@@ -35,8 +35,17 @@ const signup = async (req, res) => {
     // création d'un token
     const token = createTokenEmail(email);
 
-    // envoi d'email
-    await sendConfirmationEmail(email, token);
+    // Essayer d’envoyer l’email APRÈS sauvegarde
+    try {
+      await sendConfirmationEmail(email, token);
+      console.log("📧 Email envoyé avec SendGrid à:", email);
+    } catch (mailError) {
+      console.error(
+        "⚠️ Erreur envoi email:",
+        mailError.response?.body || mailError
+      );
+      // On n’empêche pas la réponse côté client
+    }
 
     // on crée un nouvel utilisateur conforme au schéma
     // On hash le mot de passe avec bcrypt
