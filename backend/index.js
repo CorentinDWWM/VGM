@@ -19,15 +19,22 @@ app.use(
   })
 );
 
-app.use(express.static(path.join(__DIRNAME, "/client/dist")));
+app.use(express.static(path.join(__DIRNAME, "/frontend/dist")));
 
 const routes = require("./routes");
 
 app.use(routes);
 
-// app.use(express.static(path.join(__DIRNAME, "../frontend/dist")));
+// Servir les fichiers statiques du frontend
+app.use(express.static(path.join(__DIRNAME, "frontend/dist")));
 
-app.get(/(.*)/, (req, res) => {
+// Route catch-all pour SPA - doit être après les routes API et les fichiers statiques
+app.get("*", (req, res) => {
+  // Vérifier si la requête est pour un fichier statique
+  if (req.path.includes(".")) {
+    return res.status(404).send("File not found");
+  }
+
   res.sendFile(path.join(__DIRNAME, "frontend", "dist", "index.html"));
 });
 
