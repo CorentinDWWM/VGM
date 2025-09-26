@@ -3,11 +3,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const path = require("path");
+
+const __DIRNAME = path.resolve();
 
 const app = express();
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
-
 app.use(
   cors({
     origin: "*",
@@ -17,23 +19,17 @@ app.use(
   })
 );
 
-const path = require("path");
-
-const __DIRNAME = path.resolve();
-
 app.use(express.static(path.join(__DIRNAME, "/client/dist")));
 
 const routes = require("./routes");
 
 app.use(routes);
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__DIRNAME, "../frontend/dist")));
+// app.use(express.static(path.join(__DIRNAME, "../frontend/dist")));
 
-  app.get(/(.*)/, (req, res) => {
-    res.sendFile(path.join(__DIRNAME, "../frontend", "dist", "index.html"));
-  });
-}
+app.get(/(.*)/, (req, res) => {
+  res.sendFile(path.join(__DIRNAME, "../frontend", "dist", "index.html"));
+});
 
 // Configuration optimisée de la connexion MongoDB
 const mongoOptions = {
