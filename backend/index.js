@@ -17,9 +17,23 @@ app.use(
   })
 );
 
+const path = require("path");
+
+const __DIRNAME = path.resolve();
+
+app.use(express.static(path.join(__DIRNAME, "/backend/dist")));
+
 const routes = require("./routes");
 
 app.use(routes);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__DIRNAME, "../frontend/dist")));
+
+  app.get(/(.*)/, (req, res) => {
+    res.sendFile(path.join(__DIRNAME, "../frontend", "dist", "index.html"));
+  });
+}
 
 // Configuration optimisée de la connexion MongoDB
 const mongoOptions = {
