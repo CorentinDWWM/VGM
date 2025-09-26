@@ -21,7 +21,7 @@ const path = require("path");
 
 const __DIRNAME = path.resolve();
 
-app.use(express.static(path.join(__DIRNAME, "/backend/dist")));
+app.use(express.static(path.join(__DIRNAME, "/client/dist")));
 
 const routes = require("./routes");
 
