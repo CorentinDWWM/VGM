@@ -29,7 +29,7 @@ app.use(routes);
 app.use(express.static(path.join(__DIRNAME, "frontend/dist")));
 
 // Route catch-all pour SPA - doit être après les routes API et les fichiers statiques
-app.get("*", (req, res) => {
+app.get(/.*/, (req, res) => {
   // Vérifier si la requête est pour un fichier statique
   if (req.path.includes(".")) {
     return res.status(404).send("File not found");
