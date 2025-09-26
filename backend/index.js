@@ -12,7 +12,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "*",
+    // origin: "*",
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],

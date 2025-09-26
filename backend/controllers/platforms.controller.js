@@ -1,4 +1,5 @@
 const Platform = require("../models/platform.schema");
+const Game = require("../models/games.schema");
 const { makeRequest } = require("../services/igdb");
 
 // Plateformes
@@ -9,6 +10,17 @@ const getPlatforms = async (req, res) => {
     res.status(200).json(platforms);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+const getAllPlatforms = async (req, res) => {
+  try {
+    const body = "fields id, name, platform_family; limit 100;";
+    const data = await makeRequest("platforms", body);
+    res.status(200).json(data);
+    return data;
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -146,4 +158,113 @@ const getPlatformsFromIGDB = async (req, res) => {
   }
 };
 
-module.exports = { getPlatforms, getPlatformsFromIGDB };
+const getGamesByPlatform = async (req, res) => {
+  try {
+    const { platformId } = req.params;
+    const platformIdNumber = parseInt(platformId);
+
+    // Trouver les jeux qui ont cette plateforme dans leur tableau platforms
+    const games = await Game.find({
+      "platforms.id": platformIdNumber,
+    })
+      .populate("genres")
+      .populate("platforms")
+      .populate("themes")
+      .populate("keywords")
+      .select({
+        name: 1,
+        slug: 1,
+        summary: 1,
+        cover: 1,
+        first_release_date: 1,
+        rating: 1,
+        rating_count: 1,
+        total_rating: 1,
+        total_rating_count: 1,
+        genres: 1,
+        platforms: 1,
+        themes: 1,
+        keywords: 1,
+        igdbID: 1,
+        screenshots: 1,
+        videos: 1,
+        url: 1,
+      });
+
+    // S'assurer que les valeurs numériques ne sont pas undefined
+    const sanitizedGames = games.map((game) => ({
+      ...game.toObject(),
+      rating: game.rating || 0,
+      rating_count: game.rating_count || 0,
+      total_rating: game.total_rating || 0,
+      total_rating_count: game.total_rating_count || 0,
+      first_release_date: game.first_release_date || null,
+    }));
+
+    res.status(200).json(sanitizedGames);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getGamesByPlatformPaginated = async (req, res) => {
+  try {
+    const { platformId } = req.params;
+    const { limit = 50, skip = 0 } = req.query;
+    const platformIdNumber = parseInt(platformId);
+    const limitNumber = parseInt(limit);
+    const skipNumber = parseInt(skip);
+
+    // Trouver les jeux qui ont cette plateforme dans leur tableau platforms
+    const games = await Game.find({
+      "platforms.id": platformIdNumber,
+    })
+      .populate("genres")
+      .populate("platforms")
+      .populate("themes")
+      .populate("keywords")
+      .select({
+        name: 1,
+        slug: 1,
+        summary: 1,
+        cover: 1,
+        first_release_date: 1,
+        rating: 1,
+        rating_count: 1,
+        total_rating: 1,
+        total_rating_count: 1,
+        genres: 1,
+        platforms: 1,
+        themes: 1,
+        keywords: 1,
+        igdbID: 1,
+        screenshots: 1,
+        videos: 1,
+        url: 1,
+      })
+      .skip(skipNumber)
+      .limit(limitNumber);
+
+    // S'assurer que les valeurs numériques ne sont pas undefined
+    const sanitizedGames = games.map((game) => ({
+      ...game.toObject(),
+      rating: game.rating || 0,
+      rating_count: game.rating_count || 0,
+      total_rating: game.total_rating || 0,
+      total_rating_count: game.total_rating_count || 0,
+      first_release_date: game.first_release_date || null,
+    }));
+
+    res.status(200).json(sanitizedGames);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  getPlatforms,
+  getAllPlatforms,
+  getPlatformsFromIGDB,
+  getGamesByPlatform,
+  getGamesByPlatformPaginated,
+};

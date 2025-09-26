@@ -9,6 +9,7 @@ import {
   updateStatusInUser,
 } from "../../apis/auth.api";
 import AfficheJeux from "../../components/Affiches/AffichesJeux";
+import MediaModal from "../../components/Modal/MediaModal";
 
 export default function OneGame() {
   const { id } = useParams();
@@ -26,6 +27,11 @@ export default function OneGame() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+
+  // États pour la modal de galerie
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(""); // 'screenshot' ou 'video'
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchGame = async () => {
@@ -221,6 +227,40 @@ export default function OneGame() {
     }
   };
 
+  // Fonction pour ouvrir la modal avec un screenshot
+  const openScreenshotModal = (index) => {
+    setModalType("screenshot");
+    setCurrentIndex(index);
+    setIsModalOpen(true);
+  };
+
+  // Fonction pour ouvrir la modal avec une vidéo
+  const openVideoModal = (index) => {
+    setModalType("video");
+    setCurrentIndex(index);
+    setIsModalOpen(true);
+  };
+
+  // Fonction pour fermer la modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalType("");
+    setCurrentIndex(0);
+  };
+
+  // Navigation dans la modal
+  const navigateModal = (direction) => {
+    const mediaArray =
+      modalType === "screenshot" ? game.screenshots : game.videos;
+    if (direction === "next") {
+      setCurrentIndex((prev) => (prev + 1) % mediaArray.length);
+    } else {
+      setCurrentIndex(
+        (prev) => (prev - 1 + mediaArray.length) % mediaArray.length
+      );
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh] text-gray-800 text-xl">
@@ -247,6 +287,19 @@ export default function OneGame() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 mt-5">
+      {/* Modal pour la galerie */}
+      <MediaModal
+        isOpen={isModalOpen}
+        modalType={modalType}
+        currentIndex={currentIndex}
+        mediaData={
+          modalType === "screenshot" ? game?.screenshots : game?.videos
+        }
+        gameName={game?.name}
+        onClose={closeModal}
+        onNavigate={navigateModal}
+      />
+
       {/* Section Intro Jeu */}
       <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-gray-50 dark:bg-gray-800 max-lg:py-10">
         <div className="absolute inset-0 z-10">
@@ -315,7 +368,11 @@ export default function OneGame() {
                       </div>
                     )}
                   </>
-                ) : null}
+                ) : (
+                  <p className="text-4xl font-bold text-alert-light dark:text-alert-dark mb-1">
+                    N/A
+                  </p>
+                )}
                 <div className="text-sm text-black dark:text-white">
                   Note IGDB
                 </div>
@@ -556,13 +613,27 @@ export default function OneGame() {
                   ).map((screenshot, index) => (
                     <div
                       key={screenshot.id}
-                      className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200 shadow-sm"
+                      className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200 shadow-sm cursor-pointer group"
+                      onClick={() =>
+                        openScreenshotModal(showAllScreenshots ? index : index)
+                      }
                     >
-                      <img
-                        src={`https://images.igdb.com/igdb/image/upload/t_screenshot_med/${screenshot.image_id}.jpg`}
-                        alt={`Screenshot ${index + 1}`}
-                        className="w-full h-48 object-cover"
-                      />
+                      <div className="relative">
+                        <img
+                          src={`https://images.igdb.com/igdb/image/upload/t_screenshot_med/${screenshot.image_id}.jpg`}
+                          alt={`Screenshot ${index + 1}`}
+                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                          <svg
+                            className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -572,7 +643,9 @@ export default function OneGame() {
                       text={
                         showAllScreenshots
                           ? "Voir moins d'images"
-                          : `Voir toutes les images (${game.screenshots.length})`
+                          : `Voir ${
+                              game.screenshots.length - 6
+                            } images supplémentaires`
                       }
                       onClick={() => setShowAllScreenshots(!showAllScreenshots)}
                     />
@@ -592,17 +665,28 @@ export default function OneGame() {
                     (video, index) => (
                       <div
                         key={video.id}
-                        className="rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800"
+                        className="rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800 cursor-pointer group transition-transform duration-300 hover:scale-105"
+                        onClick={() =>
+                          openVideoModal(showAllVideos ? index : index)
+                        }
                       >
-                        <div className="aspect-video">
-                          <iframe
-                            src={`https://www.youtube.com/embed/${video.video_id}`}
-                            title={`${game.name} - Video ${index + 1}`}
-                            className="w-full h-full"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          ></iframe>
+                        <div className="aspect-video relative">
+                          <img
+                            src={`https://img.youtube.com/vi/${video.video_id}/maxresdefault.jpg`}
+                            alt={`Video ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                            <div className="bg-red-600 rounded-full p-4 group-hover:scale-110 transition-transform">
+                              <svg
+                                className="w-8 h-8 text-white ml-1"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </div>
+                          </div>
                         </div>
                         {video.name && (
                           <div className="p-3">
@@ -621,7 +705,9 @@ export default function OneGame() {
                       text={
                         showAllVideos
                           ? "Voir moins de vidéos"
-                          : `Voir toutes les vidéos (${game.videos.length})`
+                          : `Voir ${
+                              game.videos.length - 4
+                            } vidéos supplémentaires`
                       }
                       onClick={() => setShowAllVideos(!showAllVideos)}
                     />

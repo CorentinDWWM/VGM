@@ -1,61 +1,45 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { DataContext } from "../../context/DataContext";
 import {
   getGenres,
-  getKeywords,
+  getGamesByGenre,
+  getGamesByGenrePaginated,
   getPlateformes,
-  getThemes,
+  getGamesByPlatform,
+  getGamesByPlatformPaginated,
 } from "../../apis/igdbData.api";
-
-import { getGames, getGameById } from "../../apis/games.api";
+import {
+  getGames,
+  getGameById,
+  getGamesSimplified,
+} from "../../apis/games.api";
 
 export default function DataProvider({ children }) {
+  // États principaux
   const [isLoading, setIsLoading] = useState(true);
-  const [allGames, setAllGames] = useState([]);
   const [games, setGames] = useState([]);
+  const [filteredGames, setFilteredGames] = useState([]);
+  const [isFiltered, setIsFiltered] = useState(false);
+  const [currentGenreFilter, setCurrentGenreFilter] = useState(null);
+  const [currentPlatformFilter, setCurrentPlatformFilter] = useState(null);
+  const [allGamesSimplified, setAllGamesSimplified] = useState([]);
   const [genres, setGenres] = useState([]);
-  const [genresWithCount, setGenresWithCount] = useState([]);
-  const [themes, setThemes] = useState([]);
-  const [keywords, setKeywords] = useState([]);
-  const [plateformes, setPlateformes] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
+
+  // États pour les imports par période
+  const [gamesThisWeek, setGamesThisWeek] = useState([]);
+  const [gamesThisMonth, setGamesThisMonth] = useState([]);
+  const [gamesLastThreeMonths, setGamesLastThreeMonths] = useState([]);
+  const [useImportedData, setUseImportedData] = useState(false);
+
+  // États pour la pagination
   const [loaded, setLoaded] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Cache avec versioning pour invalidation
+  // Cache avec versioning
   const [gameCache, setGameCache] = useState(new Map());
   const [cacheVersion, setCacheVersion] = useState(0);
-
-  // Afficher le cache dans la console
-  const cacheSizeInBytes = JSON.stringify(
-    Array.from(gameCache.entries())
-  ).length;
-  const cacheSizeInMB = (cacheSizeInBytes / (1024 * 1024)).toFixed(2);
-
-  // Compter le nombre total de jeux dans le cache
-  const totalGamesInCache = Array.from(gameCache.values()).reduce(
-    (total, games) => total + games.length,
-    0
-  );
-
-  // Récupérer les noms des jeux pour chaque clé
-  const cacheDetails = Array.from(gameCache.entries()).map(([key, games]) => ({
-    clé: key,
-    nombreJeux: games.length,
-    jeux: games
-      .slice(0, 50)
-      .map((game) => game.name || game.title || "Nom inconnu"), // Afficher les 3 premiers jeux
-    tousLesJeux: games.length > 3 ? `... et ${games.length - 3} autres` : "",
-  }));
-
-  // Log pour vérifier le caches
-  // console.log("🗂️ Cache:", {
-  //   taille: gameCache.size,
-  //   tailleMB: `${cacheSizeInMB} MB`,
-  //   totalJeux: totalGamesInCache,
-  //   version: cacheVersion,
-  //   détails: cacheDetails,
-  // });
 
   // Fonction pour invalider le cache
   const invalidateCache = useCallback(() => {
@@ -63,41 +47,17 @@ export default function DataProvider({ children }) {
     setCacheVersion((prev) => prev + 1);
   }, []);
 
-  // Fonction pour mettre à jour un jeu spécifique dans le cache
-  const updateGameInCache = useCallback((gameId, updatedGame) => {
-    setGameCache((prev) => {
-      const newCache = new Map(prev);
-      // Mettre à jour dans tous les lots du cache
-      for (const [key, games] of newCache.entries()) {
-        const updatedGames = games.map((game) =>
-          game._id === gameId ? { ...game, ...updatedGame } : game
-        );
-        newCache.set(key, updatedGames);
-      }
-      return newCache;
-    });
-
-    // Mettre à jour aussi dans l'état local
-    setGames((prev) =>
-      prev.map((game) =>
-        game._id === gameId ? { ...game, ...updatedGame } : game
-      )
-    );
-  }, []);
-
   // Fonction pour récupérer un jeu par son ID
   const getAGame = useCallback(
     async (gameId) => {
       try {
-        // Vérifier d'abord dans le cache local
+        // Vérifier dans le cache local
         for (const games of gameCache.values()) {
           const foundGame = games.find((game) => game._id === gameId);
-          if (foundGame) {
-            return foundGame;
-          }
+          if (foundGame) return foundGame;
         }
 
-        // Si pas trouvé dans le cache, faire un appel API
+        // Appel API si pas trouvé dans le cache
         const game = await getGameById(gameId);
         return game;
       } catch (error) {
@@ -108,57 +68,279 @@ export default function DataProvider({ children }) {
     [gameCache]
   );
 
+  // Fonction pour filtrer par genre
+  const filterGamesByGenre = useCallback(async (genreId, genreName) => {
+    try {
+      setIsLoading(true);
+      const gamesData = await getGamesByGenrePaginated(genreId, 50, 0);
+      setFilteredGames(gamesData);
+      setLoaded(gamesData.length);
+      setHasMore(gamesData.length === 50);
+      setIsFiltered(true);
+      setCurrentGenreFilter({ id: genreId, name: genreName });
+      setIsLoading(false);
+
+      // Sauvegarder l'état du filtre dans le localStorage
+      localStorage.setItem(
+        "genreFilter",
+        JSON.stringify({ id: genreId, name: genreName })
+      );
+    } catch (error) {
+      console.error("Erreur lors du filtrage par genre:", error);
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Fonction pour restaurer le filtre depuis le localStorage
+  const restoreGenreFilter = useCallback(async () => {
+    try {
+      const savedFilter = localStorage.getItem("genreFilter");
+      if (savedFilter) {
+        const filterData = JSON.parse(savedFilter);
+        await filterGamesByGenre(filterData.id, filterData.name);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la restauration du filtre:", error);
+      localStorage.removeItem("genreFilter");
+    }
+  }, [filterGamesByGenre]);
+
+  // Fonction pour charger plus de jeux filtrés
+  const loadMoreFilteredGames = useCallback(async () => {
+    if (isLoadingMore || !currentGenreFilter) return;
+
+    setIsLoadingMore(true);
+    try {
+      const moreGamesData = await getGamesByGenrePaginated(
+        currentGenreFilter.id,
+        50,
+        loaded
+      );
+      setFilteredGames((prev) => [...prev, ...moreGamesData]);
+      setLoaded((prev) => prev + moreGamesData.length);
+      setHasMore(moreGamesData.length === 50);
+    } catch (error) {
+      console.error(
+        "Erreur lors du chargement de plus de jeux filtrés:",
+        error
+      );
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [loaded, isLoadingMore, currentGenreFilter]);
+
+  // Fonction pour supprimer le filtre
+  const clearGenreFilter = useCallback(() => {
+    setIsFiltered(false);
+    setCurrentGenreFilter(null);
+    setFilteredGames([]);
+    setLoaded(games.length);
+    setHasMore(games.length === 50);
+
+    // Supprimer du localStorage
+    localStorage.removeItem("genreFilter");
+
+    // Déclencher un événement personnalisé pour notifier les autres composants
+    window.dispatchEvent(new CustomEvent("genreFilterCleared"));
+  }, [games.length]);
+
+  // Fonction pour supprimer complètement le filtre (y compris localStorage)
+  const clearGenreFilterCompletely = useCallback(() => {
+    clearGenreFilter();
+    // Aussi nettoyer le localStorage au cas où
+    localStorage.removeItem("genreFilter");
+
+    // Déclencher un événement personnalisé pour notifier les autres composants
+    window.dispatchEvent(new CustomEvent("genreFilterCleared"));
+  }, [clearGenreFilter]);
+
+  // Fonction pour filtrer par plateforme
+  const filterGamesByPlatform = useCallback(
+    async (platformId, platformName) => {
+      try {
+        setIsLoading(true);
+        const gamesData = await getGamesByPlatformPaginated(platformId, 50, 0);
+        setFilteredGames(gamesData);
+        setLoaded(gamesData.length);
+        setHasMore(gamesData.length === 50);
+        setIsFiltered(true);
+        setCurrentPlatformFilter({ id: platformId, name: platformName });
+        setCurrentGenreFilter(null); // Clear genre filter
+        setIsLoading(false);
+
+        // Sauvegarder l'état du filtre dans le localStorage
+        localStorage.setItem(
+          "platformFilter",
+          JSON.stringify({ id: platformId, name: platformName })
+        );
+        // Supprimer le filtre genre s'il existe
+        localStorage.removeItem("genreFilter");
+      } catch (error) {
+        console.error("Erreur lors du filtrage par plateforme:", error);
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  // Fonction pour restaurer le filtre plateforme depuis le localStorage
+  const restorePlatformFilter = useCallback(async () => {
+    try {
+      const savedFilter = localStorage.getItem("platformFilter");
+      if (savedFilter) {
+        const filterData = JSON.parse(savedFilter);
+        await filterGamesByPlatform(filterData.id, filterData.name);
+      }
+    } catch (error) {
+      console.error(
+        "Erreur lors de la restauration du filtre plateforme:",
+        error
+      );
+      localStorage.removeItem("platformFilter");
+    }
+  }, [filterGamesByPlatform]);
+
+  // Fonction pour charger plus de jeux filtrés par plateforme
+  const loadMorePlatformFilteredGames = useCallback(async () => {
+    if (isLoadingMore || !currentPlatformFilter) return;
+
+    setIsLoadingMore(true);
+    try {
+      const moreGamesData = await getGamesByPlatformPaginated(
+        currentPlatformFilter.id,
+        50,
+        loaded
+      );
+      setFilteredGames((prev) => [...prev, ...moreGamesData]);
+      setLoaded((prev) => prev + moreGamesData.length);
+      setHasMore(moreGamesData.length === 50);
+    } catch (error) {
+      console.error(
+        "Erreur lors du chargement de plus de jeux filtrés par plateforme:",
+        error
+      );
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [loaded, isLoadingMore, currentPlatformFilter]);
+
+  // Fonction pour supprimer le filtre plateforme
+  const clearPlatformFilter = useCallback(() => {
+    setIsFiltered(false);
+    setCurrentPlatformFilter(null);
+    setFilteredGames([]);
+    setLoaded(games.length);
+    setHasMore(games.length === 50);
+
+    // Supprimer du localStorage
+    localStorage.removeItem("platformFilter");
+
+    // Déclencher un événement personnalisé pour notifier les autres composants
+    window.dispatchEvent(new CustomEvent("platformFilterCleared"));
+  }, [games.length]);
+
+  // Fonction pour supprimer tous les filtres
+  const clearAllFilters = useCallback(() => {
+    setIsFiltered(false);
+    setCurrentGenreFilter(null);
+    setCurrentPlatformFilter(null);
+    setFilteredGames([]);
+    setLoaded(games.length);
+    setHasMore(games.length === 50);
+
+    // Supprimer du localStorage
+    localStorage.removeItem("genreFilter");
+    localStorage.removeItem("platformFilter");
+
+    // Déclencher des événements personnalisés
+    window.dispatchEvent(new CustomEvent("genreFilterCleared"));
+    window.dispatchEvent(new CustomEvent("platformFilterCleared"));
+  }, [games.length]);
+
+  // Chargement initial des données - modifié pour restaurer les filtres
   useEffect(() => {
     async function loadData() {
       try {
-        const getGamesData = await getGames(50, 0);
-        setGames(getGamesData);
-        setLoaded(getGamesData.length);
-        setHasMore(getGamesData.length === 50);
+        const [gamesData, gamesSimplifiedData, genresData, platformsData] =
+          await Promise.all([
+            getGames(50, 0),
+            getGamesSimplified(),
+            getGenres(),
+            getPlateformes(),
+          ]);
 
-        // Mettre aussi les 50 premiers en cache
-        setGameCache((prev) =>
-          new Map(prev).set(`games_0_v${cacheVersion}`, getGamesData)
-        );
+        setGames(gamesData);
+        setLoaded(gamesData.length);
+        setHasMore(gamesData.length === 50);
+        setAllGamesSimplified(gamesSimplifiedData);
+        setGenres(genresData);
+        setPlatforms(platformsData);
 
-        const getGenresData = await getGenres();
-        setGenres(getGenresData);
-
-        // const getThemesData = await getThemes();
-        // setThemes(getThemesData);
-
-        // const getKeywordsData = await getKeywords();
-        // setKeywords(getKeywordsData);
-
-        // const getPlatformesData = await getPlateformes();
-        // setPlateformes(getPlatformesData);
+        // Mise en cache
+        setGameCache(new Map().set(`games_0_v${cacheVersion}`, gamesData));
 
         setIsLoading(false);
+
+        // Restaurer les filtres s'ils existent
+        await restoreGenreFilter();
+        await restorePlatformFilter();
       } catch (error) {
         console.error("Erreur lors du chargement:", error);
         setIsLoading(false);
       }
     }
     loadData();
+  }, [cacheVersion, restoreGenreFilter, restorePlatformFilter]);
 
-    // async function loadAllGames() {
-    //   try {
-    //     const getAllGamesData = await getGames(2500, 0);
-    //     setAllGames(getAllGamesData);
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // }
+  // Effet pour nettoyer les filtres lors du démontage ou de l'actualisation
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.removeItem("genreFilter");
+      localStorage.removeItem("platformFilter");
+      window.dispatchEvent(new CustomEvent("genreFilterCleared"));
+      window.dispatchEvent(new CustomEvent("platformFilterCleared"));
+    };
 
-    // loadAllGames();
-  }, [cacheVersion]);
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        localStorage.removeItem("genreFilter");
+        localStorage.removeItem("platformFilter");
+        window.dispatchEvent(new CustomEvent("genreFilterCleared"));
+        window.dispatchEvent(new CustomEvent("platformFilterCleared"));
+      }
+    };
 
+    // Nettoyer lors de l'actualisation/fermeture de la page
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Nettoyer quand l'onglet devient invisible
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      // Nettoyer lors du démontage du composant
+      localStorage.removeItem("genreFilter");
+      localStorage.removeItem("platformFilter");
+      window.dispatchEvent(new CustomEvent("genreFilterCleared"));
+      window.dispatchEvent(new CustomEvent("platformFilterCleared"));
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  // Fonction pour charger plus de jeux (pagination) - modifié pour gérer tous les filtrages
   const loadMoreGames = useCallback(async () => {
+    if (isFiltered) {
+      if (currentGenreFilter) {
+        return loadMoreFilteredGames();
+      } else if (currentPlatformFilter) {
+        return loadMorePlatformFilteredGames();
+      }
+    }
+
     if (isLoadingMore) return;
 
     setIsLoadingMore(true);
     try {
-      // Vérifier le cache d'abord avec version
       const cacheKey = `games_${loaded}_v${cacheVersion}`;
       let getGamesData;
 
@@ -166,7 +348,6 @@ export default function DataProvider({ children }) {
         getGamesData = gameCache.get(cacheKey);
       } else {
         getGamesData = await getGames(50, loaded);
-        // Mettre en cache pour les prochaines fois
         setGameCache((prev) => new Map(prev).set(cacheKey, getGamesData));
       }
 
@@ -178,23 +359,108 @@ export default function DataProvider({ children }) {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [loaded, isLoadingMore, gameCache, cacheVersion]);
+  }, [
+    loaded,
+    isLoadingMore,
+    gameCache,
+    cacheVersion,
+    isFiltered,
+    loadMoreFilteredGames,
+    loadMorePlatformFilteredGames,
+    currentGenreFilter,
+    currentPlatformFilter,
+  ]);
+
+  // Recharger les jeux après import
+  const fetchGames = useCallback(async () => {
+    try {
+      invalidateCache();
+      const [gamesData, gamesSimplifiedData] = await Promise.all([
+        getGames(50, 0),
+        getGamesSimplified(),
+      ]);
+
+      setGames(gamesData);
+      setLoaded(gamesData.length);
+      setHasMore(gamesData.length === 50);
+      setAllGamesSimplified(gamesSimplifiedData);
+      setGameCache(new Map().set(`games_0_v${cacheVersion}`, gamesData));
+    } catch (error) {
+      console.error("Erreur lors du rechargement des jeux:", error);
+    }
+  }, [invalidateCache, cacheVersion]);
+
+  // Fonctions pour mettre à jour les données par période
+  const setGamesThisWeekData = useCallback((games) => {
+    setGamesThisWeek(games);
+    setUseImportedData(true);
+  }, []);
+
+  const setGamesThisMonthData = useCallback((games) => {
+    setGamesThisMonth(games);
+    setUseImportedData(true);
+  }, []);
+
+  const setGamesLastThreeMonthsData = useCallback((games) => {
+    setGamesLastThreeMonths(games);
+    setUseImportedData(true);
+  }, []);
+
+  // Fonction pour récupérer les jeux par genre
+  const getGamesByGenreId = useCallback(async (genreId) => {
+    try {
+      const games = await getGamesByGenre(genreId);
+      return games || [];
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des jeux par genre:",
+        error
+      );
+      return [];
+    }
+  }, []);
 
   return (
     <DataContext.Provider
       value={{
+        // États principaux
         isLoading,
-        games,
-        genres: genresWithCount.length > 0 ? genresWithCount : genres,
-        themes,
-        keywords,
-        plateformes,
+        games: isFiltered ? filteredGames : games,
+        genres,
+        platforms,
+        allGamesSimplified,
+        isFiltered,
+        currentGenreFilter,
+        currentPlatformFilter,
+
+        // Données par période
+        gamesThisWeek,
+        gamesThisMonth,
+        gamesLastThreeMonths,
+
+        // Fonctions de mise à jour
+        setGamesThisWeekData,
+        setGamesThisMonthData,
+        setGamesLastThreeMonthsData,
+
+        // Pagination
         loadMoreGames,
         hasMore,
         isLoadingMore,
-        invalidateCache,
-        updateGameInCache,
+
+        // Utilitaires
         getAGame,
+        fetchGames,
+        invalidateCache,
+        getGamesByGenreId,
+
+        // Nouvelles fonctions de filtrage
+        filterGamesByGenre,
+        clearGenreFilter,
+        clearGenreFilterCompletely,
+        filterGamesByPlatform,
+        clearPlatformFilter,
+        clearAllFilters,
       }}
     >
       {children}

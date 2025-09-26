@@ -56,12 +56,34 @@ export default function AffichesJeux({ game }) {
     return sortedDates.length > 0 ? sortedDates[0].original : null;
   };
 
+  // Fonction pour sécuriser l'affichage des valeurs numériques
+  const safeNumber = (value, defaultValue = 0) => {
+    if (value === null || value === undefined || isNaN(Number(value))) {
+      return defaultValue;
+    }
+    return Number(value);
+  };
+
+  // Fonction pour sécuriser l'affichage des dates
+  const safeYear = () => {
+    if (game.first_release_date && !isNaN(game.first_release_date)) {
+      return new Date(game.first_release_date * 1000).getFullYear();
+    }
+    if (game.release_dates && game.release_dates.length > 0) {
+      const earliestDate = getEarliestReleaseDate(game.release_dates);
+      if (earliestDate) {
+        return new Date(earliestDate).getFullYear();
+      }
+    }
+    return "TBA";
+  };
+
   return (
     <div
       className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-lg cursor-pointer relative w-[280px] flex flex-col"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => navigate(`/games/${game.igdbID}`)}
+      onClick={() => navigate(`/games/${safeNumber(game.igdbID)}`)}
     >
       <div className="aspect-[3/4] overflow-hidden relative flex-shrink-0">
         <img
@@ -75,35 +97,27 @@ export default function AffichesJeux({ game }) {
         />
 
         {/* Overlay with buttons - only show on hover */}
-        {isHovered && (
+        {isHovered && user && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
             <div className="flex gap-2">
-              {user && (
-                <>
-                  {isInCollection ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveGame();
-                      }}
-                      className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-                      title="Retirer de la collection"
-                    >
-                      Retirer de ma liste
-                    </button>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddGame();
-                      }}
-                      className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
-                      title="Ajouter à la collection"
-                    >
-                      Ajouter à ma liste
-                    </button>
-                  )}
-                </>
+              {isInCollection ? (
+                <Bouton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveGame();
+                  }}
+                  className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  text="Retirer de ma liste"
+                />
+              ) : (
+                <Bouton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddGame();
+                  }}
+                  className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  text="Ajouter à ma liste"
+                />
               )}
             </div>
           </div>
@@ -118,17 +132,17 @@ export default function AffichesJeux({ game }) {
 
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              {game.release_dates && game.release_dates.length > 0
-                ? new Date(
-                    getEarliestReleaseDate(game.release_dates)
-                  ).getFullYear()
-                : "TBA"}
+              {safeYear()}
             </span>
-            {game.votes && (
-              <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                {Math.round(game.votes) / 10}/10
-              </span>
-            )}
+            {(game.total_rating || game.rating) &&
+              !isNaN(game.total_rating || game.rating) &&
+              (game.total_rating > 0 || game.rating > 0) && (
+                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                  {Math.round(safeNumber(game.total_rating || game.rating)) /
+                    10}
+                  /10
+                </span>
+              )}
           </div>
 
           {/* Status selector for profile pages */}
@@ -140,8 +154,9 @@ export default function AffichesJeux({ game }) {
                   onClick={(e) => e.stopPropagation()}
                   onChange={handleStatusChange}
                   defaultValue={
-                    user.games.find((g) => g.igdbID === game.igdbID)
-                      ?.statusUser || "Non commencé"
+                    user.games.find(
+                      (g) => safeNumber(g.igdbID) === safeNumber(game.igdbID)
+                    )?.statusUser || "Non commencé"
                   }
                   className="w-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded border border-gray-300 dark:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -157,9 +172,9 @@ export default function AffichesJeux({ game }) {
         {game.genres && game.genres.length > 0 && (
           <div className="overflow-hidden flex items-start">
             <div className="flex flex-wrap gap-1">
-              {game.genres.slice(0, 2).map((genre) => (
+              {game.genres.slice(0, 2).map((genre, index) => (
                 <span
-                  key={genre.id}
+                  key={safeNumber(genre.id) || index}
                   className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full"
                   style={{
                     maxWidth: "100px",
@@ -168,12 +183,12 @@ export default function AffichesJeux({ game }) {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {genre.name}
+                  {genre.name || "Genre inconnu"}
                 </span>
               ))}
               {game.genres.length > 2 && (
                 <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
-                  +{game.genres.length - 2}
+                  +{safeNumber(game.genres.length - 2)}
                 </span>
               )}
             </div>

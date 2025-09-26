@@ -18,11 +18,14 @@ export default function GamesPage() {
     games,
     loadMoreGames,
     hasMore,
-    genres,
-    genresWithCount,
     isLoadingMore,
+    isFiltered,
+    currentGenreFilter,
+    currentPlatformFilter,
+    clearGenreFilter,
+    clearPlatformFilter,
+    clearAllFilters,
   } = useContext(DataContext);
-
   const { message, resetMessage } = useContext(UserProfilContext);
 
   useEffect(() => {
@@ -35,6 +38,31 @@ export default function GamesPage() {
       resetMessage();
     }
   }, [message, resetMessage]);
+
+  // Effet pour nettoyer le filtre quand on quitte la page
+  useEffect(() => {
+    return () => {
+      // Nettoyer le filtre lors du démontage du composant (navigation vers autre page)
+      clearAllFilters();
+    };
+  }, [clearAllFilters]);
+
+  const getFilterTitle = () => {
+    if (currentGenreFilter) {
+      return `Jeux du genre: ${currentGenreFilter.name}`;
+    } else if (currentPlatformFilter) {
+      return `Jeux de la plateforme: ${currentPlatformFilter.name}`;
+    }
+    return "Catalogue de jeux disponibles sur le site";
+  };
+
+  const handleClearFilter = () => {
+    if (currentGenreFilter) {
+      clearGenreFilter();
+    } else if (currentPlatformFilter) {
+      clearPlatformFilter();
+    }
+  };
 
   return (
     <>
@@ -67,9 +95,19 @@ export default function GamesPage() {
             )}
           </div>
           <div className="w-full h-full flex flex-col items-center gap-[30px] px-[50px] pt-[30px] max-sm:px-[20px]">
-            <h2 className="w-full text-center text-2xl font-semibold text-black dark:text-white">
-              Catalogue de jeux disponibles sur le site
-            </h2>
+            <div className="w-full text-center">
+              <h2 className="text-2xl font-semibold text-black dark:text-white">
+                {getFilterTitle()}
+              </h2>
+              {isFiltered && (
+                <button
+                  onClick={handleClearFilter}
+                  className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  Supprimer le filtre
+                </button>
+              )}
+            </div>
             {games && (
               <>
                 <div className="w-full h-full flex flex-wrap justify-center items-center gap-[20px]">

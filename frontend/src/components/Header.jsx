@@ -7,6 +7,8 @@ import { MenuContext } from "../context/MenuContext";
 import MenuBurger from "./Menu/MenuBurger";
 import MenuAuth from "./Menu/MenuAuth";
 import MenuNotification from "./Menu/MenuNotification";
+import { DataContext } from "../context/DataContext";
+import SearchBar from "./Search/SearchBar";
 
 export default function Header() {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -20,6 +22,9 @@ export default function Header() {
     toggleMenuNotif,
     menuNotifRef,
   } = useContext(MenuContext);
+
+  const { allGamesSimplified } = useContext(DataContext);
+
   return (
     <header className="bg-white px-6 py-4 flex justify-between items-center shadow-md dark:bg-gray-900 dark:shadow-white/30">
       {theme === "dark" ? (
@@ -65,13 +70,8 @@ export default function Header() {
           Découvertes
         </Link>
       </nav>
-      <div className="max-w-[300px] w-full bg-white dark:bg-gray-900 border dark:border-white flex justify-between items-center p-2.5 rounded-md max-1000:hidden">
-        <input
-          type="text"
-          placeholder="Rechercher..."
-          className="placeholder:text-secondary-text-light dark:text-secondary-text-dark outline-none"
-        />
-        <Search className="cursor-pointer text-black dark:text-white" />
+      <div className="max-1000:hidden">
+        <SearchBar />
       </div>
       <div className="flex items-center justify-center gap-4 max-1000:hidden">
         {theme === "dark" ? (

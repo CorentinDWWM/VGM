@@ -138,7 +138,11 @@ export default function MenuProvider({ children }) {
         menuGenresRef.current &&
         !menuGenresRef.current.contains(event.target)
       ) {
-        setMenuGenres(false);
+        // Vérifier si le clic n'est pas sur l'élément déclencheur du menu genres
+        const genresTrigger = event.target.closest('[data-menu="genres"]');
+        if (!genresTrigger) {
+          setMenuGenres(false);
+        }
       }
 
       // Menu Plateformes

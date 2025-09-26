@@ -7,7 +7,22 @@ const createNewGame = (oneGame, timeToBeatData = null) => {
     summary: oneGame.summary,
     votes: oneGame.total_rating,
     total_votes: oneGame.total_rating_count,
-    date_sortie: oneGame.release_dates,
+    release_dates:
+      oneGame.release_dates && oneGame.release_dates.length > 0
+        ? oneGame.release_dates.map((rDate) => ({
+            id: rDate.id,
+            date: rDate.human,
+            plateforme: {
+              id: rDate.platform?.id,
+              name: rDate.platform?.name,
+              abbreviation: rDate.platform?.abbreviation,
+            },
+            region: {
+              id: rDate.release_region?.id,
+              region: rDate.release_region?.region,
+            },
+          }))
+        : [],
     category: oneGame.category,
     url: oneGame.url,
     slug: oneGame.slug,
@@ -284,23 +299,6 @@ const createNewGame = (oneGame, timeToBeatData = null) => {
             id: standalone.id,
             name: standalone.name,
             slug: standalone.slug,
-          }))
-        : [],
-
-    release_dates:
-      oneGame.release_dates && oneGame.release_dates.length > 0
-        ? oneGame.release_dates.map((rDate) => ({
-            id: rDate.id,
-            date: rDate.human,
-            plateforme: {
-              id: rDate.platform?.id,
-              name: rDate.platform?.name,
-              abbreviation: rDate.platform?.abbreviation,
-            },
-            region: {
-              id: rDate.release_region?.id,
-              region: rDate.release_region?.region,
-            },
           }))
         : [],
 

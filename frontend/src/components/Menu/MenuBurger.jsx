@@ -6,6 +6,7 @@ import { Search, Sun, Bell, User, Moon } from "lucide-react";
 import { ThemeContext } from "../../context/ThemeContext";
 import MenuAuth from "./MenuAuth";
 import MenuNotification from "./MenuNotification";
+import SearchBar from "../Search/SearchBar";
 
 export default function MenuBurger() {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -115,14 +116,7 @@ export default function MenuBurger() {
         >
           Découvertes
         </Link>
-        <div className="w-[90%] bg-white dark:bg-gray-900 border dark:border-white flex justify-between items-center p-2.5 rounded-md">
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            className="w-[80%] placeholder:text-secondary-text-light dark:text-secondary-text-dark outline-none"
-          />
-          <Search className="cursor-pointer text-black dark:text-white" />
-        </div>
+        <SearchBar />
       </div>
     </>
   );

@@ -109,8 +109,113 @@ const updateGenresCounts = async (req, res) => {
   }
 };
 
+const getGamesByGenre = async (req, res) => {
+  try {
+    const { genreId } = req.params;
+    const genreIdNumber = parseInt(genreId);
+
+    // Trouver les jeux qui ont ce genre dans leur tableau genres
+    const games = await Game.find({
+      "genres.id": genreIdNumber,
+    })
+      .populate("genres")
+      .populate("platforms")
+      .populate("themes")
+      .populate("keywords")
+      .select({
+        name: 1,
+        slug: 1,
+        summary: 1,
+        cover: 1,
+        first_release_date: 1,
+        rating: 1,
+        rating_count: 1,
+        total_rating: 1,
+        total_rating_count: 1,
+        genres: 1,
+        platforms: 1,
+        themes: 1,
+        keywords: 1,
+        igdbID: 1,
+        screenshots: 1,
+        videos: 1,
+        url: 1,
+      });
+
+    // S'assurer que les valeurs numériques ne sont pas undefined
+    const sanitizedGames = games.map((game) => ({
+      ...game.toObject(),
+      rating: game.rating || 0,
+      rating_count: game.rating_count || 0,
+      total_rating: game.total_rating || 0,
+      total_rating_count: game.total_rating_count || 0,
+      first_release_date: game.first_release_date || null,
+    }));
+
+    res.status(200).json(sanitizedGames);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getGamesByGenrePaginated = async (req, res) => {
+  try {
+    const { genreId } = req.params;
+    const { limit = 50, skip = 0 } = req.query;
+    const genreIdNumber = parseInt(genreId);
+    const limitNumber = parseInt(limit);
+    const skipNumber = parseInt(skip);
+
+    // Trouver les jeux qui ont ce genre dans leur tableau genres
+    const games = await Game.find({
+      "genres.id": genreIdNumber,
+    })
+      .populate("genres")
+      .populate("platforms")
+      .populate("themes")
+      .populate("keywords")
+      .select({
+        name: 1,
+        slug: 1,
+        summary: 1,
+        cover: 1,
+        first_release_date: 1,
+        rating: 1,
+        rating_count: 1,
+        total_rating: 1,
+        total_rating_count: 1,
+        genres: 1,
+        platforms: 1,
+        themes: 1,
+        keywords: 1,
+        igdbID: 1,
+        screenshots: 1,
+        videos: 1,
+        url: 1,
+      })
+      .skip(skipNumber)
+      .limit(limitNumber);
+
+    // S'assurer que les valeurs numériques ne sont pas undefined
+    const sanitizedGames = games.map((game) => ({
+      ...game.toObject(),
+      rating: game.rating || 0,
+      rating_count: game.rating_count || 0,
+      total_rating: game.total_rating || 0,
+      total_rating_count: game.total_rating_count || 0,
+      first_release_date: game.first_release_date || null,
+    }));
+
+    res.status(200).json(sanitizedGames);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getGenres,
   getGenresFromIGDB,
   updateGenresCounts,
+  getGamesByGenre,
+  getGamesByGenrePaginated,
 };
