@@ -28,7 +28,7 @@ const getGamesForSearch = async (req, res) => {
   try {
     // Optimisation : sélectionner seulement les champs nécessaires
     const games = await Game.find()
-      .select("igdbID name")
+      .select("igdbID name cover")
       .sort({ createdAt: 1, _id: 1 })
       .lean(); // Utiliser lean() pour des objets JavaScript simples plus rapides
 

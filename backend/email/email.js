@@ -1,17 +1,8 @@
-const nodemailer = require("nodemailer");
 const sgMail = require("@sendgrid/mail");
 
 dotenv = require("dotenv");
 dotenv.config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-// const transporter = nodemailer.createTransport({
-//   service: "Gmail",
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
 
 const sendConfirmationEmail = async (email, token) => {
   const msg = {
@@ -20,7 +11,6 @@ const sendConfirmationEmail = async (email, token) => {
     subject: "Confirmation d'inscription",
     html: `<p>Bienvenue sur notre site ! Cliquez sur le lien suivant pour confirmer l'inscription : <a href="${process.env.API_URL}/user/verifyMail/${token}">Confirmer l'inscription</a></p>`,
   };
-  // await transporter.sendMail(mailOptions);
 
   try {
     await sgMail.send(msg);
@@ -42,8 +32,6 @@ const sendValidationAccount = async (email) => {
     html: `<p>Bienvenue sur notre site ! Cliquez sur le lien suivant pour vous connecter : <a href="${process.env.CLIENT_URL}/login">Se connecter</a></p>`,
   };
 
-  // await transporter.sendMail(mailOptions);
-
   try {
     await sgMail.send(msg);
     console.log("✅ Mail envoyé à " + email);
@@ -63,8 +51,6 @@ const sendInvalidEmailToken = async (email) => {
     subject: "Problème lors de la validation",
     html: `<p>Token expiré ! Veuillez vous réinscrire : <a href="${process.env.CLIENT_URL}/register">S'inscrire</a></p>`,
   };
-
-  // await transporter.sendMail(mailOptions);
 
   try {
     await sgMail.send(msg);
@@ -86,8 +72,6 @@ const sendForgotPassword = async (email, token) => {
     html: `<p>Cliquez sur le lien suivant pour redéfinir un mot de passe : <a href="${process.env.CLIENT_URL}/resetpassword/${token}">Réinitialisation de mot de passe</a></p>`,
   };
 
-  // await transporter.sendMail(mailOptions);
-
   try {
     await sgMail.send(msg);
     console.log("✅ Mail envoyé à " + email);
@@ -107,8 +91,6 @@ const sendPasswordReset = async (email) => {
     subject: "Réinitialisation mot de passe",
     html: `<p>Mot de passe réinitialisé ! Vous pouvez maintenant vous connecter : <a href="${process.env.CLIENT_URL}/login">Se connecter</a></p>`,
   };
-
-  // await transporter.sendMail(mailOptions);
 
   try {
     await sgMail.send(msg);

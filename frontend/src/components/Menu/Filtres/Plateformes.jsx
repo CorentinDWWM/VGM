@@ -9,9 +9,6 @@ export default function Plateformes() {
     menuPlateformes,
     toggleMenuPlateformes,
     menuPlateformesRef,
-    menuConsoles,
-    menuConsolesRef,
-    toggleMenuConsoles,
     selectedPlateformes,
     selectedPlateformesRef,
     toggleSelectedPlateformes,
@@ -72,29 +69,14 @@ export default function Plateformes() {
       ? currentPlatformFilter.name
       : selectedPlateformes;
 
-  // Créer une liste plate des plateformes avec leur ID IGDB
-  const flatPlatforms = [];
-
-  // Ajouter PC
-  const pcPlatform = platforms.find((p) => p.name === "PC (Microsoft Windows)");
-  if (pcPlatform) {
-    flatPlatforms.push({ nom: "PC", igdbID: pcPlatform.igdbID });
-  }
-
-  // Mapper les plateformes par famille
-  const platformFamilies = {
-    Sony: platforms.filter((p) =>
-      [7, 8, 9, 38, 46, 48, 165, 167].includes(p.igdbID)
-    ),
-    Xbox: platforms.filter((p) => [11, 12, 49, 169].includes(p.igdbID)),
-    Nintendo: platforms.filter((p) =>
-      [18, 19, 20, 21, 37, 41, 130, 137].includes(p.igdbID)
-    ),
-  };
-
-  // Debug pour voir quelles plateformes sont disponibles
-  console.log("Plateformes disponibles:", platforms);
-  console.log("Plateformes Xbox trouvées:", platformFamilies.Xbox);
+  // Trier les plateformes par nombre de jeux (décroissant) et exclure celles avec 0 jeu
+  const sortedPlatforms = [...platforms]
+    .filter((platform) => (platform.nb_jeux || 0) > 0)
+    .sort((a, b) => {
+      const aCount = a.nb_jeux || 0;
+      const bCount = b.nb_jeux || 0;
+      return bCount - aCount;
+    });
 
   return (
     <>
@@ -112,126 +94,38 @@ export default function Plateformes() {
             <FaChevronUp className="pt-0.5" />
           </div>
           <div className="absolute max-sm:relative top-[138px] max-sm:top-0 min-w-[200px] flex flex-col items-center justify-center gap-2.5 px-5 py-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white rounded-xl">
-            {/* PC */}
-            {pcPlatform && (
-              <div className="w-full flex items-center justify-between">
-                <div className="w-full flex flex-col justify-center gap-2 p-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <p>PC</p>
-                    </div>
-                    {currentSelectedPlatform === "PC" ? (
-                      <div
-                        ref={selectedPlateformesRef}
-                        onClick={() =>
-                          handlePlatformClick("PC", pcPlatform.igdbID)
-                        }
-                        className="flex items-center justify-center w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm cursor-pointer"
-                      >
-                        <IoClose className="absolute w-[25px] h-[25px] text-black dark:text-white cursor-pointer" />
-                      </div>
-                    ) : (
-                      <div
-                        ref={selectedPlateformesRef}
-                        onClick={() =>
-                          handlePlatformClick("PC", pcPlatform.igdbID)
-                        }
-                        className="w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm cursor-pointer ml-2"
-                      ></div>
-                    )}
-                  </div>
+            {sortedPlatforms.map((platform, index) => (
+              <div
+                key={index}
+                className="w-full flex items-center justify-between"
+              >
+                <div className="flex items-center gap-1">
+                  <p>{platform.name}</p>
+                  <p className="text-secondary-text-light dark:text-secondary-text-dark">
+                    {platform.nb_jeux || 0}
+                  </p>
                 </div>
-              </div>
-            )}
-
-            {/* Autres plateformes par famille */}
-            {Object.entries(platformFamilies).map(
-              ([familyName, familyPlatforms]) =>
-                familyPlatforms.length > 0 && (
+                {currentSelectedPlatform === platform.name ? (
                   <div
-                    key={familyName}
-                    className="w-full flex items-center justify-between"
+                    ref={selectedPlateformesRef}
+                    onClick={() =>
+                      handlePlatformClick(platform.name, platform.igdbID)
+                    }
+                    className="flex items-center justify-center w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm cursor-pointer"
                   >
-                    <div
-                      ref={menuConsoles === familyName ? menuConsolesRef : null}
-                      className={`w-full flex flex-col justify-center gap-2 ${
-                        menuConsoles === familyName
-                          ? "outline outline-black dark:outline-white bg-white dark:bg-gray-900 rounded-xl"
-                          : ""
-                      } p-2`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div
-                          onClick={() => toggleMenuConsoles(familyName)}
-                          className="flex items-center gap-1"
-                        >
-                          <p>{familyName}</p>
-                          {menuConsoles === familyName ? (
-                            <FaChevronUp className="pt-0.5" />
-                          ) : (
-                            <FaChevronDown className="pt-0.5" />
-                          )}
-                        </div>
-                        {currentSelectedPlatform === familyName ? (
-                          <div
-                            ref={selectedPlateformesRef}
-                            onClick={() =>
-                              handlePlatformClick(familyName, null)
-                            }
-                            className="flex items-center justify-center w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm cursor-pointer"
-                          >
-                            <IoClose className="absolute w-[25px] h-[25px] text-black dark:text-white cursor-pointer" />
-                          </div>
-                        ) : (
-                          <div
-                            ref={selectedPlateformesRef}
-                            onClick={() =>
-                              handlePlatformClick(familyName, null)
-                            }
-                            className="w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm cursor-pointer ml-2"
-                          ></div>
-                        )}
-                      </div>
-                      {menuConsoles === familyName &&
-                        familyPlatforms.map((platform, index) => (
-                          <div
-                            key={index}
-                            className="w-full flex items-center justify-between"
-                          >
-                            <p className="text-black dark:text-white">
-                              {platform.name}
-                            </p>
-                            {currentSelectedPlatform === platform.name ? (
-                              <div
-                                ref={selectedPlateformesRef}
-                                onClick={() =>
-                                  handlePlatformClick(
-                                    platform.name,
-                                    platform.igdbID
-                                  )
-                                }
-                                className="flex items-center justify-center w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm cursor-pointer"
-                              >
-                                <IoClose className="absolute w-[25px] h-[25px] text-black dark:text-white cursor-pointer" />
-                              </div>
-                            ) : (
-                              <div
-                                ref={selectedPlateformesRef}
-                                onClick={() =>
-                                  handlePlatformClick(
-                                    platform.name,
-                                    platform.igdbID
-                                  )
-                                }
-                                className="w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm cursor-pointer ml-2"
-                              ></div>
-                            )}
-                          </div>
-                        ))}
-                    </div>
+                    <IoClose className="absolute w-[25px] h-[25px] text-black dark:text-white cursor-pointer" />
                   </div>
-                )
-            )}
+                ) : (
+                  <div
+                    ref={selectedPlateformesRef}
+                    onClick={() =>
+                      handlePlatformClick(platform.name, platform.igdbID)
+                    }
+                    className="w-[15px] h-[15px] bg-white dark:bg-gray-900 border border-black dark:border-white rounded-sm cursor-pointer ml-2"
+                  ></div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       ) : (

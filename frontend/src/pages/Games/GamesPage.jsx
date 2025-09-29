@@ -69,11 +69,7 @@ export default function GamesPage() {
       {isLoading ? (
         <LoadingPage />
       ) : (
-        <div
-          className={`${
-            games ? "h-full" : "h-screen"
-          } flex flex-col items-center pb-5`}
-        >
+        <div className="min-h-screen flex flex-col items-center pb-5">
           <div className="w-full flex items-center justify-center py-2.5 bg-white dark:bg-gray-900 border-t border-black dark:border-white shadow-xl dark:shadow-white/10 max-sm:hidden z-10">
             <Genres />
             <Plateformes />
@@ -102,7 +98,7 @@ export default function GamesPage() {
               {isFiltered && (
                 <button
                   onClick={handleClearFilter}
-                  className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  className="mt-2 px-4 py-2 bg-alert-light text-white rounded-lg hover:bg-alert-dark dark:bg-alert-dark dark:hover:bg-alert-light transition-colors cursor-pointer"
                 >
                   Supprimer le filtre
                 </button>
@@ -110,17 +106,27 @@ export default function GamesPage() {
             </div>
             {games && (
               <>
-                <div className="w-full h-full flex flex-wrap justify-center items-center gap-[20px]">
-                  {games.map((game) => (
-                    <AffichesJeux key={game._id} game={game} />
-                  ))}
-                </div>
-                {hasMore && (
-                  <Bouton
-                    onClick={loadMoreGames}
-                    text={isLoadingMore ? "Chargement..." : "Voir Plus"}
-                    disabled={isLoadingMore}
-                  />
+                {games.length === 0 && isFiltered ? (
+                  <div className="w-full text-center py-10">
+                    <p className="text-lg text-gray-600 dark:text-gray-400">
+                      Aucun jeux ne correspond à ce filtre.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-full h-full flex flex-wrap justify-center items-center gap-[20px]">
+                      {games.map((game) => (
+                        <AffichesJeux key={game._id} game={game} />
+                      ))}
+                    </div>
+                    {hasMore && (
+                      <Bouton
+                        onClick={loadMoreGames}
+                        text={isLoadingMore ? "Chargement..." : "Voir Plus"}
+                        disabled={isLoadingMore}
+                      />
+                    )}
+                  </>
                 )}
               </>
             )}

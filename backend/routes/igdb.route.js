@@ -26,15 +26,20 @@ const {
   getPlatformsFromIGDB,
   getGamesByPlatform,
   getGamesByPlatformPaginated,
+  updatePlatformsCounts,
 } = require("../controllers/platforms.controller");
 const {
   getThemes,
   getThemesFromIGDB,
 } = require("../controllers/themes.controller");
+const {
+  migrateUserGamesReleaseDates,
+} = require("../controllers/user.controller");
 
 const router = require("express").Router();
 
 // Jeux
+router.get("/games/sync", migrateUserGamesReleaseDates);
 router.get("/games/:id", getOneGame);
 router.get("/games", getGames);
 router.get("/most-popular/all-time", getMostPopularGamesAllTime);
@@ -73,6 +78,9 @@ router.get(
   "/plateformes/:platformId/games/paginated",
   getGamesByPlatformPaginated
 );
+
+// Route pour mettre à jour les compteurs de jeux par plateforme
+router.get("/plateformes/update-counts", updatePlatformsCounts);
 
 module.exports = router;
 

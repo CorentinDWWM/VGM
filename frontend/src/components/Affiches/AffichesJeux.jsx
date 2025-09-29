@@ -134,12 +134,12 @@ export default function AffichesJeux({ game }) {
             <span className="text-sm text-gray-500 dark:text-gray-400">
               {safeYear()}
             </span>
-            {(game.total_rating || game.rating) &&
-              !isNaN(game.total_rating || game.rating) &&
-              (game.total_rating > 0 || game.rating > 0) && (
+            {game.votes !== null &&
+              game.votes !== undefined &&
+              !isNaN(game.votes) &&
+              game.votes > 0 && (
                 <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                  {Math.round(safeNumber(game.total_rating || game.rating)) /
-                    10}
+                  {Math.round(safeNumber(game.votes)) / 10}
                   /10
                 </span>
               )}

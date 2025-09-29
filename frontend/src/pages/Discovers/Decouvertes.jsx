@@ -1,13 +1,14 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import { Link } from "react-router-dom";
 import { DataContext } from "../../context/DataContext";
 import { AuthContext } from "../../context/AuthContext";
+import { importGamesThisWeek } from "../../apis/games.api";
 
 export default function Decouvertes() {
   const { user } = useContext(AuthContext);
-  const { games, genres } = useContext(DataContext);
-  const [tendancesSelected, setTendancesSelected] = useState("all");
+  const { games, genres, gamesThisWeek, setGamesThisWeekData } =
+    useContext(DataContext);
 
   const formatGenreName = (genreName) => {
     if (genreName === "Role-playing (RPG)") {
@@ -81,14 +82,61 @@ export default function Decouvertes() {
           })
           .slice(0, 5);
 
-  const toggleTendancesSelected = (nom) => {
-    if (tendancesSelected !== nom) {
-      setTendancesSelected(nom);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importStatus, setImportStatus] = useState({
+    week: false,
+  });
+  // Fonction d'import des jeux par période
+  const importGamesByPeriod = async () => {
+    setIsImporting(true);
+
+    // Reset status before starting
+    setImportStatus({
+      week: false,
+    });
+
+    // Fonction pour sanitiser les jeux importés
+    const sanitizeGames = (games) => {
+      return games.map((game, index) => ({
+        ...game,
+        _id: game._id || `temp_${index}`,
+        name: game.name || "Nom non disponible",
+        votes: isNaN(Number(game.votes)) ? 0 : Number(game.votes || 0),
+        total_votes: isNaN(Number(game.total_votes))
+          ? 0
+          : Number(game.total_votes || 0),
+        igdbID: isNaN(Number(game.igdbID)) ? 0 : Number(game.igdbID || 0),
+        release_dates: game.release_dates || null,
+        slug: game.slug || "",
+        summary: game.summary || "",
+        url: game.url || "",
+        genres: game.genres || [],
+        platforms: game.platforms || [],
+        cover: game.cover || null,
+      }));
+    };
+
+    // Import week games
+    try {
+      const weekResponse = await importGamesThisWeek();
+      if (weekResponse?.games) {
+        setImportStatus((prev) => ({ ...prev, week: true }));
+        setGamesThisWeekData(sanitizeGames(weekResponse.games));
+      }
+    } catch (error) {
+      console.error("Erreur import semaine:", error);
+    } finally {
+      setIsImporting(false);
     }
   };
 
+  // Lancer les imports au chargement
+  useEffect(() => {
+    importGamesByPeriod();
+  }, []);
+
   return (
-    <div className="w-full flex flex-col justify-center items-center gap-[50px] px-5 py-[30px]">
+    <div className="w-full flex flex-col justify-center items-center gap-[50px] px-5 py-[30px] max-sm:px-2.5">
       {/* Intro */}
       <div className="flex flex-col justify-center items-center gap-2.5">
         <h2 className="text-black dark:text-white font-bold text-3xl text-center">
@@ -104,7 +152,7 @@ export default function Decouvertes() {
         <p className="text-black dark:text-white text-2xl font-semibold">
           Recommandé pour vous
         </p>
-        <p className="text-secondary-text-light dark:text-secondary-text-dark">
+        <p className="text-secondary-text-light dark:text-secondary-text-dark text-center">
           Basé sur vos jeux favoris :{" "}
           {userFavoriteGenres.length > 0
             ? userFavoriteGenres.map((genre) => genre.name).join(", ")
@@ -116,68 +164,40 @@ export default function Decouvertes() {
           ))}
         </div>
       </div>
-      {/* Tendances */}
+      {/* Jeux populaires */}
       <div className="w-full flex flex-col items-center gap-[15px] py-8 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl shadow-black/10 dark:shadow-white/10 rounded-xl">
         <p className="text-black dark:text-white text-2xl font-semibold">
-          Tendances actuelles
+          Jeux populaires
         </p>
-        <div className="w-fill flex justify-center gap-4 flex-wrap">
-          <div
-            id="all"
-            onClick={() => toggleTendancesSelected("all")}
-            className={`flex justify-center items-center gap-2.5 px-[15px] py-2.5 border border-black dark:border-white rounded-[20px] shadow-xl shadow-black/10 dark:shadow-white/10 cursor-pointer ${
-              tendancesSelected === "all"
-                ? "bg-primary-light dark:bg-primary-dark text-white dark:text-black"
-                : "bg-white dark:bg-gray-900 text-black dark:text-white"
-            }`}
-          >
-            <p>Tous</p>
-          </div>
-          <div
-            id="week"
-            onClick={() => toggleTendancesSelected("week")}
-            className={`flex justify-center items-center gap-2.5 px-[15px] py-2.5 border border-black dark:border-white rounded-[20px] shadow-xl shadow-black/10 dark:shadow-white/10 cursor-pointer ${
-              tendancesSelected === "week"
-                ? "bg-primary-light dark:bg-primary-dark text-white dark:text-black"
-                : "bg-white dark:bg-gray-900 text-black dark:text-white"
-            }`}
-          >
-            <p>Cette semaine</p>
-          </div>
-          <div
-            id="month"
-            onClick={() => toggleTendancesSelected("month")}
-            className={`flex justify-center items-center gap-2.5 px-[15px] py-2.5 border border-black dark:border-white rounded-[20px] shadow-xl shadow-black/10 dark:shadow-white/10 cursor-pointer ${
-              tendancesSelected === "month"
-                ? "bg-primary-light dark:bg-primary-dark text-white dark:text-black"
-                : "bg-white dark:bg-gray-900 text-black dark:text-white"
-            }`}
-          >
-            <p>Ce mois</p>
-          </div>
-          <div
-            id="new"
-            onClick={() => toggleTendancesSelected("new")}
-            className={`flex justify-center items-center gap-2.5 px-[15px] py-2.5 border border-black dark:border-white rounded-[20px] shadow-xl shadow-black/10 dark:shadow-white/10 cursor-pointer ${
-              tendancesSelected === "new"
-                ? "bg-primary-light dark:bg-primary-dark text-white dark:text-black"
-                : "bg-white dark:bg-gray-900 text-black dark:text-white"
-            }`}
-          >
-            <p>Nouveautés</p>
-          </div>
-        </div>
+        <p className="text-secondary-text-light dark:text-secondary-text-dark text-center">
+          Une sélection de jeux appréciés par la communauté
+        </p>
         <div className="flex flex-wrap justify-center items-center gap-6 pt-2.5">
-          {games.slice(0, 6).map((game) => (
-            <AffichesJeux key={game._id} game={game} />
-          ))}
+          {games
+            .filter((game) => {
+              // Exclure les jeux déjà dans la liste de l'utilisateur
+              if (user?.games && Array.isArray(user.games)) {
+                return !user.games.some(
+                  (userGame) => userGame._id === game._id
+                );
+              }
+              return true;
+            })
+            .filter(
+              (game) => Math.round(game.votes) && Math.round(game.votes) > 8
+            ) // Filtre pour note > 8/10
+            .sort(() => Math.random() - 0.5) // Mélange aléatoire
+            .slice(0, 6)
+            .map((game) => (
+              <AffichesJeux key={game._id} game={game} />
+            ))}
         </div>
       </div>
       {/* Nouvelles Sorties */}
       <div className="w-full flex flex-col items-center gap-[15px] pb-8">
         <div className="flex items-center justify-center gap-2.5">
           <p className="text-black dark:text-white text-2xl font-semibold">
-            Nouvelles sorties
+            Nouvelles sorties (cette semaine)
           </p>
           <Link
             to="/discover/news"
@@ -186,12 +206,70 @@ export default function Decouvertes() {
             Voir tout
           </Link>
         </div>
-        <div className="flex flex-wrap justify-center items-center gap-6 pt-2.5">
-          {games.slice(0, 5).map((game) => (
-            <AffichesJeux key={game._id} game={game} />
-          ))}
-        </div>
+
+        {/* Loading pour les nouvelles sorties */}
+        {isImporting ? (
+          <div className="flex flex-col items-center gap-6 pt-2.5">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 dark:border-gray-700"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent absolute top-0"></div>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-600 dark:text-gray-400">
+                Chargement des nouvelles sorties...
+              </p>
+            </div>
+            <div className="flex items-center gap-3 p-4 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700">
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-500 ${
+                  importStatus.week
+                    ? "bg-green-500 text-white scale-110"
+                    : "bg-gray-200 dark:bg-gray-600 animate-pulse"
+                }`}
+              >
+                {importStatus.week ? (
+                  <svg
+                    className="w-4 h-4 animate-bounce"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                ) : (
+                  <div className="w-3 h-3 bg-current rounded-full animate-pulse"></div>
+                )}
+              </div>
+              <span
+                className={`text-sm font-medium transition-all duration-500 ${
+                  importStatus.week
+                    ? "text-green-600 dark:text-green-400 font-semibold"
+                    : "text-gray-600 dark:text-gray-400"
+                }`}
+              >
+                Jeux de cette semaine
+              </span>
+              {importStatus.week && (
+                <div className="ml-auto">
+                  <span className="text-xs text-green-500 dark:text-green-400">
+                    ✓ Terminé
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap justify-center items-center gap-6 pt-2.5">
+            {gamesThisWeek.slice(0, 5).map((game) => (
+              <AffichesJeux key={game._id} game={game} />
+            ))}
+          </div>
+        )}
       </div>
+
       {/* Genres */}
       <div className="w-full flex flex-col items-center gap-6">
         <p className="text-black dark:text-white text-2xl font-semibold">

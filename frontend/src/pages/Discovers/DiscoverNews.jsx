@@ -80,18 +80,12 @@ export default function DiscoverNews() {
         ...game,
         _id: game._id || `temp_${index}`,
         name: game.name || "Nom non disponible",
-        rating: isNaN(Number(game.rating)) ? 0 : Number(game.rating || 0),
-        rating_count: isNaN(Number(game.rating_count))
+        votes: isNaN(Number(game.votes)) ? 0 : Number(game.votes || 0),
+        total_votes: isNaN(Number(game.total_votes))
           ? 0
-          : Number(game.rating_count || 0),
-        total_rating: isNaN(Number(game.total_rating))
-          ? 0
-          : Number(game.total_rating || 0),
-        total_rating_count: isNaN(Number(game.total_rating_count))
-          ? 0
-          : Number(game.total_rating_count || 0),
+          : Number(game.total_votes || 0),
         igdbID: isNaN(Number(game.igdbID)) ? 0 : Number(game.igdbID || 0),
-        first_release_date: game.first_release_date || null,
+        release_dates: game.release_dates || null,
         slug: game.slug || "",
         summary: game.summary || "",
         url: game.url || "",
@@ -174,7 +168,7 @@ export default function DiscoverNews() {
             {games.length > 0 ? (
               games.map((game, index) => (
                 <div
-                  key={`${game._id || game.id}-${index}`}
+                  key={game._id}
                   className="transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:z-10 relative"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
@@ -327,6 +321,8 @@ export default function DiscoverNews() {
       </div>
     );
   }
+
+  console.log("Games This Week:", gamesThisWeek);
 
   return (
     <div className="w-full min-h-screen mt-5">

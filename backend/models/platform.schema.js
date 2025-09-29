@@ -13,6 +13,7 @@ const platformSchema = new mongoose.Schema(
         url: { type: String, required: true },
       },
     },
+    nb_jeux: { type: Number, default: 0 },
   },
   {
     timestamps: true,

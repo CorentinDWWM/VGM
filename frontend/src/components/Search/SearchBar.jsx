@@ -60,17 +60,38 @@ export default function SearchBar() {
 
       {showResults && filteredGames.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
-          {filteredGames.map((game) => (
-            <div
-              key={game._id}
-              onClick={() => handleGameSelect(game)}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b last:border-b-0 dark:border-gray-600"
-            >
-              <span className="text-main-text-light dark:text-main-text-dark">
-                {game.name}
-              </span>
-            </div>
-          ))}
+          {filteredGames.map((game) => {
+            return (
+              <div
+                key={game._id}
+                onClick={() => handleGameSelect(game)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b last:border-b-0 dark:border-gray-600 flex items-center gap-2"
+              >
+                <img
+                  src={
+                    game.cover && typeof game.cover === "string"
+                      ? game.cover
+                      : game.cover?.image_id
+                      ? `https://images.igdb.com/igdb/image/upload/t_thumb/${game.cover.image_id}.jpg`
+                      : "/placeholder-game.png"
+                  }
+                  alt={game.name}
+                  className="w-8 h-8 object-cover rounded flex-shrink-0"
+                  onError={(e) => {
+                    if (
+                      e.target.src !==
+                      window.location.origin + "/placeholder-game.png"
+                    ) {
+                      e.target.src = "/placeholder-game.png";
+                    }
+                  }}
+                />
+                <span className="text-main-text-light dark:text-main-text-dark text-sm truncate">
+                  {game.name}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

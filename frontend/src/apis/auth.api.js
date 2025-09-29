@@ -96,14 +96,15 @@ export async function update(values) {
   }
 }
 
-export async function updateAvatar(values) {
+export async function updateAvatar(avatar) {
   try {
     const response = await fetch(`${BASE_URL}/user/avatar`, {
       method: "PUT",
-      body: JSON.stringify(values),
+      body: JSON.stringify({ avatar }),
       headers: {
         "Content-type": "application/json",
       },
+      credentials: "include",
     });
     const updatedUserAvatar = await response.json();
 

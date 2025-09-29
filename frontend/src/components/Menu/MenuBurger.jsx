@@ -53,7 +53,7 @@ export default function MenuBurger() {
   return (
     <>
       <div
-        className={`fixed inset-0 z-50 bg-black/20 backdrop-blur-sm transition-opacity ${
+        className={`fixed inset-0 z-50 bg-black/20 backdrop-blur-sm ${
           burger ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         onClick={toggleBurger} // Ferme le menu si on clique sur l'overlay

@@ -61,6 +61,14 @@ export default function MediaModal({
           />
         )}
 
+        {modalType === "artwork" && (
+          <img
+            src={`https://images.igdb.com/igdb/image/upload/t_1080p/${currentMedia.image_id}.jpg`}
+            alt={`Artwork ${currentIndex + 1}`}
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+          />
+        )}
+
         {modalType === "video" && (
           <div className="w-full aspect-video">
             <iframe
@@ -77,7 +85,7 @@ export default function MediaModal({
         {/* Bouton fermer */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors cursor-pointer"
+          className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full cursor-pointer"
         >
           <svg
             className="w-6 h-6"
@@ -99,7 +107,7 @@ export default function MediaModal({
           <>
             <button
               onClick={() => onNavigate("prev")}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors cursor-pointer"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full cursor-pointer"
             >
               <svg
                 className="w-6 h-6"
@@ -118,7 +126,7 @@ export default function MediaModal({
 
             <button
               onClick={() => onNavigate("next")}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors cursor-pointer"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full cursor-pointer"
             >
               <svg
                 className="w-6 h-6"

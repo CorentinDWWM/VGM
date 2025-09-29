@@ -1,15 +1,17 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import HeaderUser from "../../components/Profil/HeaderUser";
 import { AuthContext } from "../../context/AuthContext";
-import { Search } from "lucide-react";
+import { Search, Camera } from "lucide-react";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import { UserProfilContext } from "../../context/UserProfilContext";
 import toast from "react-hot-toast";
 import Bouton from "../../components/Boutons/Bouton";
 import { useNavigate } from "react-router-dom";
+import { updateAvatar } from "../../apis/auth.api";
 
 export default function Profil() {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
+  const fileInputRef = useRef(null);
   // Comptage des jeux selon le statusUser
   const finishedCount =
     user.games?.filter((game) => game.statusUser === "Terminé").length || 0;
@@ -45,6 +47,39 @@ export default function Profil() {
     navigate("/games");
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("L'image ne doit pas dépasser 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const base64Image = e.target.result;
+        const response = await updateAvatar(base64Image);
+
+        if (response && !response.message?.includes("Erreur")) {
+          setUser(response);
+          toast.success("Avatar mis à jour avec succès");
+        } else {
+          toast.error("Erreur lors de la mise à jour de l'avatar");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Erreur lors de la mise à jour de l'avatar");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="flex flex-col gap-5 border border-black dark:border-white mx-24 my-12 max-sm:m-8">
       <HeaderUser />
@@ -58,10 +93,25 @@ export default function Profil() {
           <div className="flex flex-col gap-2.5 bg-white dark:bg-gray-900 border border-black dark:border-white shadow-xl dark:shadow-white/10 rounded-xl">
             <div className="flex flex-col justify-center gap-2.5 px-2.5 pt-2.5">
               <div className="flex items-center gap-5">
-                <img
-                  src={user.avatar}
-                  alt="avatar utilisateur"
-                  className="w-[80px] rounded-full max-sm:w-[60px]"
+                <div
+                  className="relative group cursor-pointer"
+                  onClick={handleAvatarClick}
+                >
+                  <img
+                    src={user.avatar}
+                    alt="avatar utilisateur"
+                    className="w-[80px] rounded-full max-sm:w-[60px]"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Camera className="text-white w-6 h-6" />
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleAvatarChange}
+                  accept="image/*"
+                  className="hidden"
                 />
                 <div className="flex flex-col justify-center gap-2.5 max-sm:gap-1">
                   <p className="max-sm:text-sm">{user.username}</p>

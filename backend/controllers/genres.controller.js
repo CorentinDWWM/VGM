@@ -127,11 +127,9 @@ const getGamesByGenre = async (req, res) => {
         slug: 1,
         summary: 1,
         cover: 1,
-        first_release_date: 1,
-        rating: 1,
-        rating_count: 1,
-        total_rating: 1,
-        total_rating_count: 1,
+        release_dates: 1,
+        votes: 1,
+        total_votes: 1,
         genres: 1,
         platforms: 1,
         themes: 1,
@@ -145,11 +143,9 @@ const getGamesByGenre = async (req, res) => {
     // S'assurer que les valeurs numériques ne sont pas undefined
     const sanitizedGames = games.map((game) => ({
       ...game.toObject(),
-      rating: game.rating || 0,
-      rating_count: game.rating_count || 0,
-      total_rating: game.total_rating || 0,
-      total_rating_count: game.total_rating_count || 0,
-      first_release_date: game.first_release_date || null,
+      votes: game.votes || 0,
+      total_votes: game.total_votes || 0,
+      release_dates: game.release_dates || null,
     }));
 
     res.status(200).json(sanitizedGames);
@@ -179,11 +175,9 @@ const getGamesByGenrePaginated = async (req, res) => {
         slug: 1,
         summary: 1,
         cover: 1,
-        first_release_date: 1,
-        rating: 1,
-        rating_count: 1,
-        total_rating: 1,
-        total_rating_count: 1,
+        release_dates: 1,
+        votes: 1,
+        total_votes: 1,
         genres: 1,
         platforms: 1,
         themes: 1,
@@ -199,11 +193,9 @@ const getGamesByGenrePaginated = async (req, res) => {
     // S'assurer que les valeurs numériques ne sont pas undefined
     const sanitizedGames = games.map((game) => ({
       ...game.toObject(),
-      rating: game.rating || 0,
-      rating_count: game.rating_count || 0,
-      total_rating: game.total_rating || 0,
-      total_rating_count: game.total_rating_count || 0,
-      first_release_date: game.first_release_date || null,
+      votes: game.votes || 0,
+      total_votes: game.total_votes || 0,
+      release_dates: game.release_dates || null,
     }));
 
     res.status(200).json(sanitizedGames);

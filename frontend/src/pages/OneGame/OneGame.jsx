@@ -20,8 +20,9 @@ export default function OneGame() {
   const { user } = useContext(AuthContext);
   // État local pour suivre si le jeu est dans la collection
   const [isInCollection, setIsInCollection] = useState(false);
-  const [gameStatus, setGameStatus] = useState("Non commencé");
+  const [gameStatus, setGameStatus] = useState("");
   const [showAllScreenshots, setShowAllScreenshots] = useState(false);
+  const [showAllArtworks, setShowAllArtworks] = useState(false);
   const [showAllVideos, setShowAllVideos] = useState(false);
   const [translatedSummary, setTranslatedSummary] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
@@ -30,7 +31,7 @@ export default function OneGame() {
 
   // États pour la modal de galerie
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(""); // 'screenshot' ou 'video'
+  const [modalType, setModalType] = useState(""); // 'screenshot', 'artwork' ou 'video'
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -54,13 +55,18 @@ export default function OneGame() {
   // Effet pour mettre à jour isInCollection quand game ou user change
   useEffect(() => {
     if (game && user?.games) {
-      const userGame = user.games.find((g) => g.name === game.name);
+      const userGame = user.games.find((g) => g.igdbID === game.igdbID);
+      console.log(userGame);
+
       setIsInCollection(!!userGame);
       if (userGame && userGame.statusUser) {
         setGameStatus(userGame.statusUser);
       } else {
         setGameStatus("Non commencé");
       }
+    } else if (game && !user?.games) {
+      // Si pas de user ou pas de games, reset au statut par défaut
+      setGameStatus("Non commencé");
     }
   }, [game, user]);
 
@@ -234,6 +240,13 @@ export default function OneGame() {
     setIsModalOpen(true);
   };
 
+  // Fonction pour ouvrir la modal avec un artwork
+  const openArtworkModal = (index) => {
+    setModalType("artwork");
+    setCurrentIndex(index);
+    setIsModalOpen(true);
+  };
+
   // Fonction pour ouvrir la modal avec une vidéo
   const openVideoModal = (index) => {
     setModalType("video");
@@ -251,7 +264,11 @@ export default function OneGame() {
   // Navigation dans la modal
   const navigateModal = (direction) => {
     const mediaArray =
-      modalType === "screenshot" ? game.screenshots : game.videos;
+      modalType === "screenshot"
+        ? game.screenshots
+        : modalType === "artwork"
+        ? game.artworks
+        : game.videos;
     if (direction === "next") {
       setCurrentIndex((prev) => (prev + 1) % mediaArray.length);
     } else {
@@ -293,7 +310,11 @@ export default function OneGame() {
         modalType={modalType}
         currentIndex={currentIndex}
         mediaData={
-          modalType === "screenshot" ? game?.screenshots : game?.videos
+          modalType === "screenshot"
+            ? game?.screenshots
+            : modalType === "artwork"
+            ? game?.artworks
+            : game?.videos
         }
         gameName={game?.name}
         onClose={closeModal}
@@ -416,8 +437,8 @@ export default function OneGame() {
                         >
                           <option value="Non commencé">Non commencé</option>
                           <option value="En cours">En cours</option>
-                          <option value="Terminés">Terminés</option>
-                          <option value="Abandonnés">Abandonnés</option>
+                          <option value="Terminé">Terminé</option>
+                          <option value="Abandonné">Abandonné</option>
                         </select>
                       </div>
                     </div>
@@ -593,6 +614,7 @@ export default function OneGame() {
 
       {/* Screenshots and Videos Gallery */}
       {((game.screenshots && game.screenshots.length > 0) ||
+        (game.artworks && game.artworks.length > 0) ||
         (game.videos && game.videos.length > 0)) && (
         <section className="py-16 bg-white dark:bg-gray-900">
           <div className="max-w-6xl mx-auto px-8">
@@ -648,6 +670,60 @@ export default function OneGame() {
                             } images supplémentaires`
                       }
                       onClick={() => setShowAllScreenshots(!showAllScreenshots)}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Artworks Section */}
+            {game.artworks && game.artworks.length > 0 && (
+              <div className="mb-16">
+                <h3 className="text-2xl font-semibold text-black dark:text-white mb-6">
+                  Artworks ({game.artworks.length})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                  {(showAllArtworks
+                    ? game.artworks
+                    : game.artworks.slice(0, 6)
+                  ).map((artwork, index) => (
+                    <div
+                      key={artwork.id}
+                      className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200 shadow-sm cursor-pointer group"
+                      onClick={() =>
+                        openArtworkModal(showAllArtworks ? index : index)
+                      }
+                    >
+                      <div className="relative">
+                        <img
+                          src={`https://images.igdb.com/igdb/image/upload/t_screenshot_med/${artwork.image_id}.jpg`}
+                          alt={`Artwork ${index + 1}`}
+                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                          <svg
+                            className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {game.artworks.length > 6 && (
+                  <div className="text-center flex justify-center">
+                    <Bouton
+                      text={
+                        showAllArtworks
+                          ? "Voir moins d'artworks"
+                          : `Voir ${
+                              game.artworks.length - 6
+                            } artworks supplémentaires`
+                      }
+                      onClick={() => setShowAllArtworks(!showAllArtworks)}
                     />
                   </div>
                 )}

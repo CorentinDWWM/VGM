@@ -176,11 +176,9 @@ const getGamesByPlatform = async (req, res) => {
         slug: 1,
         summary: 1,
         cover: 1,
-        first_release_date: 1,
-        rating: 1,
-        rating_count: 1,
-        total_rating: 1,
-        total_rating_count: 1,
+        release_dates: 1,
+        votes: 1,
+        total_votes: 1,
         genres: 1,
         platforms: 1,
         themes: 1,
@@ -194,11 +192,9 @@ const getGamesByPlatform = async (req, res) => {
     // S'assurer que les valeurs numériques ne sont pas undefined
     const sanitizedGames = games.map((game) => ({
       ...game.toObject(),
-      rating: game.rating || 0,
-      rating_count: game.rating_count || 0,
-      total_rating: game.total_rating || 0,
-      total_rating_count: game.total_rating_count || 0,
-      first_release_date: game.first_release_date || null,
+      votes: game.votes || 0,
+      total_votes: game.total_votes || 0,
+      release_dates: game.release_dates || null,
     }));
 
     res.status(200).json(sanitizedGames);
@@ -228,11 +224,9 @@ const getGamesByPlatformPaginated = async (req, res) => {
         slug: 1,
         summary: 1,
         cover: 1,
-        first_release_date: 1,
-        rating: 1,
-        rating_count: 1,
-        total_rating: 1,
-        total_rating_count: 1,
+        release_dates: 1,
+        votes: 1,
+        total_votes: 1,
         genres: 1,
         platforms: 1,
         themes: 1,
@@ -248,14 +242,61 @@ const getGamesByPlatformPaginated = async (req, res) => {
     // S'assurer que les valeurs numériques ne sont pas undefined
     const sanitizedGames = games.map((game) => ({
       ...game.toObject(),
-      rating: game.rating || 0,
-      rating_count: game.rating_count || 0,
-      total_rating: game.total_rating || 0,
-      total_rating_count: game.total_rating_count || 0,
-      first_release_date: game.first_release_date || null,
+      votes: game.votes || 0,
+      total_votes: game.total_votes || 0,
+      release_dates: game.release_dates || null,
     }));
 
     res.status(200).json(sanitizedGames);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updatePlatformsCounts = async (req, res) => {
+  try {
+    // Agréger les jeux par plateforme en utilisant platforms.id
+    const platformCounts = await Game.aggregate([
+      { $unwind: "$platforms" },
+      {
+        $lookup: {
+          from: "platforms",
+          localField: "platforms.id",
+          foreignField: "igdbID",
+          as: "platformInfo",
+        },
+      },
+      { $unwind: "$platformInfo" },
+      {
+        $group: {
+          _id: "$platformInfo.igdbID",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Mettre à jour chaque plateforme avec son nb_jeux
+    let updateCount = 0;
+    for (const platformCount of platformCounts) {
+      const igdbID = Number(platformCount._id);
+
+      await Platform.updateOne(
+        { igdbID: igdbID },
+        { $set: { nb_jeux: platformCount.count } }
+      );
+
+      updateCount++;
+    }
+
+    // Mettre nb_jeux à 0 pour les plateformes sans jeux
+    const resetResult = await Platform.updateMany(
+      { igdbID: { $nin: platformCounts.map((p) => Number(p._id)) } },
+      { $set: { nb_jeux: 0 } }
+    );
+
+    res.status(200).json({
+      message: `Compteurs mis à jour pour ${updateCount} plateformes, ${resetResult.modifiedCount} remises à zéro`,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -267,4 +308,5 @@ module.exports = {
   getPlatformsFromIGDB,
   getGamesByPlatform,
   getGamesByPlatformPaginated,
+  updatePlatformsCounts,
 };
