@@ -129,13 +129,82 @@ export default function OneGame() {
   const translateText = async (text, targetLang = "fr") => {
     try {
       setIsTranslating(true);
-      const response = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-          text
-        )}&langpair=en|${targetLang}`
-      );
-      const data = await response.json();
-      return data.responseData.translatedText;
+
+      // Si le texte est court, traduction directe
+      if (text.length <= 450) {
+        // Marge de sécurité
+        const response = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+            text
+          )}&langpair=en|${targetLang}`
+        );
+        const data = await response.json();
+        return data.responseData.translatedText;
+      }
+
+      // Découper le texte en phrases pour éviter de couper au milieu des mots
+      const sentences = text.match(/[^\.!?]+[\.!?]+/g) || [text];
+      const chunks = [];
+      let currentChunk = "";
+
+      for (const sentence of sentences) {
+        // Si ajouter cette phrase dépasse la limite, on sauvegarde le chunk actuel
+        if ((currentChunk + sentence).length > 450) {
+          if (currentChunk) {
+            chunks.push(currentChunk.trim());
+            currentChunk = sentence;
+          } else {
+            // Si une seule phrase est trop longue, on la coupe par mots
+            const words = sentence.split(" ");
+            let wordChunk = "";
+            for (const word of words) {
+              if ((wordChunk + " " + word).length > 450) {
+                if (wordChunk) {
+                  chunks.push(wordChunk.trim());
+                  wordChunk = word;
+                } else {
+                  // Mot unique trop long, on le garde tel quel
+                  chunks.push(word);
+                }
+              } else {
+                wordChunk += (wordChunk ? " " : "") + word;
+              }
+            }
+            if (wordChunk) {
+              currentChunk = wordChunk;
+            }
+          }
+        } else {
+          currentChunk += (currentChunk ? " " : "") + sentence;
+        }
+      }
+
+      // Ajouter le dernier chunk s'il existe
+      if (currentChunk) {
+        chunks.push(currentChunk.trim());
+      }
+
+      // Traduire chaque chunk
+      const translatedChunks = [];
+      for (const chunk of chunks) {
+        try {
+          const response = await fetch(
+            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+              chunk
+            )}&langpair=en|${targetLang}`
+          );
+          const data = await response.json();
+          translatedChunks.push(data.responseData.translatedText);
+
+          // Pause entre les requêtes pour éviter le rate limiting
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        } catch (error) {
+          console.error("Erreur lors de la traduction d'un chunk:", error);
+          translatedChunks.push(chunk); // Garder le texte original en cas d'erreur
+        }
+      }
+
+      return translatedChunks.join(" ");
     } catch (error) {
       console.error("Erreur de traduction:", error);
       return text; // Retourne le texte original en cas d'erreur
