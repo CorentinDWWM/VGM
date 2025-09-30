@@ -4,6 +4,7 @@ import { MdOutlineSystemSecurityUpdateGood } from "react-icons/md";
 import { FaEarthEurope } from "react-icons/fa6";
 import { BsCollection } from "react-icons/bs";
 import { VscGraph } from "react-icons/vsc";
+import { MdRateReview, MdCloudSync } from "react-icons/md";
 import { LuClipboardList } from "react-icons/lu";
 import { TbTargetArrow } from "react-icons/tb";
 import { GiBrain } from "react-icons/gi";
@@ -34,21 +35,18 @@ export default function Accueil() {
           obtenez des statistiques sur votre temps de jeu. Compatible
           multi-plateformes !
         </p>
-        {/* <button className="bg-primary-light hover:bg-hover-light dark:bg-primary-dark dark:hover:bg-hover-dark dark:text-main-dark text-main-light px-6 py-3 rounded-xl text-lg font-semibold cursor-pointer">
-          Commencer maintenant
-        </button> */}
         <Bouton text="Commencer maintenant" navigation="/discover" />
       </section>
 
       {/* Fonctionnalités */}
-      <section className="w-fit m-4 rounded p-16 max-sm:p-8 border shadow-xl dark:shadow-white/10">
+      <section className="w-fit m-4 rounded-xl p-16 max-sm:p-8 border shadow-xl dark:shadow-white/10">
         <div className="flex justify-center items-center mb-12 gap-2">
           <IoKeyOutline className="mt-1 text-2xl" />
           <h3 className="text-3xl font-semibold text-center text-primary-light dark:text-primary-dark">
             Fonctionnalités clés
           </h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto text-main-text-light dark:text-main-text-dark">
+        <div className="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto text-main-text-light dark:text-main-text-dark">
           {[
             [
               <BsCollection className="mb-1.5 text-lg" />,
@@ -58,17 +56,17 @@ export default function Accueil() {
             [
               <VscGraph className="mb-1.5 text-lg" />,
               "Statistiques",
-              "Visualisez des graphiques de votre activité : temps de jeu, genres préférés...",
+              "Visualisez des graphiques de votre activité : jeux ajoutés par année, jeux par genre, répartition par statut.",
             ],
-            [
-              <LuClipboardList className="mb-1.5 text-lg" />,
-              "Wishlist",
-              "Créez votre liste d’envies avec rappels et priorités.",
-            ],
+            // [
+            //   <MdCloudSync className="mb-1.5 text-lg" />,
+            //   "Sauvegarde & Sync",
+            //   "Synchronisez vos données entre appareils et sauvegardez votre collection dans le cloud.",
+            // ],
             [
               <TbTargetArrow className="mb-1.5 text-lg" />,
               "Suivi de progression",
-              "Notez vos jeux, marquez leur statut, suivez vos heures jouées.",
+              "Marquez leur statut (non commencé, en cours, terminé, abandonné).",
             ],
             [
               <GiBrain className="mb-1.5 text-lg" />,
@@ -83,7 +81,7 @@ export default function Accueil() {
           ].map(([icon, title, desc], index) => (
             <div
               key={index}
-              className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-xl hover:shadow-primary-light/50 dark:shadow-white/10 dark:hover:shadow-primary-dark/50 transition"
+              className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-xl hover:shadow-primary-light/50 dark:shadow-white/10 dark:hover:shadow-primary-dark/50 transition min-h-[160px] w-80 flex-shrink-0"
             >
               <div className="flex items-center gap-2">
                 {icon}
