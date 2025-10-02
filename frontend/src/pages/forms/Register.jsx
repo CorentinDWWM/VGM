@@ -34,7 +34,7 @@ export default function Register() {
       .string()
       .required("Le champ est obligatoire")
       .min(5, "trop court")
-      .max(10, "trop long"),
+      .max(15, "trop long"),
     confirmPassword: yup
       .string()
       .required("Le champ est obligatoire")
@@ -67,11 +67,8 @@ export default function Register() {
   });
 
   async function submit(values) {
-    console.log(values);
     try {
       const feedback = await signup(values);
-      // console.log(feedback);
-
       if (!feedback.message) {
         reset(defaultValues);
         toast.success(feedback.messageOk);

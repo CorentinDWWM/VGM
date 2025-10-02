@@ -23,7 +23,7 @@ const createTokenResetPassword = (email) => {
 
 const signup = async (req, res) => {
   try {
-    // on déstructure les données reçues depuis l'application front (REACT)
+    // on déstructure les données reçues depuis l'application frontend
     const { username, email, password } = req.body;
 
     // vérification si ce mail est déjà présent

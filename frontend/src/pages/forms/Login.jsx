@@ -25,6 +25,7 @@ export default function Login() {
 
   const schema = yup.object({
     username: yup.string().required("Le champ est obligatoire"),
+    password: yup.string().required("Le champ est obligatoire"),
   });
 
   const defaultValues = {
