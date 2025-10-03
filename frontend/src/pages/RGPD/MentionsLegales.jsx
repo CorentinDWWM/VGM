@@ -7,7 +7,9 @@ export default function MentionsLegales() {
 
       <div className="space-y-6 text-main-text-light dark:text-main-text-dark">
         <section>
-          <h2 className="text-xl font-semibold mb-3">Éditeur du site</h2>
+          <h2 className="text-xl font-semibold mb-3">
+            Éditeur de l'application web
+          </h2>
           <p>
             <strong>Video Games Manager</strong>
             <br />

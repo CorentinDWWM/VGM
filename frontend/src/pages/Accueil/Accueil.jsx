@@ -14,6 +14,7 @@ import { useContext } from "react";
 import { DataContext } from "../../context/DataContext";
 import { useLoaderData } from "react-router-dom";
 import Bouton from "../../components/Boutons/Bouton";
+import GlobalCookieModal from "../../components/Modal/GlobalCookieModal";
 
 export default function Accueil() {
   // const { gamesData } = useLoaderData();

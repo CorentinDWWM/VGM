@@ -162,7 +162,7 @@ export default function Register() {
               via ce formulaire. Aucune exploitation commerciale ne sera faite
               des données conservées.
               <Link
-                to="/"
+                to="/politique-confidentialite"
                 className="underline ml-1 text-black dark:text-white"
               >
                 Voir notre politique de gestion des données personnelles.

@@ -6,6 +6,7 @@ import MenuProvider from "./components/providers/MenuProvider";
 import AuthProvider from "./components/providers/AuthProvider";
 import UserProfilProvider from "./components/providers/UserProfilProvider";
 import DataProvider from "./components/providers/DataProvider";
+import GlobalCookieModal from "./components/Modal/GlobalCookieModal";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
               <Outlet />
               <Footer />
               <Toaster />
+              <GlobalCookieModal />
             </MenuProvider>
           </UserProfilProvider>
         </DataProvider>
