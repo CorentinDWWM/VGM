@@ -15,6 +15,17 @@ export default function GlobalCookieModal() {
 
       return () => clearTimeout(timer);
     }
+
+    // Écoute l'événement personnalisé pour rouvrir la modal
+    const handleOpenCookieModal = () => {
+      setShowCookieModal(true);
+    };
+
+    window.addEventListener("openCookieModal", handleOpenCookieModal);
+
+    return () => {
+      window.removeEventListener("openCookieModal", handleOpenCookieModal);
+    };
   }, []);
 
   const handleCookieAccept = (preferences) => {

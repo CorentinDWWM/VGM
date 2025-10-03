@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "./Modal";
 import Bouton from "../Boutons/Bouton";
 import { IoShieldCheckmark, IoAnalytics, IoSettings } from "react-icons/io5";
+import { cookieManager } from "../../utils/cookieManager";
 
 export default function CookieModal({
   isOpen,
@@ -16,6 +17,27 @@ export default function CookieModal({
     functional: false,
     marketing: false,
   });
+
+  // Reset l'état de la modal quand elle s'ouvre
+  useEffect(() => {
+    if (isOpen) {
+      setShowDetails(false);
+
+      // Charger les préférences actuelles de l'utilisateur
+      const currentPreferences = cookieManager.getPreferences();
+      if (currentPreferences) {
+        setPreferences(currentPreferences);
+      } else {
+        // Si pas de préférences existantes, utiliser les valeurs par défaut
+        setPreferences({
+          necessary: true,
+          analytics: false,
+          functional: false,
+          marketing: false,
+        });
+      }
+    }
+  }, [isOpen]);
 
   const handleAcceptAll = () => {
     const allPreferences = {
