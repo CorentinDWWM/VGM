@@ -39,14 +39,14 @@ export default function Accueil() {
       </section>
 
       {/* Fonctionnalités */}
-      <section className="w-fit m-4 rounded-xl p-16 max-sm:p-8 border shadow-xl dark:shadow-white/10">
+      <section className="w-full max-w-6xl mx-auto m-4 rounded-xl p-8 max-sm:p-4 max-sm:m-2 border shadow-xl dark:shadow-white/10">
         <div className="flex justify-center items-center mb-12 gap-2">
           <IoKeyOutline className="mt-1 text-2xl" />
           <h3 className="text-3xl font-semibold text-center text-primary-light dark:text-primary-dark">
             Fonctionnalités clés
           </h3>
         </div>
-        <div className="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto text-main-text-light dark:text-main-text-dark">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-main-text-light dark:text-main-text-dark">
           {[
             [
               <BsCollection className="mb-1.5 text-lg" />,
@@ -58,11 +58,6 @@ export default function Accueil() {
               "Statistiques",
               "Visualisez des graphiques de votre activité : jeux ajoutés par année, jeux par genre, répartition par statut.",
             ],
-            // [
-            //   <MdCloudSync className="mb-1.5 text-lg" />,
-            //   "Sauvegarde & Sync",
-            //   "Synchronisez vos données entre appareils et sauvegardez votre collection dans le cloud.",
-            // ],
             [
               <TbTargetArrow className="mb-1.5 text-lg" />,
               "Suivi de progression",
@@ -76,12 +71,12 @@ export default function Accueil() {
             [
               <WiMoonAltThirdQuarter className="mb-1.5 text-lg" />,
               "Mode Sombre/Clair",
-              "Personnalisez l’interface selon vos préférences.",
+              "Personnalisez l'interface selon vos préférences.",
             ],
           ].map(([icon, title, desc], index) => (
             <div
               key={index}
-              className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-xl hover:shadow-primary-light/50 dark:shadow-white/10 dark:hover:shadow-primary-dark/50 transition min-h-[160px] w-80 flex-shrink-0"
+              className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-xl hover:shadow-primary-light/50 dark:shadow-white/10 dark:hover:shadow-primary-dark/50 transition min-h-[160px] flex flex-col"
             >
               <div className="flex items-center gap-2">
                 {icon}

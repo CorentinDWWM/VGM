@@ -18,6 +18,8 @@ import Decouvertes from "./pages/Discovers/Decouvertes";
 import GenderDiscover from "./pages/Discovers/GenderDiscover";
 import DiscoverNews from "./pages/Discovers/DiscoverNews";
 import OneGame from "./pages/OneGame/OneGame";
+import MentionsLegales from "./pages/RGPD/MentionsLegales";
+import PolitiqueConfidentialite from "./pages/RGPD/PolitiqueConfidentialite";
 
 export const router = createBrowserRouter([
   {
@@ -119,6 +121,14 @@ export const router = createBrowserRouter([
             ),
           },
         ],
+      },
+      {
+        path: "/mentions-legales",
+        element: <MentionsLegales />,
+      },
+      {
+        path: "/politique-confidentialite",
+        element: <PolitiqueConfidentialite />,
       },
     ],
   },

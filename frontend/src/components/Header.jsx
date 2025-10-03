@@ -44,7 +44,7 @@ export default function Header() {
           />
         </Link>
       )}
-      <nav className="flex items-center gap-8 max-1000:invisible">
+      <nav className="flex items-center gap-8 max-1000:hidden">
         <Link
           to="/"
           className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
@@ -70,10 +70,10 @@ export default function Header() {
           Découvertes
         </Link>
       </nav>
-      <div className="max-1000:invisible">
+      <div className="max-1000:hidden">
         <SearchBar />
       </div>
-      <div className="flex items-center justify-center gap-4 max-1000:invisible">
+      <div className="flex items-center justify-center gap-4 max-1000:hidden">
         {theme === "dark" ? (
           <Sun
             onClick={toggleTheme}
