@@ -18,6 +18,7 @@ export default function GlobalCookieModal() {
 
     // Écoute l'événement personnalisé pour rouvrir la modal
     const handleOpenCookieModal = () => {
+      console.log("Event openCookieModal reçu");
       setShowCookieModal(true);
     };
 
