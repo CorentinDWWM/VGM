@@ -21,6 +21,13 @@ export default function Footer() {
           >
             Mentions Légales
           </Link>
+          <span>|</span>
+          <Link
+            to="/preferences-cookies"
+            className="hover:underline transition-colors duration-200"
+          >
+            Cookies
+          </Link>
         </div>
       </div>
     </footer>

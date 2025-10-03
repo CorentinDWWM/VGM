@@ -118,18 +118,24 @@ const signin = async (req, res) => {
     }
 
     if (await bcrypt.compare(password, user.password)) {
-      // on déstructure pour récupérer un objet sans le mot de passe
       const { password: _, ...userWithoutPassword } = user.toObject();
       const token = jwt.sign({}, SECRET_KEY, {
         subject: user.id.toString(),
         expiresIn: "7d",
         algorithm: "HS256",
       });
+
+      // Configuration des cookies sécurisés
+      const isProduction = process.env.NODE_ENV === "production";
+
       res.cookie("token", token, {
         httpOnly: true,
-        secure: false,
+        secure: isProduction, // HTTPS en production
+        sameSite: isProduction ? "None" : "Lax", // 'None' pour les requêtes cross-origin en production
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        domain: isProduction ? process.env.COOKIE_DOMAIN : undefined, // Domaine spécifique en production
       });
+
       res.status(200).json(userWithoutPassword);
     } else {
       res.status(400).json({ message: "Pseudo et/ou mot de passe incorrect" });
@@ -277,9 +283,13 @@ const currentUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.clearCookie("token", {
     httpOnly: true,
-    secure: false,
+    secure: isProduction,
+    sameSite: isProduction ? "None" : "Lax",
+    domain: isProduction ? process.env.COOKIE_DOMAIN : undefined,
   });
   res.status(200).json({ message: "Déconnexion réussie" });
 };
@@ -532,6 +542,42 @@ const migrateUserGamesReleaseDates = async (req, res) => {
   }
 };
 
+// Nouvelle fonction pour gérer les préférences de cookies
+const updateCookiePreferences = async (req, res) => {
+  try {
+    const { preferences } = req.body;
+    const { token } = req.cookies;
+
+    if (!token) {
+      return res.status(401).json({ message: "Token manquant" });
+    }
+
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        cookiePreferences: preferences,
+        cookieConsentDate: new Date(),
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    res.status(200).json({
+      message: "Préférences de cookies mises à jour",
+      preferences: updatedUser.cookiePreferences,
+    });
+  } catch (error) {
+    console.log("Erreur mise à jour préférences cookies:", error);
+    res.status(500).json({ message: "Erreur serveur interne" });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -546,4 +592,5 @@ module.exports = {
   deleteGameInUser,
   updateGameStatusInUser,
   migrateUserGamesReleaseDates,
+  updateCookiePreferences,
 };

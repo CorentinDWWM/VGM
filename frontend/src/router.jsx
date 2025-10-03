@@ -20,6 +20,7 @@ import DiscoverNews from "./pages/Discovers/DiscoverNews";
 import OneGame from "./pages/OneGame/OneGame";
 import MentionsLegales from "./pages/RGPD/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/RGPD/PolitiqueConfidentialite";
+import CookiePreferences from "./pages/RGPD/CookiePreferences";
 
 export const router = createBrowserRouter([
   {
@@ -129,6 +130,10 @@ export const router = createBrowserRouter([
       {
         path: "/politique-confidentialite",
         element: <PolitiqueConfidentialite />,
+      },
+      {
+        path: "/preferences-cookies",
+        element: <CookiePreferences />,
       },
     ],
   },

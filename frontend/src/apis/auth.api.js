@@ -114,6 +114,25 @@ export async function updateAvatar(avatar) {
   }
 }
 
+export async function updateCookiePreferences(preferences) {
+  try {
+    const response = await fetch(`${BASE_URL}/user/cookie-preferences`, {
+      method: "PUT",
+      body: JSON.stringify({ preferences }),
+      headers: {
+        "Content-type": "application/json",
+      },
+      credentials: "include",
+    });
+    const result = await response.json();
+
+    return result;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 export async function getCurrentUser() {
   try {
     const response = await fetch(`${BASE_URL}/user/currentUser`, {

@@ -7,6 +7,18 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     avatar: { type: String, default: null },
     games: { type: Array, default: [] },
+    cookiePreferences: {
+      type: Object,
+      default: {
+        necessary: true,
+        analytics: false,
+        functional: false,
+      },
+    },
+    cookieConsentDate: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

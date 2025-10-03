@@ -10,15 +10,53 @@ const __DIRNAME = path.resolve();
 const app = express();
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
+
+// Configuration CORS améliorée pour les cookies
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(
   cors({
-    // origin: "*",
-    origin: process.env.CLIENT_URL,
+    origin: function (origin, callback) {
+      // Permettre les requêtes sans origin (applications mobiles, etc.)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = [
+        process.env.CLIENT_URL,
+        "http://localhost:5173", // Vite dev server
+        "http://localhost:3000", // Dev local
+      ];
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Non autorisé par CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // Essentiel pour les cookies cross-origin
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
+
+// Headers de sécurité supplémentaires
+app.use((req, res, next) => {
+  // Permettre les cookies cross-origin
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  // Headers de sécurité
+  if (isProduction) {
+    res.header(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains"
+    );
+    res.header("X-Content-Type-Options", "nosniff");
+    res.header("X-Frame-Options", "DENY");
+    res.header("X-XSS-Protection", "1; mode=block");
+  }
+
+  next();
+});
 
 app.use(express.static(path.join(__DIRNAME, "/frontend/dist")));
 

@@ -11,6 +11,7 @@ const {
   updateGameInUser,
   deleteGameInUser,
   updateGameStatusInUser,
+  updateCookiePreferences,
 } = require("../controllers/user.controller");
 
 const router = require("express").Router();
@@ -22,6 +23,7 @@ router.post("/login", signin);
 // création des routes pour les modifications
 router.put("/", updateUser);
 router.put("/avatar", updateAvatar);
+router.put("/cookie-preferences", updateCookiePreferences);
 
 router.get("/currentUser", currentUser);
 

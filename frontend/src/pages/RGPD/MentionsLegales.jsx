@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import Bouton from "../../components/Boutons/Bouton";
+import { cookieManager } from "../../utils/cookieManager";
 
 export default function MentionsLegales() {
   return (
@@ -97,13 +99,21 @@ export default function MentionsLegales() {
             Vous pouvez également configurer votre navigateur pour refuser les
             cookies, mais cela peut affecter le fonctionnement de l'application.
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col sm:flex-row gap-3">
+            <Link to="/preferences-cookies">
+              <Bouton text="Page des préférences cookies" />
+            </Link>
             <Bouton
-              text="Gérer mes préférences de cookies"
+              text="Ouvrir le panneau cookies"
               onClick={() => {
-                // Déclencher l'événement pour ouvrir le modal de cookies
                 const event = new CustomEvent("openCookieModal");
                 window.dispatchEvent(event);
+              }}
+            />
+            <Bouton
+              text="Réinitialiser les cookies"
+              onClick={() => {
+                cookieManager.resetConsent();
               }}
             />
           </div>

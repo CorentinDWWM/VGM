@@ -15,7 +15,6 @@ export default function CookieModal({
     necessary: true, // Toujours activé
     analytics: false,
     functional: false,
-    marketing: false,
   });
 
   // Reset l'état de la modal quand elle s'ouvre
@@ -33,7 +32,6 @@ export default function CookieModal({
           necessary: true,
           analytics: false,
           functional: false,
-          marketing: false,
         });
       }
     }
@@ -44,7 +42,6 @@ export default function CookieModal({
       necessary: true,
       analytics: true,
       functional: true,
-      marketing: true,
     };
     onAccept(allPreferences);
   };
@@ -54,7 +51,6 @@ export default function CookieModal({
       necessary: true,
       analytics: false,
       functional: false,
-      marketing: false,
     };
     onReject(minimalPreferences);
   };
