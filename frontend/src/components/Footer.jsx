@@ -10,21 +10,21 @@ export default function Footer() {
         <div className="flex space-x-4 text-xs">
           <Link
             to="/politique-confidentialite"
-            className="hover:underline transition-colors duration-200"
+            className="hover:underline transition-colors duration-200 mx-4"
           >
             Politique de Confidentialité
           </Link>
-          <span>|</span>
+          <span className="m-0">|</span>
           <Link
             to="/mentions-legales"
-            className="hover:underline transition-colors duration-200"
+            className="hover:underline transition-colors duration-200 mx-4"
           >
             Mentions Légales
           </Link>
-          <span>|</span>
+          <span className="m-0">|</span>
           <Link
             to="/preferences-cookies"
-            className="hover:underline transition-colors duration-200"
+            className="hover:underline transition-colors duration-200 mx-4"
           >
             Cookies
           </Link>
