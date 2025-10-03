@@ -1,2 +1,4 @@
-// export const BASE_URL = "http://localhost:3000";
-export const BASE_URL = "https://vgm-871e.onrender.com";
+export const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000"
+    : "https://vgm-871e.onrender.com";
