@@ -47,7 +47,7 @@ export default function Accueil() {
             Fonctionnalités clés
           </h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-main-text-light dark:text-main-text-dark">
+        <div className="flex flex-wrap justify-center gap-6 text-main-text-light dark:text-main-text-dark">
           {[
             [
               <BsCollection className="mb-1.5 text-lg" />,
@@ -77,7 +77,7 @@ export default function Accueil() {
           ].map(([icon, title, desc], index) => (
             <div
               key={index}
-              className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-xl hover:shadow-primary-light/50 dark:shadow-white/10 dark:hover:shadow-primary-dark/50 transition min-h-[160px] flex flex-col"
+              className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-xl hover:shadow-primary-light/50 dark:shadow-white/10 dark:hover:shadow-primary-dark/50 transition min-h-[160px] flex flex-col w-full sm:w-80 md:w-72 lg:w-80"
             >
               <div className="flex items-center gap-2">
                 {icon}
