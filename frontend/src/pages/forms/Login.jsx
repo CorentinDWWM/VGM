@@ -102,7 +102,7 @@ export default function Login() {
           <div className="flex w-full gap-1 text-xs mb-2">
             <p>Pas encore de compte ?</p>
             <Link
-              to="/login"
+              to="/register"
               className="text-primary-light hover:text-primary-dark dark:text-primary-dark dark:hover:text-primary-light"
             >
               Inscrivez vous !

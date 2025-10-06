@@ -132,8 +132,11 @@ export default function Decouvertes() {
 
   // Lancer les imports au chargement
   useEffect(() => {
-    importGamesByPeriod();
-  }, []);
+    // Vérifier si les données sont déjà chargées
+    if (gamesThisWeek.length === 0) {
+      importGamesByPeriod();
+    }
+  }, []); // Retirer les dépendances pour éviter les re-exécutions
 
   return (
     <div className="w-full flex flex-col justify-center items-center gap-[50px] px-5 py-[30px] max-sm:px-2.5">

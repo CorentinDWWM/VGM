@@ -259,7 +259,11 @@ export default function DataProvider({ children }) {
 
   // Chargement initial des données - modifié pour restaurer les filtres
   useEffect(() => {
+    let isMounted = true;
+
     async function loadData() {
+      if (!isMounted) return;
+
       try {
         const [gamesData, gamesSimplifiedData, genresData, platformsData] =
           await Promise.all([
@@ -268,6 +272,8 @@ export default function DataProvider({ children }) {
             getGenres(),
             getPlateformes(),
           ]);
+
+        if (!isMounted) return;
 
         setGames(gamesData);
         setLoaded(gamesData.length);
@@ -286,44 +292,32 @@ export default function DataProvider({ children }) {
         await restorePlatformFilter();
       } catch (error) {
         console.error("Erreur lors du chargement:", error);
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     }
+
     loadData();
-  }, [cacheVersion, restoreGenreFilter, restorePlatformFilter]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Retirer les dépendances qui causent des re-exécutions
 
   // Effet pour nettoyer les filtres lors du démontage ou de l'actualisation
   useEffect(() => {
     const handleBeforeUnload = () => {
       localStorage.removeItem("genreFilter");
       localStorage.removeItem("platformFilter");
-      window.dispatchEvent(new CustomEvent("genreFilterCleared"));
-      window.dispatchEvent(new CustomEvent("platformFilterCleared"));
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        localStorage.removeItem("genreFilter");
-        localStorage.removeItem("platformFilter");
-        window.dispatchEvent(new CustomEvent("genreFilterCleared"));
-        window.dispatchEvent(new CustomEvent("platformFilterCleared"));
-      }
     };
 
     // Nettoyer lors de l'actualisation/fermeture de la page
     window.addEventListener("beforeunload", handleBeforeUnload);
 
-    // Nettoyer quand l'onglet devient invisible
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       // Nettoyer lors du démontage du composant
       localStorage.removeItem("genreFilter");
       localStorage.removeItem("platformFilter");
-      window.dispatchEvent(new CustomEvent("genreFilterCleared"));
-      window.dispatchEvent(new CustomEvent("platformFilterCleared"));
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 

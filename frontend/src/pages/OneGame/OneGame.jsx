@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { DataContext } from "../../context/DataContext";
 import Bouton from "../../components/Boutons/Bouton";
@@ -14,13 +14,13 @@ import MediaModal from "../../components/Modal/MediaModal";
 export default function OneGame() {
   const { id } = useParams();
   const { getAGame, games } = useContext(DataContext);
+  const { user } = useContext(AuthContext);
+
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { user } = useContext(AuthContext);
-  // État local pour suivre si le jeu est dans la collection
-  const [isInCollection, setIsInCollection] = useState(false);
   const [gameStatus, setGameStatus] = useState("");
+  const [isInCollection, setIsInCollection] = useState(false);
   const [showAllScreenshots, setShowAllScreenshots] = useState(false);
   const [showAllArtworks, setShowAllArtworks] = useState(false);
   const [showAllVideos, setShowAllVideos] = useState(false);
@@ -31,51 +31,137 @@ export default function OneGame() {
 
   // États pour la modal de galerie
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(""); // 'screenshot', 'artwork' ou 'video'
+  const [modalType, setModalType] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Mémoriser les games de l'utilisateur pour éviter les re-renders
+  const userGamesCount = user?.games?.length || 0;
+  const userGameIds = useMemo(
+    () => user?.games?.map((g) => g.igdbID) || [],
+    [userGamesCount]
+  );
+
+  // Effet principal pour charger le jeu - version simplifiée
   useEffect(() => {
+    let isMounted = true;
+
     const fetchGame = async () => {
+      if (!id || !getAGame) return;
+
       try {
         setLoading(true);
+        setError(null);
+
         const gameData = await getAGame(id);
-        setGame(gameData);
+
+        if (isMounted) {
+          setGame(gameData);
+
+          // Charger les recommandations seulement si le jeu a des genres
+          if (gameData?.genres?.length > 0) {
+            fetchRecommendations(gameData.genres);
+          }
+        }
       } catch (err) {
-        setError(err.message);
+        if (isMounted) {
+          setError(err.message);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    if (id && getAGame) {
-      fetchGame();
-    }
-  }, [id, getAGame]);
+    fetchGame();
 
-  // Effet pour mettre à jour isInCollection quand game ou user change
+    return () => {
+      isMounted = false;
+    };
+  }, [id]); // SEULEMENT id comme dépendance
+
+  // Effet séparé pour calculer isInCollection et gameStatus
   useEffect(() => {
-    if (game && user?.games) {
-      const userGame = user.games.find((g) => g.igdbID === game.igdbID);
-      console.log(userGame);
+    if (!game || !user) return;
 
-      setIsInCollection(!!userGame);
-      if (userGame && userGame.statusUser) {
-        setGameStatus(userGame.statusUser);
-      } else {
-        setGameStatus("Non commencé");
-      }
-    } else if (game && !user?.games) {
-      // Si pas de user ou pas de games, reset au statut par défaut
+    const userHasGame =
+      user.games?.some((g) => g.igdbID === game.igdbID) || false;
+    setIsInCollection(userHasGame);
+
+    if (userHasGame && user.games) {
+      const userGame = user.games.find((g) => g.igdbID === game.igdbID);
+      setGameStatus(userGame?.statusUser || "Non commencé");
+    } else {
       setGameStatus("Non commencé");
     }
-  }, [game, user]);
+  }, [game?.igdbID, user?.games?.length]); // Utiliser length pour éviter la référence complète
 
-  // Effet pour charger les recommandations
-  useEffect(() => {
-    if (game && game.genres) {
-      fetchRecommendations(game.genres);
-    }
-  }, [game, id]);
+  // Fonction pour récupérer les recommandations - optimisée avec useCallback
+  const fetchRecommendations = useCallback(
+    async (gameGenres) => {
+      if (!gameGenres?.length || !games?.length || loadingRecommendations)
+        return;
+
+      try {
+        setLoadingRecommendations(true);
+
+        const currentGameGenreIds = gameGenres.map((genre) => genre.id);
+
+        const similarGameIds = games
+          .filter((g) => {
+            if (g.id === parseInt(id)) return false;
+            if (!g.genres?.length) return false;
+
+            const gameGenreIds = g.genres.map((genre) => genre.id);
+            return gameGenreIds.some((genreId) =>
+              currentGameGenreIds.includes(genreId)
+            );
+          })
+          .sort((a, b) => {
+            const aCommonGenres =
+              a.genres?.filter((g) => currentGameGenreIds.includes(g.id))
+                .length || 0;
+            const bCommonGenres =
+              b.genres?.filter((g) => currentGameGenreIds.includes(g.id))
+                .length || 0;
+
+            if (aCommonGenres !== bCommonGenres) {
+              return bCommonGenres - aCommonGenres;
+            }
+
+            const aRating = a.votes || 0;
+            const bRating = b.votes || 0;
+            return bRating - aRating;
+          })
+          .slice(0, 8)
+          .map((g) => g.igdbID || g.id);
+
+        const fullGameData = await Promise.all(
+          similarGameIds.map(async (gameId) => {
+            try {
+              return await getAGame(gameId);
+            } catch (error) {
+              console.error(
+                `Erreur lors de la récupération du jeu ${gameId}:`,
+                error
+              );
+              return null;
+            }
+          })
+        );
+
+        const validRecommendations = fullGameData.filter(
+          (game) => game !== null
+        );
+        setRecommendations(validRecommendations);
+      } catch (error) {
+        console.error("Erreur lors du chargement des recommandations:", error);
+      } finally {
+        setLoadingRecommendations(false);
+      }
+    },
+    [games, getAGame, id, loadingRecommendations]
+  );
 
   // Fonction pour formater la date en français
   const formatDateToFrench = (dateString) => {
@@ -130,9 +216,7 @@ export default function OneGame() {
     try {
       setIsTranslating(true);
 
-      // Si le texte est court, traduction directe
       if (text.length <= 450) {
-        // Marge de sécurité
         const response = await fetch(
           `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
             text
@@ -142,19 +226,16 @@ export default function OneGame() {
         return data.responseData.translatedText;
       }
 
-      // Découper le texte en phrases pour éviter de couper au milieu des mots
       const sentences = text.match(/[^\.!?]+[\.!?]+/g) || [text];
       const chunks = [];
       let currentChunk = "";
 
       for (const sentence of sentences) {
-        // Si ajouter cette phrase dépasse la limite, on sauvegarde le chunk actuel
         if ((currentChunk + sentence).length > 450) {
           if (currentChunk) {
             chunks.push(currentChunk.trim());
             currentChunk = sentence;
           } else {
-            // Si une seule phrase est trop longue, on la coupe par mots
             const words = sentence.split(" ");
             let wordChunk = "";
             for (const word of words) {
@@ -163,7 +244,6 @@ export default function OneGame() {
                   chunks.push(wordChunk.trim());
                   wordChunk = word;
                 } else {
-                  // Mot unique trop long, on le garde tel quel
                   chunks.push(word);
                 }
               } else {
@@ -179,12 +259,10 @@ export default function OneGame() {
         }
       }
 
-      // Ajouter le dernier chunk s'il existe
       if (currentChunk) {
         chunks.push(currentChunk.trim());
       }
 
-      // Traduire chaque chunk
       const translatedChunks = [];
       for (const chunk of chunks) {
         try {
@@ -196,18 +274,17 @@ export default function OneGame() {
           const data = await response.json();
           translatedChunks.push(data.responseData.translatedText);
 
-          // Pause entre les requêtes pour éviter le rate limiting
           await new Promise((resolve) => setTimeout(resolve, 100));
         } catch (error) {
           console.error("Erreur lors de la traduction d'un chunk:", error);
-          translatedChunks.push(chunk); // Garder le texte original en cas d'erreur
+          translatedChunks.push(chunk);
         }
       }
 
       return translatedChunks.join(" ");
     } catch (error) {
       console.error("Erreur de traduction:", error);
-      return text; // Retourne le texte original en cas d'erreur
+      return text;
     } finally {
       setIsTranslating(false);
     }
@@ -221,84 +298,39 @@ export default function OneGame() {
     }
   };
 
-  // Fonction pour récupérer les recommandations
-  const fetchRecommendations = async (gameGenres) => {
-    if (!gameGenres || gameGenres.length === 0 || !games || games.length === 0)
-      return;
-
-    try {
-      setLoadingRecommendations(true);
-
-      // Extraire les IDs des genres du jeu actuel
-      const currentGameGenreIds = gameGenres.map((genre) => genre.id);
-
-      // Filtrer les jeux qui ont au moins un genre en commun
-      const similarGameIds = games
-        .filter((g) => {
-          // Exclure le jeu actuel
-          if (g.id === parseInt(id)) return false;
-
-          // Vérifier s'il y a des genres en commun
-          if (!g.genres || g.genres.length === 0) return false;
-
-          const gameGenreIds = g.genres.map((genre) => genre.id);
-          return gameGenreIds.some((genreId) =>
-            currentGameGenreIds.includes(genreId)
-          );
-        })
-        .sort((a, b) => {
-          // Trier par nombre de genres en commun, puis par note
-          const aCommonGenres =
-            a.genres?.filter((g) => currentGameGenreIds.includes(g.id))
-              .length || 0;
-          const bCommonGenres =
-            b.genres?.filter((g) => currentGameGenreIds.includes(g.id))
-              .length || 0;
-
-          if (aCommonGenres !== bCommonGenres) {
-            return bCommonGenres - aCommonGenres; // Plus de genres en commun d'abord
-          }
-
-          // Si même nombre de genres, trier par note
-          const aRating = a.votes || 0;
-          const bRating = b.votes || 0;
-          return bRating - aRating;
-        })
-        .slice(0, 8) // Limiter à 8 recommandations
-        .map((g) => g.igdbID || g.id); // Récupérer les IDs IGDB
-
-      // Récupérer les données complètes pour chaque jeu recommandé
-      const fullGameData = await Promise.all(
-        similarGameIds.map(async (gameId) => {
-          try {
-            return await getAGame(gameId);
-          } catch (error) {
-            console.error(
-              `Erreur lors de la récupération du jeu ${gameId}:`,
-              error
-            );
-            return null;
-          }
-        })
-      );
-
-      // Filtrer les jeux null et les définir comme recommandations
-      const validRecommendations = fullGameData.filter((game) => game !== null);
-      setRecommendations(validRecommendations);
-    } catch (error) {
-      console.error("Erreur lors du chargement des recommandations:", error);
-    } finally {
-      setLoadingRecommendations(false);
-    }
-  };
-
   // Fonction pour mettre à jour le statut du jeu
   const handleStatusChange = async (newStatus) => {
     try {
-      await updateStatusInUser(game, user, newStatus);
+      await updateStatusInUser(game, newStatus, user);
       setGameStatus(newStatus);
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut:", error);
+    }
+  };
+
+  // Fonctions pour gérer l'ajout/suppression de jeu avec mise à jour optimiste
+  const handleAddGame = async () => {
+    try {
+      setIsInCollection(true); // Mise à jour optimiste
+      setGameStatus("Non commencé");
+      await addAGameToCurrentUser(game, user);
+    } catch (error) {
+      // Rollback en cas d'erreur
+      setIsInCollection(false);
+      setGameStatus("");
+      console.error("Erreur lors de l'ajout du jeu:", error);
+    }
+  };
+
+  const handleRemoveGame = async () => {
+    try {
+      setIsInCollection(false); // Mise à jour optimiste
+      setGameStatus("");
+      await delAGameInCurrentUser(game, user);
+    } catch (error) {
+      // Rollback en cas d'erreur
+      setIsInCollection(true);
+      console.error("Erreur lors de la suppression du jeu:", error);
     }
   };
 
@@ -490,10 +522,7 @@ export default function OneGame() {
                     <div className="flex flex-col max-lg:items-center gap-4">
                       <Bouton
                         text="Retirer de ma liste"
-                        onClick={async () => {
-                          await delAGameInCurrentUser(game, user);
-                          setIsInCollection(false);
-                        }}
+                        onClick={handleRemoveGame}
                       />
                       <div className="flex flex-col">
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -512,14 +541,7 @@ export default function OneGame() {
                       </div>
                     </div>
                   ) : (
-                    <Bouton
-                      text="Ajouter à ma liste"
-                      onClick={async () => {
-                        await addAGameToCurrentUser(game, user);
-                        setIsInCollection(true);
-                        setGameStatus("Non commencé");
-                      }}
-                    />
+                    <Bouton text="Ajouter à ma liste" onClick={handleAddGame} />
                   )}
                 </>
               ) : (
