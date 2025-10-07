@@ -72,10 +72,10 @@ export default function DataProvider({ children }) {
   const filterGamesByGenre = useCallback(async (genreId, genreName) => {
     try {
       setIsLoading(true);
-      const gamesData = await getGamesByGenrePaginated(genreId, 50, 0);
+      const gamesData = await getGamesByGenrePaginated(genreId, 30, 0);
       setFilteredGames(gamesData);
       setLoaded(gamesData.length);
-      setHasMore(gamesData.length === 50);
+      setHasMore(gamesData.length === 30); // Si on reçoit exactement 30, il pourrait y en avoir plus
       setIsFiltered(true);
       setCurrentGenreFilter({ id: genreId, name: genreName });
       setIsLoading(false);
@@ -113,12 +113,12 @@ export default function DataProvider({ children }) {
     try {
       const moreGamesData = await getGamesByGenrePaginated(
         currentGenreFilter.id,
-        50,
+        30, // Réduire la taille
         loaded
       );
       setFilteredGames((prev) => [...prev, ...moreGamesData]);
       setLoaded((prev) => prev + moreGamesData.length);
-      setHasMore(moreGamesData.length === 50);
+      setHasMore(moreGamesData.length === 30); // Garder === 30 ici aussi
     } catch (error) {
       console.error(
         "Erreur lors du chargement de plus de jeux filtrés:",
@@ -135,7 +135,7 @@ export default function DataProvider({ children }) {
     setCurrentGenreFilter(null);
     setFilteredGames([]);
     setLoaded(games.length);
-    setHasMore(games.length === 50);
+    setHasMore(games.length === 30); // Rétablir hasMore basé sur les jeux non filtrés
 
     // Supprimer du localStorage
     localStorage.removeItem("genreFilter");
@@ -159,10 +159,10 @@ export default function DataProvider({ children }) {
     async (platformId, platformName) => {
       try {
         setIsLoading(true);
-        const gamesData = await getGamesByPlatformPaginated(platformId, 50, 0);
+        const gamesData = await getGamesByPlatformPaginated(platformId, 30, 0);
         setFilteredGames(gamesData);
         setLoaded(gamesData.length);
-        setHasMore(gamesData.length === 50);
+        setHasMore(gamesData.length === 30); // Si on reçoit exactement 30, il pourrait y en avoir plus
         setIsFiltered(true);
         setCurrentPlatformFilter({ id: platformId, name: platformName });
         setCurrentGenreFilter(null); // Clear genre filter
@@ -208,12 +208,12 @@ export default function DataProvider({ children }) {
     try {
       const moreGamesData = await getGamesByPlatformPaginated(
         currentPlatformFilter.id,
-        50,
+        30, // Réduire la taille
         loaded
       );
       setFilteredGames((prev) => [...prev, ...moreGamesData]);
       setLoaded((prev) => prev + moreGamesData.length);
-      setHasMore(moreGamesData.length === 50);
+      setHasMore(moreGamesData.length === 30); // Garder === 30 ici aussi
     } catch (error) {
       console.error(
         "Erreur lors du chargement de plus de jeux filtrés par plateforme:",
@@ -230,7 +230,7 @@ export default function DataProvider({ children }) {
     setCurrentPlatformFilter(null);
     setFilteredGames([]);
     setLoaded(games.length);
-    setHasMore(games.length === 50);
+    setHasMore(games.length === 30); // Rétablir hasMore basé sur les jeux non filtrés
 
     // Supprimer du localStorage
     localStorage.removeItem("platformFilter");
@@ -246,7 +246,7 @@ export default function DataProvider({ children }) {
     setCurrentPlatformFilter(null);
     setFilteredGames([]);
     setLoaded(games.length);
-    setHasMore(games.length === 50);
+    setHasMore(games.length === 30); // Rétablir hasMore basé sur les jeux non filtrés
 
     // Supprimer du localStorage
     localStorage.removeItem("genreFilter");
@@ -265,9 +265,14 @@ export default function DataProvider({ children }) {
       if (!isMounted) return;
 
       try {
+        // Vérifier d'abord s'il y a des filtres sauvegardés
+        const savedGenreFilter = localStorage.getItem("genreFilter");
+        const savedPlatformFilter = localStorage.getItem("platformFilter");
+
+        // Charger en parallèle avec taille réduite pour améliorer les performances
         const [gamesData, gamesSimplifiedData, genresData, platformsData] =
           await Promise.all([
-            getGames(50, 0),
+            getGames(30, 0),
             getGamesSimplified(),
             getGenres(),
             getPlateformes(),
@@ -275,9 +280,13 @@ export default function DataProvider({ children }) {
 
         if (!isMounted) return;
 
-        setGames(gamesData);
-        setLoaded(gamesData.length);
-        setHasMore(gamesData.length === 50);
+        // Si pas de filtres sauvegardés, charger les données normalement
+        if (!savedGenreFilter && !savedPlatformFilter) {
+          setGames(gamesData);
+          setLoaded(gamesData.length);
+          setHasMore(gamesData.length === 30);
+        }
+
         setAllGamesSimplified(gamesSimplifiedData);
         setGenres(genresData);
         setPlatforms(platformsData);
@@ -288,8 +297,11 @@ export default function DataProvider({ children }) {
         setIsLoading(false);
 
         // Restaurer les filtres s'ils existent
-        await restoreGenreFilter();
-        await restorePlatformFilter();
+        if (savedGenreFilter) {
+          await restoreGenreFilter();
+        } else if (savedPlatformFilter) {
+          await restorePlatformFilter();
+        }
       } catch (error) {
         console.error("Erreur lors du chargement:", error);
         if (isMounted) setIsLoading(false);
@@ -300,24 +312,6 @@ export default function DataProvider({ children }) {
 
     return () => {
       isMounted = false;
-    };
-  }, []); // Retirer les dépendances qui causent des re-exécutions
-
-  // Effet pour nettoyer les filtres lors du démontage ou de l'actualisation
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      localStorage.removeItem("genreFilter");
-      localStorage.removeItem("platformFilter");
-    };
-
-    // Nettoyer lors de l'actualisation/fermeture de la page
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      // Nettoyer lors du démontage du composant
-      localStorage.removeItem("genreFilter");
-      localStorage.removeItem("platformFilter");
-      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
@@ -341,13 +335,13 @@ export default function DataProvider({ children }) {
       if (gameCache.has(cacheKey)) {
         getGamesData = gameCache.get(cacheKey);
       } else {
-        getGamesData = await getGames(50, loaded);
+        getGamesData = await getGames(30, loaded); // Réduire aussi ici pour la cohérence
         setGameCache((prev) => new Map(prev).set(cacheKey, getGamesData));
       }
 
       setGames((prev) => [...prev, ...getGamesData]);
       setLoaded((prev) => prev + getGamesData.length);
-      setHasMore(getGamesData.length === 50);
+      setHasMore(getGamesData.length === 30); // Garder === 30 ici car si on reçoit moins de 30, c'est qu'il n'y en a plus
     } catch (error) {
       console.error("Erreur lors du chargement de plus de jeux:", error);
     } finally {
@@ -370,13 +364,13 @@ export default function DataProvider({ children }) {
     try {
       invalidateCache();
       const [gamesData, gamesSimplifiedData] = await Promise.all([
-        getGames(50, 0),
+        getGames(30, 0),
         getGamesSimplified(),
       ]);
 
       setGames(gamesData);
       setLoaded(gamesData.length);
-      setHasMore(gamesData.length === 50);
+      setHasMore(gamesData.length === 30); // Définir hasMore correctement
       setAllGamesSimplified(gamesSimplifiedData);
       setGameCache(new Map().set(`games_0_v${cacheVersion}`, gamesData));
     } catch (error) {

@@ -3,11 +3,20 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const compression = require("compression"); // Ajouter cette ligne
 const path = require("path");
 
 const __DIRNAME = path.resolve();
 
 const app = express();
+
+// Ajouter la compression avant les autres middlewares
+app.use(
+  compression({
+    level: 6, // Niveau de compression (1-9)
+    threshold: 1000, // Compresser seulement si > 1KB
+  })
+);
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 

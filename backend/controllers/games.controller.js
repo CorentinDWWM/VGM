@@ -4,8 +4,8 @@ const { createNewGame } = require("../utils/newGame");
 
 const getGames = async (req, res) => {
   try {
-    // Limite et pagination via query string
-    const limit = parseInt(req.query.limit) || 100;
+    // Réduire la limite par défaut pour améliorer les performances
+    const limit = parseInt(req.query.limit) || 30;
     const skip = parseInt(req.query.skip) || 0;
 
     // Optimisation : sélectionner seulement les champs nécessaires

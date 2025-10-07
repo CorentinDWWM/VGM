@@ -282,7 +282,7 @@ export default function OneGame() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 mt-5">
+    <div className="bg-white dark:bg-gray-900">
       {/* Modal pour la galerie */}
       <MediaModal
         isOpen={isModalOpen}

@@ -157,7 +157,7 @@ const getGamesByGenre = async (req, res) => {
 const getGamesByGenrePaginated = async (req, res) => {
   try {
     const { genreId } = req.params;
-    const { limit = 50, skip = 0 } = req.query;
+    const { limit = 30, skip = 0 } = req.query; // Réduire la limite par défaut
     const genreIdNumber = parseInt(genreId);
     const limitNumber = parseInt(limit);
     const skipNumber = parseInt(skip);

@@ -21,6 +21,7 @@ export default function GameIntroSection({
             src={`https://images.igdb.com/igdb/image/upload/t_1080p/${game.screenshots[0].image_id}.jpg`}
             alt="Background"
             className="w-full h-full object-cover filter blur-lg brightness-[0.2] opacity-30"
+            fetchPriority="high"
           />
         )}
         <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80"></div>
@@ -36,6 +37,7 @@ export default function GameIntroSection({
             }
             alt={game.name}
             className="w-72 h-96 object-cover rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105 border border-black dark:border-gray-200 "
+            fetchPriority="high"
           />
         </div>
 

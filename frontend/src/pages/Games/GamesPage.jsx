@@ -2,7 +2,7 @@ import { IoMenu } from "react-icons/io5";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import Genres from "../../components/Menu/Filtres/Genres";
 import Plateformes from "../../components/Menu/Filtres/Plateformes";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { MenuContext } from "../../context/MenuContext";
 import MenuBurgerFiltres from "../../components/Menu/MenuBurgerFiltres";
 import { DataContext } from "../../context/DataContext";
@@ -27,6 +27,7 @@ export default function GamesPage() {
     clearAllFilters,
   } = useContext(DataContext);
   const { message, resetMessage } = useContext(UserProfilContext);
+  const hasMounted = useRef(false);
 
   useEffect(() => {
     if (message) {
@@ -39,11 +40,14 @@ export default function GamesPage() {
     }
   }, [message, resetMessage]);
 
-  // Effet pour nettoyer le filtre quand on quitte la page
+  // Effet pour marquer que le composant a été monté
   useEffect(() => {
+    hasMounted.current = true;
     return () => {
-      // Nettoyer le filtre lors du démontage du composant (navigation vers autre page)
-      clearAllFilters();
+      // Nettoyer seulement si le composant était déjà monté (navigation)
+      if (hasMounted.current) {
+        clearAllFilters();
+      }
     };
   }, [clearAllFilters]);
 

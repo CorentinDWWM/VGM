@@ -44,7 +44,8 @@ export const getEarliestReleaseDate = (releaseDates) => {
 
 export const translateText = async (text, targetLang = "fr") => {
   try {
-    if (text.length <= 450) {
+    // Réduire la taille maximale des chunks pour éviter les timeouts
+    if (text.length <= 300) {
       const response = await fetch(
         `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
           text
@@ -59,7 +60,7 @@ export const translateText = async (text, targetLang = "fr") => {
     let currentChunk = "";
 
     for (const sentence of sentences) {
-      if ((currentChunk + sentence).length > 450) {
+      if ((currentChunk + sentence).length > 300) {
         if (currentChunk) {
           chunks.push(currentChunk.trim());
           currentChunk = sentence;
@@ -67,7 +68,7 @@ export const translateText = async (text, targetLang = "fr") => {
           const words = sentence.split(" ");
           let wordChunk = "";
           for (const word of words) {
-            if ((wordChunk + " " + word).length > 450) {
+            if ((wordChunk + " " + word).length > 300) {
               if (wordChunk) {
                 chunks.push(wordChunk.trim());
                 wordChunk = word;
@@ -102,7 +103,8 @@ export const translateText = async (text, targetLang = "fr") => {
         const data = await response.json();
         translatedChunks.push(data.responseData.translatedText);
 
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Réduire le délai entre les requêtes
+        await new Promise((resolve) => setTimeout(resolve, 50));
       } catch (error) {
         console.error("Erreur lors de la traduction d'un chunk:", error);
         translatedChunks.push(chunk);
