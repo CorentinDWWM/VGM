@@ -117,10 +117,14 @@ export default function GameIntroSection({
                       onClick={handleRemoveGame}
                     />
                     <div className="flex flex-col">
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label
+                        htmlFor="game-status-select"
+                        className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                      >
                         Statut du jeu :
                       </label>
                       <select
+                        id="game-status-select"
                         value={gameStatus}
                         onChange={(e) => handleStatusChange(e.target.value)}
                         className="w-fit px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark"
