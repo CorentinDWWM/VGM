@@ -10,6 +10,10 @@ import {
 } from "../../apis/auth.api";
 import AfficheJeux from "../../components/Affiches/AffichesJeux";
 import MediaModal from "../../components/Modal/MediaModal";
+import GameIntroSection from "../../components/OneGame/GameIntroSection";
+import GameDetailsSection from "../../components/OneGame/GameDetailsSection";
+import { useMediaCache } from "../../hooks/useMediaCache";
+import { translateText } from "../../utils/gameUtils";
 
 export default function OneGame() {
   const { id } = useParams();
@@ -34,14 +38,11 @@ export default function OneGame() {
   const [modalType, setModalType] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Mémoriser les games de l'utilisateur pour éviter les re-renders
-  const userGamesCount = user?.games?.length || 0;
-  const userGameIds = useMemo(
-    () => user?.games?.map((g) => g.igdbID) || [],
-    [userGamesCount]
-  );
+  // Utilisation du hook personnalisé pour le cache média
+  const { mediaCache, isPreloadingMedia, preloadMedia, getImageUrl } =
+    useMediaCache();
 
-  // Effet principal pour charger le jeu - version simplifiée
+  // Effet principal pour charger le jeu
   useEffect(() => {
     let isMounted = true;
 
@@ -56,11 +57,6 @@ export default function OneGame() {
 
         if (isMounted) {
           setGame(gameData);
-
-          // Charger les recommandations seulement si le jeu a des genres
-          if (gameData?.genres?.length > 0) {
-            fetchRecommendations(gameData.genres);
-          }
         }
       } catch (err) {
         if (isMounted) {
@@ -80,6 +76,13 @@ export default function OneGame() {
     };
   }, [id]); // SEULEMENT id comme dépendance
 
+  // Effet séparé pour charger les recommandations quand games ET game sont disponibles
+  useEffect(() => {
+    if (game?.genres?.length > 0 && games?.length > 0) {
+      fetchRecommendations(game.genres);
+    }
+  }, [game?.igdbID, games?.length]);
+
   // Effet séparé pour calculer isInCollection et gameStatus
   useEffect(() => {
     if (!game || !user) return;
@@ -95,6 +98,13 @@ export default function OneGame() {
       setGameStatus("Non commencé");
     }
   }, [game?.igdbID, user?.games?.length]); // Utiliser length pour éviter la référence complète
+
+  // Effet pour précharger les médias
+  useEffect(() => {
+    if (game && !isPreloadingMedia) {
+      preloadMedia(game);
+    }
+  }, [game?.igdbID, preloadMedia, isPreloadingMedia]);
 
   // Fonction pour récupérer les recommandations - optimisée avec useCallback
   const fetchRecommendations = useCallback(
@@ -160,145 +170,43 @@ export default function OneGame() {
         setLoadingRecommendations(false);
       }
     },
-    [games, getAGame, id, loadingRecommendations]
+    [games, getAGame, id]
   );
-
-  // Fonction pour formater la date en français
-  const formatDateToFrench = (dateString) => {
-    const months = {
-      Jan: "Janvier",
-      Feb: "Février",
-      Mar: "Mars",
-      Apr: "Avril",
-      May: "Mai",
-      Jun: "Juin",
-      Jul: "Juillet",
-      Aug: "Août",
-      Sep: "Septembre",
-      Oct: "Octobre",
-      Nov: "Novembre",
-      Dec: "Décembre",
-    };
-
-    // Parse "Nov 18, 2014" format
-    const parts = dateString.split(" ");
-    if (parts.length < 3) return dateString; // Retourne la date originale si le format est incorrect
-
-    const monthAbbr = parts[0];
-    const day = parts[1].replace(",", "");
-    const year = parts[2];
-
-    if (!months[monthAbbr] || !day || !year) {
-      return dateString; // Retourne la date originale si une partie est manquante
-    }
-
-    return `${parseInt(day)} ${months[monthAbbr]} ${year}`;
-  };
-
-  // Fonction pour obtenir la date de sortie la plus ancienne
-  const getEarliestReleaseDate = (releaseDates) => {
-    if (!releaseDates || releaseDates.length === 0) return null;
-
-    // Convertir toutes les dates en objets Date pour comparaison
-    const sortedDates = releaseDates
-      .filter((release) => release.date)
-      .map((release) => ({
-        original: release.date,
-        dateObj: new Date(release.date),
-      }))
-      .sort((a, b) => a.dateObj - b.dateObj);
-
-    return sortedDates.length > 0 ? sortedDates[0].original : null;
-  };
-
-  // Fonction pour traduire le texte
-  const translateText = async (text, targetLang = "fr") => {
-    try {
-      setIsTranslating(true);
-
-      if (text.length <= 450) {
-        const response = await fetch(
-          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-            text
-          )}&langpair=en|${targetLang}`
-        );
-        const data = await response.json();
-        return data.responseData.translatedText;
-      }
-
-      const sentences = text.match(/[^\.!?]+[\.!?]+/g) || [text];
-      const chunks = [];
-      let currentChunk = "";
-
-      for (const sentence of sentences) {
-        if ((currentChunk + sentence).length > 450) {
-          if (currentChunk) {
-            chunks.push(currentChunk.trim());
-            currentChunk = sentence;
-          } else {
-            const words = sentence.split(" ");
-            let wordChunk = "";
-            for (const word of words) {
-              if ((wordChunk + " " + word).length > 450) {
-                if (wordChunk) {
-                  chunks.push(wordChunk.trim());
-                  wordChunk = word;
-                } else {
-                  chunks.push(word);
-                }
-              } else {
-                wordChunk += (wordChunk ? " " : "") + word;
-              }
-            }
-            if (wordChunk) {
-              currentChunk = wordChunk;
-            }
-          }
-        } else {
-          currentChunk += (currentChunk ? " " : "") + sentence;
-        }
-      }
-
-      if (currentChunk) {
-        chunks.push(currentChunk.trim());
-      }
-
-      const translatedChunks = [];
-      for (const chunk of chunks) {
-        try {
-          const response = await fetch(
-            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-              chunk
-            )}&langpair=en|${targetLang}`
-          );
-          const data = await response.json();
-          translatedChunks.push(data.responseData.translatedText);
-
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        } catch (error) {
-          console.error("Erreur lors de la traduction d'un chunk:", error);
-          translatedChunks.push(chunk);
-        }
-      }
-
-      return translatedChunks.join(" ");
-    } catch (error) {
-      console.error("Erreur de traduction:", error);
-      return text;
-    } finally {
-      setIsTranslating(false);
-    }
-  };
 
   // Fonction pour gérer la traduction du synopsis
   const handleTranslateSummary = async () => {
     if (game.summary && !translatedSummary) {
+      setIsTranslating(true);
       const translated = await translateText(game.summary);
       setTranslatedSummary(translated);
+      setIsTranslating(false);
     }
   };
 
-  // Fonction pour mettre à jour le statut du jeu
+  // Fonctions pour gérer l'ajout/suppression de jeu
+  const handleAddGame = async () => {
+    try {
+      setIsInCollection(true);
+      setGameStatus("Non commencé");
+      await addAGameToCurrentUser(game, user);
+    } catch (error) {
+      setIsInCollection(false);
+      setGameStatus("");
+      console.error("Erreur lors de l'ajout du jeu:", error);
+    }
+  };
+
+  const handleRemoveGame = async () => {
+    try {
+      setIsInCollection(false);
+      setGameStatus("");
+      await delAGameInCurrentUser(game, user);
+    } catch (error) {
+      setIsInCollection(true);
+      console.error("Erreur lors de la suppression du jeu:", error);
+    }
+  };
+
   const handleStatusChange = async (newStatus) => {
     try {
       await updateStatusInUser(game, newStatus, user);
@@ -308,61 +216,31 @@ export default function OneGame() {
     }
   };
 
-  // Fonctions pour gérer l'ajout/suppression de jeu avec mise à jour optimiste
-  const handleAddGame = async () => {
-    try {
-      setIsInCollection(true); // Mise à jour optimiste
-      setGameStatus("Non commencé");
-      await addAGameToCurrentUser(game, user);
-    } catch (error) {
-      // Rollback en cas d'erreur
-      setIsInCollection(false);
-      setGameStatus("");
-      console.error("Erreur lors de l'ajout du jeu:", error);
-    }
-  };
-
-  const handleRemoveGame = async () => {
-    try {
-      setIsInCollection(false); // Mise à jour optimiste
-      setGameStatus("");
-      await delAGameInCurrentUser(game, user);
-    } catch (error) {
-      // Rollback en cas d'erreur
-      setIsInCollection(true);
-      console.error("Erreur lors de la suppression du jeu:", error);
-    }
-  };
-
-  // Fonction pour ouvrir la modal avec un screenshot
+  // Fonctions pour la modal
   const openScreenshotModal = (index) => {
     setModalType("screenshot");
     setCurrentIndex(index);
     setIsModalOpen(true);
   };
 
-  // Fonction pour ouvrir la modal avec un artwork
   const openArtworkModal = (index) => {
     setModalType("artwork");
     setCurrentIndex(index);
     setIsModalOpen(true);
   };
 
-  // Fonction pour ouvrir la modal avec une vidéo
   const openVideoModal = (index) => {
     setModalType("video");
     setCurrentIndex(index);
     setIsModalOpen(true);
   };
 
-  // Fonction pour fermer la modal
   const closeModal = () => {
     setIsModalOpen(false);
     setModalType("");
     setCurrentIndex(0);
   };
 
-  // Navigation dans la modal
   const navigateModal = (direction) => {
     const mediaArray =
       modalType === "screenshot"
@@ -412,9 +290,15 @@ export default function OneGame() {
         currentIndex={currentIndex}
         mediaData={
           modalType === "screenshot"
-            ? game?.screenshots
+            ? mediaCache.screenshots.length > 0
+              ? mediaCache.screenshots
+              : game?.screenshots
             : modalType === "artwork"
-            ? game?.artworks
+            ? mediaCache.artworks.length > 0
+              ? mediaCache.artworks
+              : game?.artworks
+            : mediaCache.videos.length > 0
+            ? mediaCache.videos
             : game?.videos
         }
         gameName={game?.name}
@@ -423,134 +307,14 @@ export default function OneGame() {
       />
 
       {/* Section Intro Jeu */}
-      <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-gray-50 dark:bg-gray-800 max-lg:py-10">
-        <div className="absolute inset-0 z-10">
-          {game.screenshots && game.screenshots.length > 0 && (
-            <img
-              src={`https://images.igdb.com/igdb/image/upload/t_1080p/${game.screenshots[0].image_id}.jpg`}
-              alt="Background"
-              className="w-full h-full object-cover filter blur-lg brightness-[0.2] opacity-30"
-            />
-          )}
-          <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80"></div>
-        </div>
-
-        <div className="relative z-20 max-w-6xl mx-auto px-8 flex flex-col items-center lg:flex-row gap-12">
-          <div className="flex-shrink-0">
-            <img
-              src={
-                game.cover?.url
-                  ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
-                  : "/placeholder-game.jpg"
-              }
-              alt={game.name}
-              className="w-72 h-96 object-cover rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105 border border-gray-200"
-            />
-          </div>
-
-          <div className="flex-1 text-gray-800">
-            <h1 className="text-5xl lg:text-6xl font-black mb-4 text-black dark:text-white max-lg:text-center">
-              {game.name}
-            </h1>
-
-            <div className="mb-8">
-              <div className="flex flex-wrap max-lg:justify-center gap-2">
-                {game.genres && game.genres.length > 0 ? (
-                  game.genres.map((genre, index) => (
-                    <span
-                      key={genre.id}
-                      className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 px-4 py-2 rounded-full text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      {genre.name}
-                    </span>
-                  ))
-                ) : (
-                  <span className="bg-gray-100 border border-gray-300 px-4 py-2 rounded-full text-sm text-gray-700">
-                    Genre non spécifié
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex max-lg:justify-center gap-8 mb-8">
-              <div className="text-center">
-                {game.votes ? (
-                  <>
-                    {Math.round(game.votes) >= 70 ? (
-                      <div className="text-4xl font-bold text-success-light dark:text-success-dark mb-1">
-                        {Math.round(game.votes) / 10}
-                      </div>
-                    ) : Math.round(game.votes) >= 50 ? (
-                      <div className="text-4xl font-bold text-neutral-light dark:text-neutral-dark mb-1">
-                        {Math.round(game.votes) / 10}
-                      </div>
-                    ) : (
-                      <div className="text-4xl font-bold text-alert-light dark:text-alert-dark mb-1">
-                        {Math.round(game.votes) / 10}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-4xl font-bold text-alert-light dark:text-alert-dark mb-1">
-                    N/A
-                  </p>
-                )}
-                <div className="text-sm text-black dark:text-white">
-                  Note IGDB
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-primary-light dark:text-primary-dark mb-1">
-                  {(() => {
-                    const earliestDate = getEarliestReleaseDate(
-                      game.release_dates
-                    );
-                    return earliestDate
-                      ? new Date(earliestDate).getFullYear()
-                      : "TBA";
-                  })()}
-                </div>
-                <div className="text-sm text-black dark:text-white">
-                  Année de sortie
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col max-lg:items-center gap-4">
-              {user ? (
-                <>
-                  {user && user.games.length >= 1 && isInCollection ? (
-                    <div className="flex flex-col max-lg:items-center gap-4">
-                      <Bouton
-                        text="Retirer de ma liste"
-                        onClick={handleRemoveGame}
-                      />
-                      <div className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Statut du jeu :
-                        </label>
-                        <select
-                          value={gameStatus}
-                          onChange={(e) => handleStatusChange(e.target.value)}
-                          className="w-fit px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark"
-                        >
-                          <option value="Non commencé">Non commencé</option>
-                          <option value="En cours">En cours</option>
-                          <option value="Terminé">Terminé</option>
-                          <option value="Abandonné">Abandonné</option>
-                        </select>
-                      </div>
-                    </div>
-                  ) : (
-                    <Bouton text="Ajouter à ma liste" onClick={handleAddGame} />
-                  )}
-                </>
-              ) : (
-                <Bouton text="Ajouter à ma liste" navigation="/login" />
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      <GameIntroSection
+        game={game}
+        isInCollection={isInCollection}
+        gameStatus={gameStatus}
+        handleAddGame={handleAddGame}
+        handleRemoveGame={handleRemoveGame}
+        handleStatusChange={handleStatusChange}
+      />
 
       {/* Game Description */}
       <section className="py-16 bg-white dark:bg-gray-900">
@@ -559,7 +323,7 @@ export default function OneGame() {
             <h2 className="text-4xl font-bold text-black dark:text-white">
               Synopsis
             </h2>
-            {game.summary && (
+            {game?.summary && (
               <div className="flex gap-2">
                 {translatedSummary && (
                   <button
@@ -582,139 +346,38 @@ export default function OneGame() {
           <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-500 p-8 rounded-2xl shadow-sm">
             <p className="text-lg leading-relaxed text-black dark:text-white">
               {translatedSummary ||
-                game.summary ||
+                game?.summary ||
                 "Aucune description disponible pour ce jeu."}
             </p>
           </div>
         </div>
       </section>
 
-      {/* Game Details Grid */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-6xl mx-auto px-8">
-          <h2 className="text-4xl font-bold text-black dark:text-white text-center mb-8">
-            Informations
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-              <div className="text-2xl">🎮</div>
-              <div>
-                <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
-                  Plateformes
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {game.platforms && game.platforms.length > 0
-                    ? game.platforms.map((platform) => platform.name).join(", ")
-                    : "Non spécifié"}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-              <div className="text-2xl">🏢</div>
-              <div>
-                <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
-                  Développeur
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {game.companies && game.companies.length > 0
-                    ? game.companies
-                        .filter((company) => company.developpeur === "true")
-                        .map((company) => company.company_detail?.name)
-                        .filter(Boolean)
-                        .join(", ") || "Non spécifié"
-                    : "Non spécifié"}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-              <div className="text-2xl">📦</div>
-              <div>
-                <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
-                  Éditeur
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {game.companies && game.companies.length > 0
-                    ? game.companies
-                        .filter((company) => company.editeur === "true")
-                        .map((company) => company.company_detail?.name)
-                        .filter(Boolean)
-                        .join(", ") || "Non spécifié"
-                    : "Non spécifié"}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-              <div className="text-2xl">👥</div>
-              <div>
-                <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
-                  Modes de jeu
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {game.game_modes && game.game_modes.length > 0
-                    ? game.game_modes.map((mode) => mode.name).join(", ")
-                    : "Non spécifié"}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-              <div className="text-2xl">📅</div>
-              <div>
-                <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
-                  Date de sortie
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {(() => {
-                    const earliestDate = getEarliestReleaseDate(
-                      game.release_dates
-                    );
-                    return earliestDate
-                      ? formatDateToFrench(earliestDate)
-                      : "Date non spécifiée";
-                  })()}
-                </p>
-              </div>
-            </div>
-
-            {game.timeToBeat && (
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                <div className="text-2xl">⏱️</div>
-                <div>
-                  <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
-                    Temps de jeu
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                    {game.timeToBeat.normally &&
-                      `Principal: ${Math.round(
-                        game.timeToBeat.normally / 3600
-                      )}h`}
-                    {game.timeToBeat.completely &&
-                      ` • Complet: ${Math.round(
-                        game.timeToBeat.completely / 3600
-                      )}h`}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+      {/* Game Details */}
+      <GameDetailsSection game={game} />
 
       {/* Screenshots and Videos Gallery */}
-      {((game.screenshots && game.screenshots.length > 0) ||
-        (game.artworks && game.artworks.length > 0) ||
-        (game.videos && game.videos.length > 0)) && (
+      {((game?.screenshots && game.screenshots.length > 0) ||
+        (game?.artworks && game.artworks.length > 0) ||
+        (game?.videos && game.videos.length > 0)) && (
         <section className="py-16 bg-white dark:bg-gray-900">
           <div className="max-w-6xl mx-auto px-8">
-            <h2 className="text-4xl font-bold text-black dark:text-white text-center mb-12">
-              Galerie
-            </h2>
+            <div className="flex items-center justify-center gap-4 mb-12">
+              <h2 className="text-4xl font-bold text-black dark:text-white text-center">
+                Galerie
+              </h2>
+              {isPreloadingMedia && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900 rounded-full">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm text-blue-600 dark:text-blue-300">
+                    Optimisation en cours...
+                  </span>
+                </div>
+              )}
+            </div>
 
             {/* Screenshots Section */}
-            {game.screenshots && game.screenshots.length > 0 && (
+            {game?.screenshots && game.screenshots.length > 0 && (
               <div className="mb-16">
                 <h3 className="text-2xl font-semibold text-black dark:text-white mb-6">
                   Captures d'écran ({game.screenshots.length})
@@ -727,21 +390,23 @@ export default function OneGame() {
                     <div
                       key={screenshot.id}
                       className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200 shadow-sm cursor-pointer group"
-                      onClick={() =>
-                        openScreenshotModal(showAllScreenshots ? index : index)
-                      }
+                      onClick={() => openScreenshotModal(index)}
                     >
                       <div className="relative">
                         <img
-                          src={`https://images.igdb.com/igdb/image/upload/t_screenshot_med/${screenshot.image_id}.jpg`}
-                          alt={`Screenshot ${index + 1}`}
+                          src={getImageUrl(screenshot, "screenshot", "med")}
+                          alt={`Screenshot ${index + 1} de ${game.name}`}
+                          width="400"
+                          height="225"
                           className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                           <svg
                             className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                             fill="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
                           </svg>
@@ -768,7 +433,7 @@ export default function OneGame() {
             )}
 
             {/* Artworks Section */}
-            {game.artworks && game.artworks.length > 0 && (
+            {game?.artworks && game.artworks.length > 0 && (
               <div className="mb-16">
                 <h3 className="text-2xl font-semibold text-black dark:text-white mb-6">
                   Artworks ({game.artworks.length})
@@ -781,21 +446,23 @@ export default function OneGame() {
                     <div
                       key={artwork.id}
                       className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200 shadow-sm cursor-pointer group"
-                      onClick={() =>
-                        openArtworkModal(showAllArtworks ? index : index)
-                      }
+                      onClick={() => openArtworkModal(index)}
                     >
                       <div className="relative">
                         <img
-                          src={`https://images.igdb.com/igdb/image/upload/t_screenshot_med/${artwork.image_id}.jpg`}
-                          alt={`Artwork ${index + 1}`}
+                          src={getImageUrl(artwork, "artwork", "med")}
+                          alt={`Artwork ${index + 1} de ${game.name}`}
+                          width="400"
+                          height="225"
                           className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                           <svg
                             className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                             fill="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
                           </svg>
@@ -822,7 +489,7 @@ export default function OneGame() {
             )}
 
             {/* Videos Section */}
-            {game.videos && game.videos.length > 0 && (
+            {game?.videos && game.videos.length > 0 && (
               <div>
                 <h3 className="text-2xl font-semibold text-black dark:text-white mb-6">
                   Vidéos ({game.videos.length})
@@ -833,15 +500,16 @@ export default function OneGame() {
                       <div
                         key={video.id}
                         className="rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800 cursor-pointer group transition-transform duration-300 hover:scale-105"
-                        onClick={() =>
-                          openVideoModal(showAllVideos ? index : index)
-                        }
+                        onClick={() => openVideoModal(index)}
                       >
                         <div className="aspect-video relative">
                           <img
-                            src={`https://img.youtube.com/vi/${video.video_id}/maxresdefault.jpg`}
-                            alt={`Video ${index + 1}`}
+                            src={getImageUrl(video, "video")}
+                            alt={`Vidéo ${index + 1} de ${game.name}`}
+                            width="400"
+                            height="225"
                             className="w-full h-full object-cover"
+                            loading="lazy"
                           />
                           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                             <div className="bg-red-600 rounded-full p-4 group-hover:scale-110 transition-transform">
@@ -849,6 +517,7 @@ export default function OneGame() {
                                 className="w-8 h-8 text-white ml-1"
                                 fill="currentColor"
                                 viewBox="0 0 24 24"
+                                aria-hidden="true"
                               >
                                 <path d="M8 5v14l11-7z" />
                               </svg>
