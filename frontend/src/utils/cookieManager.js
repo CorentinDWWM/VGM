@@ -3,7 +3,6 @@ import { updateCookiePreferences } from "../apis/auth.api";
 export const COOKIE_CONSENT_KEY = "vgm_cookie_consent";
 export const COOKIE_PREFERENCES_KEY = "vgm_cookie_preferences";
 
-// Utility functions for cookie management
 const setCookie = (
   name,
   value,
@@ -18,7 +17,6 @@ const setCookie = (
     value
   )}; expires=${expires.toUTCString()}; path=/; SameSite=${sameSite}`;
 
-  // En production, utiliser Secure
   if (secure || window.location.protocol === "https:") {
     cookieString += "; Secure";
   }
@@ -44,12 +42,8 @@ const deleteCookie = (name) => {
 };
 
 export const cookieManager = {
-  // Vérifie si l'utilisateur a déjà donné son consentement
-  hasConsent: () => {
-    return getCookie(COOKIE_CONSENT_KEY) === "true";
-  },
+  hasConsent: () => getCookie(COOKIE_CONSENT_KEY) === "true",
 
-  // Enregistre le consentement
   setConsent: async (preferences) => {
     const isSecure = window.location.protocol === "https:";
 
@@ -61,34 +55,18 @@ export const cookieManager = {
       "Lax",
       isSecure
     );
-    setCookie(
-      "vgm_consent_date",
-      new Date().toISOString(),
-      365,
-      "Lax",
-      isSecure
-    );
 
-    // Fallback localStorage pour les préférences fonctionnelles si autorisées
     if (preferences.functional) {
       localStorage.setItem(COOKIE_PREFERENCES_KEY, JSON.stringify(preferences));
-      localStorage.setItem("vgm_consent_date", new Date().toISOString());
     }
 
-    // Sauvegarder en base de données si l'utilisateur est connecté
     try {
       await updateCookiePreferences(preferences);
-      console.log("✅ Préférences cookies sauvegardées en base de données");
     } catch (error) {
-      console.log(
-        "⚠️ Impossible de sauvegarder en base (utilisateur non connecté ou erreur):",
-        error
-      );
-      // On continue même si ça échoue, les cookies locaux suffisent
+      // Fail silently if user not connected
     }
   },
 
-  // Récupère les préférences
   getPreferences: () => {
     const preferences = getCookie(COOKIE_PREFERENCES_KEY);
     return preferences
@@ -100,18 +78,11 @@ export const cookieManager = {
         };
   },
 
-  // Supprime le consentement (pour reset)
   clearConsent: async () => {
     deleteCookie(COOKIE_CONSENT_KEY);
     deleteCookie(COOKIE_PREFERENCES_KEY);
-    deleteCookie("vgm_consent_date");
-
-    // Nettoyer aussi le localStorage
-    localStorage.removeItem(COOKIE_CONSENT_KEY);
     localStorage.removeItem(COOKIE_PREFERENCES_KEY);
-    localStorage.removeItem("vgm_consent_date");
 
-    // Supprimer tous les cookies de préférences utilisateur
     const cookies = document.cookie.split(";");
     cookies.forEach((cookie) => {
       const name = cookie.split("=")[0].trim();
@@ -120,40 +91,26 @@ export const cookieManager = {
       }
     });
 
-    // Réinitialiser en base de données si l'utilisateur est connecté
     try {
-      const defaultPreferences = {
+      await updateCookiePreferences({
         necessary: true,
         analytics: false,
         functional: false,
-      };
-      await updateCookiePreferences(defaultPreferences);
-      console.log("✅ Préférences cookies réinitialisées en base de données");
+      });
     } catch (error) {
-      console.log(
-        "⚠️ Impossible de réinitialiser en base (utilisateur non connecté ou erreur):",
-        error
-      );
+      // Fail silently
     }
   },
 
-  // Vérifie si un type de cookie est autorisé
   isAllowed: (cookieType) => {
     const preferences = cookieManager.getPreferences();
     return preferences[cookieType] || false;
   },
 
-  // Fonctions pour différents types de cookies
   analytics: {
     track: (event, data) => {
-      if (cookieManager.isAllowed("analytics")) {
-        // Ici tu peux intégrer Google Analytics, Matomo, etc.
-        console.log("Analytics tracking:", event, data);
-
-        // Exemple avec Google Analytics 4
-        if (typeof gtag !== "undefined") {
-          gtag("event", event, data);
-        }
+      if (cookieManager.isAllowed("analytics") && typeof gtag !== "undefined") {
+        gtag("event", event, data);
       }
     },
   },
@@ -163,8 +120,6 @@ export const cookieManager = {
       if (cookieManager.isAllowed("functional")) {
         const isSecure = window.location.protocol === "https:";
         setCookie(`vgm_pref_${key}`, value, 365, "Lax", isSecure);
-
-        // Backup dans localStorage
         localStorage.setItem(`vgm_pref_${key}`, value);
       }
     },
@@ -180,28 +135,16 @@ export const cookieManager = {
     },
   },
 
-  // Fonction pour déclencher la réouverture de la modal
   _modalCallbacks: [],
-
-  onModalOpen: (callback) => {
-    cookieManager._modalCallbacks.push(callback);
-  },
-
+  onModalOpen: (callback) => cookieManager._modalCallbacks.push(callback),
   offModalOpen: (callback) => {
     cookieManager._modalCallbacks = cookieManager._modalCallbacks.filter(
       (cb) => cb !== callback
     );
   },
-
-  openModal: () => {
-    cookieManager._modalCallbacks.forEach((callback) => callback());
-  },
-
-  // Fonction pour gérer les cookies depuis n'importe où
-  reopenCookieSettings: () => {
-    cookieManager.openModal();
-  },
-
+  openModal: () =>
+    cookieManager._modalCallbacks.forEach((callback) => callback()),
+  reopenCookieSettings: () => cookieManager.openModal(),
   resetConsent: () => {
     cookieManager.clearConsent();
     cookieManager.openModal();

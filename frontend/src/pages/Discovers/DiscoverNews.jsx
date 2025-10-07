@@ -153,14 +153,11 @@ export default function DiscoverNews() {
             {games.length > 1 ? "s" : ""}
           </p>
         </div>
-        <div className="hidden md:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <p>Glissez pour explorer</p>
-        </div>
       </div>
 
       <div className="relative px-2">
         <div
-          className="w-full overflow-x-auto overflow-y-visible hide-scrollbar cursor-grab select-none group-hover:cursor-grab active:cursor-grabbing transition-all duration-300"
+          className="w-full overflow-x-auto overflow-y-visible hide-scrollbar cursor-grab"
           ref={scrollProps.scrollRef}
           onMouseDown={scrollProps.onMouseDown}
         >
@@ -169,47 +166,20 @@ export default function DiscoverNews() {
               games.map((game, index) => (
                 <div
                   key={game._id}
-                  className="transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:z-10 relative"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="transform transition-all duration-300 hover:scale-105 hover:-translate-y-2"
                 >
                   <AffichesJeux game={game} />
                 </div>
               ))
             ) : (
               <div className="flex flex-col items-center justify-center w-full min-h-[300px] text-center">
-                <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                  <svg
-                    className="w-8 h-8 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    />
-                  </svg>
-                </div>
-                <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
+                <p className="text-gray-500 dark:text-gray-400 text-lg">
                   Aucun jeu trouvé pour cette période
-                </p>
-                <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
-                  Revenez plus tard pour découvrir de nouveaux jeux
                 </p>
               </div>
             )}
           </div>
         </div>
-
-        {/* Indicateurs de scroll */}
-        {games.length > 0 && (
-          <>
-            <div className="absolute left-2 top-0 bottom-0 w-12 bg-gradient-to-r from-white dark:from-gray-800 to-transparent pointer-events-none opacity-60 z-10"></div>
-            <div className="absolute right-2 top-0 bottom-0 w-12 bg-gradient-to-l from-white dark:from-gray-800 to-transparent pointer-events-none opacity-60 z-10"></div>
-          </>
-        )}
       </div>
     </div>
   );
@@ -326,14 +296,13 @@ export default function DiscoverNews() {
 
   return (
     <div className="w-full min-h-screen mt-5">
-      {/* Header avec gradient amélioré */}
       <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="relative px-6 py-20">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-black dark:text-white font-bold text-4xl md:text-5xl lg:text-6xl mb-6 animate-fade-in">
+            <h1 className="text-black dark:text-white font-bold text-4xl md:text-5xl lg:text-6xl mb-6">
               Nouvelles sorties
             </h1>
-            <p className="text-black/90 dark:text-white text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            <p className="text-black/90 dark:text-white text-lg md:text-xl max-w-2xl mx-auto">
               Découvrez les derniers jeux sortis cette semaine, ce mois-ci et
               ces 3 derniers mois
             </p>
@@ -341,27 +310,24 @@ export default function DiscoverNews() {
         </div>
       </div>
 
-      {/* Contenu principal */}
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-20 overflow-visible">
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-20">
         <GameSection
           title="Cette semaine"
           games={gamesThisWeek}
           scrollProps={scroll1}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-black/5 dark:shadow-white/5 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 overflow-visible"
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6"
         />
-
         <GameSection
           title="Ce mois-ci"
           games={gamesThisMonth}
           scrollProps={scroll2}
-          className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 overflow-visible"
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6"
         />
-
         <GameSection
           title="Ces trois derniers mois"
           games={gamesLastThreeMonths}
           scrollProps={scroll3}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-black/5 dark:shadow-white/5 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl transition-all duration-300 overflow-visible"
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6"
         />
       </div>
     </div>

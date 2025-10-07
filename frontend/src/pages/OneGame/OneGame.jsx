@@ -10,10 +10,10 @@ import {
 } from "../../apis/auth.api";
 import AfficheJeux from "../../components/Affiches/AffichesJeux";
 import MediaModal from "../../components/Modal/MediaModal";
-import GameIntroSection from "../../components/OneGame/GameIntroSection";
-import GameDetailsSection from "../../components/OneGame/GameDetailsSection";
 import { useMediaCache } from "../../hooks/useMediaCache";
 import { translateText } from "../../utils/gameUtils";
+import GameIntroSection from "./GameIntroSection";
+import GameDetailsSection from "./GameDetailsSection";
 
 export default function OneGame() {
   const { id } = useParams();
@@ -343,7 +343,7 @@ export default function OneGame() {
               </div>
             )}
           </div>
-          <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-500 p-8 rounded-2xl shadow-sm">
+          <div className="bg-gray-50 dark:bg-gray-900 border border-black dark:border-gray-200 p-8 rounded-2xl shadow-sm">
             <p className="text-lg leading-relaxed text-black dark:text-white">
               {translatedSummary ||
                 game?.summary ||
@@ -389,7 +389,7 @@ export default function OneGame() {
                   ).map((screenshot, index) => (
                     <div
                       key={screenshot.id}
-                      className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200 shadow-sm cursor-pointer group"
+                      className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-black dark:border-gray-200 shadow-sm cursor-pointer group"
                       onClick={() => openScreenshotModal(index)}
                     >
                       <div className="relative">
@@ -445,7 +445,7 @@ export default function OneGame() {
                   ).map((artwork, index) => (
                     <div
                       key={artwork.id}
-                      className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200 shadow-sm cursor-pointer group"
+                      className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-black dark:border-gray-200 shadow-sm cursor-pointer group"
                       onClick={() => openArtworkModal(index)}
                     >
                       <div className="relative">
@@ -499,7 +499,7 @@ export default function OneGame() {
                     (video, index) => (
                       <div
                         key={video.id}
-                        className="rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800 cursor-pointer group transition-transform duration-300 hover:scale-105"
+                        className="rounded-lg overflow-hidden border border-black dark:border-gray-200 shadow-sm bg-gray-50 dark:bg-gray-800 cursor-pointer group transition-transform duration-300 hover:scale-105"
                         onClick={() => openVideoModal(index)}
                       >
                         <div className="aspect-video relative">

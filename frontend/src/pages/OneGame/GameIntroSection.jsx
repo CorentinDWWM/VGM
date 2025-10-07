@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import Bouton from "../Boutons/Bouton";
+import Bouton from "../../components/Boutons/Bouton";
 import { getEarliestReleaseDate } from "../../utils/gameUtils";
 
 export default function GameIntroSection({
@@ -35,7 +35,7 @@ export default function GameIntroSection({
                 : "/placeholder-game.jpg"
             }
             alt={game.name}
-            className="w-72 h-96 object-cover rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105 border border-gray-200"
+            className="w-72 h-96 object-cover rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105 border border-black dark:border-gray-200 "
           />
         </div>
 
@@ -50,7 +50,7 @@ export default function GameIntroSection({
                 game.genres.map((genre, index) => (
                   <span
                     key={genre.id}
-                    className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 px-4 py-2 rounded-full text-sm text-gray-700 dark:text-gray-300"
+                    className="bg-gray-100 dark:bg-gray-900 border border-black dark:border-gray-200 px-4 py-2 rounded-full text-sm text-gray-700 dark:text-gray-300"
                   >
                     {genre.name}
                   </span>

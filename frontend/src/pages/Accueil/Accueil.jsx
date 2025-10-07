@@ -4,22 +4,59 @@ import { MdOutlineSystemSecurityUpdateGood } from "react-icons/md";
 import { FaEarthEurope } from "react-icons/fa6";
 import { BsCollection } from "react-icons/bs";
 import { VscGraph } from "react-icons/vsc";
-import { MdRateReview, MdCloudSync } from "react-icons/md";
-import { LuClipboardList } from "react-icons/lu";
 import { TbTargetArrow } from "react-icons/tb";
 import { GiBrain } from "react-icons/gi";
 import { WiMoonAltThirdQuarter } from "react-icons/wi";
 import { IoKeyOutline } from "react-icons/io5";
-import { useContext } from "react";
-import { DataContext } from "../../context/DataContext";
-import { useLoaderData } from "react-router-dom";
 import Bouton from "../../components/Boutons/Bouton";
-import GlobalCookieModal from "../../components/Modal/GlobalCookieModal";
 
 export default function Accueil() {
-  // const { gamesData } = useLoaderData();
-  // const { games } = useContext(DataContext);
-  // console.log(gamesData);
+  const features = [
+    [
+      <BsCollection className="mb-1.5 text-lg" />,
+      "Ma Collection",
+      "Ajoutez vos jeux et filtrez par plateforme, statut ou genre.",
+    ],
+    [
+      <VscGraph className="mb-1.5 text-lg" />,
+      "Statistiques",
+      "Visualisez des graphiques de votre activité : jeux ajoutés par année, jeux par genre, répartition par statut.",
+    ],
+    [
+      <TbTargetArrow className="mb-1.5 text-lg" />,
+      "Suivi de progression",
+      "Marquez leur statut (non commencé, en cours, terminé, abandonné).",
+    ],
+    [
+      <GiBrain className="mb-1.5 text-lg" />,
+      "Recommandations",
+      "Découvrez des jeux similaires à ceux que vous aimez.",
+    ],
+    [
+      <WiMoonAltThirdQuarter className="mb-1.5 text-lg" />,
+      "Mode Sombre/Clair",
+      "Personnalisez l'interface selon vos préférences.",
+    ],
+  ];
+
+  const targetAudience = [
+    [
+      <IoGameController className="mt-0.5 text-primary-light dark:text-primary-dark" />,
+      "Les passionnés de jeux vidéo qui veulent tout centraliser",
+    ],
+    [
+      <GoGraph className="mt-0.5 text-success-light dark:text-success-dark" />,
+      "Les collectionneurs organisés qui aiment suivre leur progression",
+    ],
+    [
+      <MdOutlineSystemSecurityUpdateGood className="mt-0.5 text-alert-light dark:text-alert-dark" />,
+      "Les joueurs sur Steam, PlayStation, Xbox, Switch ou Epic",
+    ],
+    [
+      <FaEarthEurope className="mt-0.5 text-neutral-light dark:text-neutral-dark" />,
+      "Les technophiles de tous âges",
+    ],
+  ];
 
   return (
     <div className="flex flex-col items-center">
@@ -48,33 +85,7 @@ export default function Accueil() {
           </h3>
         </div>
         <div className="flex flex-wrap justify-center gap-6 text-main-text-light dark:text-main-text-dark">
-          {[
-            [
-              <BsCollection className="mb-1.5 text-lg" />,
-              "Ma Collection",
-              "Ajoutez vos jeux et filtrez par plateforme, statut ou genre.",
-            ],
-            [
-              <VscGraph className="mb-1.5 text-lg" />,
-              "Statistiques",
-              "Visualisez des graphiques de votre activité : jeux ajoutés par année, jeux par genre, répartition par statut.",
-            ],
-            [
-              <TbTargetArrow className="mb-1.5 text-lg" />,
-              "Suivi de progression",
-              "Marquez leur statut (non commencé, en cours, terminé, abandonné).",
-            ],
-            [
-              <GiBrain className="mb-1.5 text-lg" />,
-              "Recommandations",
-              "Découvrez des jeux similaires à ceux que vous aimez.",
-            ],
-            [
-              <WiMoonAltThirdQuarter className="mb-1.5 text-lg" />,
-              "Mode Sombre/Clair",
-              "Personnalisez l'interface selon vos préférences.",
-            ],
-          ].map(([icon, title, desc], index) => (
+          {features.map(([icon, title, desc], index) => (
             <div
               key={index}
               className="bg-main-light dark:bg-gray-900 border p-6 rounded-xl shadow-xl hover:shadow-primary-light/50 dark:shadow-white/10 dark:hover:shadow-primary-dark/50 transition min-h-[160px] flex flex-col w-full sm:w-80 md:w-72 lg:w-80"
@@ -99,30 +110,12 @@ export default function Accueil() {
           Pour qui ?
         </h3>
         <div className="max-w-3xl mx-auto text-center text-main-text-light space-y-4">
-          <div className="flex justify-center items-center gap-2">
-            <IoGameController className="mt-0.5 text-primary-light dark:text-primary-dark" />
-            <p className="text-black dark:text-white">
-              Les passionnés de jeux vidéo qui veulent tout centraliser
-            </p>
-          </div>
-          <div className="flex justify-center items-center gap-2">
-            <GoGraph className="mt-0.5 text-success-light dark:text-success-dark" />
-            <p className="text-black dark:text-white">
-              Les collectionneurs organisés qui aiment suivre leur progression
-            </p>
-          </div>
-          <div className="flex justify-center items-center gap-2">
-            <MdOutlineSystemSecurityUpdateGood className="mt-0.5 text-alert-light dark:text-alert-dark" />
-            <p className="text-black dark:text-white">
-              Les joueurs sur Steam, PlayStation, Xbox, Switch ou Epic
-            </p>
-          </div>
-          <div className="flex justify-center items-center gap-2">
-            <FaEarthEurope className="mt-0.5 text-neutral-light dark:text-neutral-dark" />
-            <p className="text-black dark:text-white">
-              Les technophiles de tous âges
-            </p>
-          </div>
+          {targetAudience.map(([icon, text], index) => (
+            <div key={index} className="flex justify-center items-center gap-2">
+              {icon}
+              <p className="text-black dark:text-white">{text}</p>
+            </div>
+          ))}
         </div>
       </section>
     </div>

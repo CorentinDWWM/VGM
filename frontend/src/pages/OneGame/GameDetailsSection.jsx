@@ -11,7 +11,7 @@ export default function GameDetailsSection({ game }) {
           Informations
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+          <div className="bg-white dark:bg-gray-900 border border-black dark:border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
             <div className="text-2xl">🎮</div>
             <div>
               <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
@@ -25,7 +25,7 @@ export default function GameDetailsSection({ game }) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+          <div className="bg-white dark:bg-gray-900 border border-black dark:border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
             <div className="text-2xl">🏢</div>
             <div>
               <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
@@ -43,7 +43,7 @@ export default function GameDetailsSection({ game }) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+          <div className="bg-white dark:bg-gray-900 border border-black dark:border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
             <div className="text-2xl">📦</div>
             <div>
               <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
@@ -61,7 +61,7 @@ export default function GameDetailsSection({ game }) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+          <div className="bg-white dark:bg-gray-900 border border-black dark:border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
             <div className="text-2xl">👥</div>
             <div>
               <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
@@ -75,7 +75,7 @@ export default function GameDetailsSection({ game }) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+          <div className="bg-white dark:bg-gray-900 border border-black dark:border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
             <div className="text-2xl">📅</div>
             <div>
               <h3 className="text-black dark:text-white text-lg font-semibold mb-2">
@@ -95,7 +95,7 @@ export default function GameDetailsSection({ game }) {
           </div>
 
           {game.timeToBeat && (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+            <div className="bg-white dark:bg-gray-900 border border-black dark:border-gray-200 p-6 rounded-xl flex items-start gap-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
               <div className="text-2xl">⏱️</div>
               <div>
                 <h3 className="text-black dark:text-white text-lg font-semibold mb-2">

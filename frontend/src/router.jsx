@@ -13,7 +13,6 @@ import Profil from "./pages/Users/Profil";
 import LibraryUser from "./pages/Users/LibraryUser";
 import StatisticsUser from "./pages/Users/StatisticsUser";
 import GamesPage from "./pages/Games/GamesPage";
-import GlobalStats from "./pages/Stats/GlobalStats";
 import Decouvertes from "./pages/Discovers/Decouvertes";
 import GenderDiscover from "./pages/Discovers/GenderDiscover";
 import DiscoverNews from "./pages/Discovers/DiscoverNews";
@@ -41,10 +40,6 @@ export const router = createBrowserRouter([
         path: "/games/:id",
         element: <OneGame />,
       },
-      // {
-      //   path: "/stats",
-      //   element: <GlobalStats />,
-      // },
       {
         path: "/discover",
         children: [
