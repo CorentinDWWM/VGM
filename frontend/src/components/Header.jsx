@@ -26,54 +26,50 @@ export default function Header() {
   const { allGamesSimplified } = useContext(DataContext);
 
   return (
-    <header className="bg-white px-6 py-4 flex justify-between items-center shadow-md dark:bg-gray-900 dark:shadow-white/30">
-      {theme === "dark" ? (
-        <Link to="/">
-          <img
-            src="/Logo.svg"
-            alt="logo Video Games Manager"
-            className="h-[50px]"
-          />
-        </Link>
-      ) : (
-        <Link to="/">
-          <img
-            src="/Logo_dark.svg"
-            alt="logo Video Games Manager"
-            className="h-[50px]"
-          />
-        </Link>
-      )}
+    <header className="bg-white px-6 py-4 flex justify-between items-center shadow-md dark:bg-gray-900 dark:shadow-white/30 min-h-[70px]">
+      <div className="flex-shrink-0 w-[170px] h-[70px]">
+        {theme === "dark" ? (
+          <Link to="/">
+            <img
+              src="/Logo.svg"
+              alt="logo Video Games Manager"
+              className="h-full w-full object-contain"
+            />
+          </Link>
+        ) : (
+          <Link to="/">
+            <img
+              src="/Logo_dark.svg"
+              alt="logo Video Games Manager"
+              className="h-full w-full object-contain"
+            />
+          </Link>
+        )}
+      </div>
       <nav className="flex items-center gap-8 max-1000:hidden">
         <Link
           to="/"
-          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
+          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark whitespace-nowrap"
         >
           Accueil
         </Link>
         <Link
           to="/games"
-          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
+          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark whitespace-nowrap"
         >
           Jeux
         </Link>
-        {/* <Link
-          to="/stats"
-          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
-        >
-          Stats
-        </Link> */}
         <Link
           to="/discover"
-          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark"
+          className="text-main-text-light dark:text-main-text-dark hover:text-primary-light dark:hover:text-primary-dark whitespace-nowrap"
         >
           Découvertes
         </Link>
       </nav>
-      <div className="max-1000:hidden">
+      <div className="max-1000:hidden flex-shrink-0">
         <SearchBar />
       </div>
-      <div className="flex items-center justify-center gap-4 max-1000:hidden">
+      <div className="flex items-center justify-center gap-4 max-1000:hidden flex-shrink-0">
         {theme === "dark" ? (
           <Sun
             onClick={toggleTheme}

@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { useContext, useState, useCallback, useRef } from "react";
+import { useContext, useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataContext } from "../../context/DataContext";
 
@@ -75,26 +75,30 @@ export default function SearchBar() {
   );
 
   // Ajouter/supprimer l'event listener seulement quand nécessaire
-  useState(() => {
+  useEffect(() => {
     if (showResults) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
+      return () => {
         document.removeEventListener("mousedown", handleClickOutside);
+      };
     }
   }, [showResults, handleClickOutside]);
 
   return (
-    <div className="relative max-w-[300px] w-full" ref={searchRef}>
-      <div className="bg-white dark:bg-gray-900 border dark:border-white flex justify-between items-center p-2.5 rounded-md">
+    <div className="relative w-[300px] flex-shrink-0" ref={searchRef}>
+      <div className="bg-white dark:bg-gray-900 border dark:border-white flex justify-between items-center p-2.5 rounded-md min-h-[40px]">
         <input
           type="text"
           placeholder="Rechercher..."
           value={searchTerm}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
-          className="placeholder:text-secondary-text-light dark:text-secondary-text-dark outline-none bg-transparent w-full"
+          className="placeholder:text-secondary-text-light dark:text-secondary-text-dark outline-none bg-transparent w-full min-w-0"
         />
-        <Search className="cursor-pointer text-black dark:text-white" />
+        <Search
+          className="cursor-pointer text-black dark:text-white flex-shrink-0"
+          size={20}
+        />
       </div>
 
       {showResults && hasSearched && (

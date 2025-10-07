@@ -282,7 +282,7 @@ export default function OneGame() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 mt-5">
+    <div className="bg-white dark:bg-gray-900 mt-5">
       {/* Modal pour la galerie */}
       <MediaModal
         isOpen={isModalOpen}
@@ -557,7 +557,7 @@ export default function OneGame() {
 
       {/* Recommendations Section */}
       <section className="py-16 bg-gray-50 dark:bg-gray-800">
-        <div className="w-fit mx-auto px-8">
+        <div className="max-w-7xl mx-auto px-8">
           <h2 className="text-4xl font-bold text-black dark:text-white text-center mb-12">
             Jeux similaires
           </h2>
@@ -569,7 +569,7 @@ export default function OneGame() {
               </div>
             </div>
           ) : recommendations.length > 0 ? (
-            <div className="grid max-md:grid-cols-1 max-lg:grid-cols-2 max-xl:grid-cols-3 grid-cols-4 gap-6">
+            <div className="grid max-md:grid-cols-1 max-lg:grid-cols-2 max-xl:grid-cols-3 grid-cols-4 gap-6 justify-items-center">
               {recommendations.map((game) => (
                 <AfficheJeux key={game.igdbID} game={game} />
               ))}
