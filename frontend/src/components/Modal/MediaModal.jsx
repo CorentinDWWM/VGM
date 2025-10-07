@@ -55,7 +55,7 @@ export default function MediaModal({
       >
         {modalType === "screenshot" && (
           <img
-            src={`https://images.igdb.com/igdb/image/upload/t_1080p/${currentMedia.image_id}.jpg`}
+            src={`https://images.igdb.com/igdb/image/upload/t_screenshot_med/${currentMedia.image_id}.jpg`}
             alt={`Screenshot ${currentIndex + 1}`}
             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
           />
@@ -63,7 +63,7 @@ export default function MediaModal({
 
         {modalType === "artwork" && (
           <img
-            src={`https://images.igdb.com/igdb/image/upload/t_1080p/${currentMedia.image_id}.jpg`}
+            src={`https://images.igdb.com/igdb/image/upload/t_720p/${currentMedia.image_id}.jpg`}
             alt={`Artwork ${currentIndex + 1}`}
             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
           />
