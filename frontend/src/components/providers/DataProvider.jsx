@@ -78,7 +78,7 @@ export default function DataProvider({ children }) {
       setLoaded(gamesData.length);
       setHasMore(gamesData.length === 30);
 
-      // Mise en cache
+      // Mise en cache optimisée
       setGameCache(new Map().set(`games_0_v${cacheVersion}`, gamesData));
 
       setIsLoading(false);

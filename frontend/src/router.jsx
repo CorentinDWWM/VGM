@@ -1,25 +1,40 @@
 import { createBrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import App from "./App";
 import ErrorPage from "./pages/ErrorPage";
-import Accueil from "./pages/Accueil/Accueil";
-import Login from "./pages/forms/Login";
-import Register from "./pages/forms/Register";
-import ForgotPassword from "./pages/forms/password/ForgotPassword";
-import ResetPassword from "./pages/forms/password/ResetPassword";
 import { rootLoader } from "./loaders/rootLoader";
 import UserNotConnected from "./components/ProtectedRoutes/UserNotConnected";
 import UserConnected from "./components/ProtectedRoutes/UserConnected";
-import Profil from "./pages/Users/Profil";
-import LibraryUser from "./pages/Users/LibraryUser";
-import StatisticsUser from "./pages/Users/StatisticsUser";
-import GamesPage from "./pages/Games/GamesPage";
-import Decouvertes from "./pages/Discovers/Decouvertes";
-import GenderDiscover from "./pages/Discovers/GenderDiscover";
-import DiscoverNews from "./pages/Discovers/DiscoverNews";
-import OneGame from "./pages/OneGame/OneGame";
-import MentionsLegales from "./pages/RGPD/MentionsLegales";
-import PolitiqueConfidentialite from "./pages/RGPD/PolitiqueConfidentialite";
-import CookiePreferences from "./pages/RGPD/CookiePreferences";
+import LoadingPage from "./components/Loading/LoadingPage";
+
+// Lazy load des composants lourds
+const Accueil = lazy(() => import("./pages/Accueil/Accueil"));
+const Login = lazy(() => import("./pages/forms/Login"));
+const Register = lazy(() => import("./pages/forms/Register"));
+const ForgotPassword = lazy(() =>
+  import("./pages/forms/password/ForgotPassword")
+);
+const ResetPassword = lazy(() =>
+  import("./pages/forms/password/ResetPassword")
+);
+const Profil = lazy(() => import("./pages/Users/Profil"));
+const LibraryUser = lazy(() => import("./pages/Users/LibraryUser"));
+const StatisticsUser = lazy(() => import("./pages/Users/StatisticsUser"));
+const GamesPage = lazy(() => import("./pages/Games/GamesPage"));
+const Decouvertes = lazy(() => import("./pages/Discovers/Decouvertes"));
+const DiscoverNews = lazy(() => import("./pages/Discovers/DiscoverNews"));
+const GenderDiscover = lazy(() => import("./pages/Discovers/GenderDiscover"));
+const OneGame = lazy(() => import("./pages/OneGame/OneGame"));
+const MentionsLegales = lazy(() => import("./pages/RGPD/MentionsLegales"));
+const PolitiqueConfidentialite = lazy(() =>
+  import("./pages/RGPD/PolitiqueConfidentialite")
+);
+const CookiePreferences = lazy(() => import("./pages/RGPD/CookiePreferences"));
+
+// Wrapper pour les composants lazy
+const LazyWrapper = ({ children }) => (
+  <Suspense fallback={<LoadingPage />}>{children}</Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -30,30 +45,54 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Accueil />,
+        element: (
+          <LazyWrapper>
+            <Accueil />
+          </LazyWrapper>
+        ),
       },
       {
         path: "/games",
-        element: <GamesPage />,
+        element: (
+          <LazyWrapper>
+            <GamesPage />
+          </LazyWrapper>
+        ),
       },
       {
         path: "/games/:id",
-        element: <OneGame />,
+        element: (
+          <LazyWrapper>
+            <OneGame />
+          </LazyWrapper>
+        ),
       },
       {
         path: "/discover",
         children: [
           {
             index: true,
-            element: <Decouvertes />,
+            element: (
+              <LazyWrapper>
+                <Decouvertes />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/discover/news",
-            element: <DiscoverNews />,
+            element: (
+              <LazyWrapper>
+                <DiscoverNews />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/discover/:id",
-            element: <GenderDiscover />,
+            element: (
+              <LazyWrapper>
+                <GenderDiscover />
+              </LazyWrapper>
+            ),
           },
         ],
       },
@@ -61,7 +100,9 @@ export const router = createBrowserRouter([
         path: "/login",
         element: (
           <UserNotConnected>
-            <Login />
+            <LazyWrapper>
+              <Login />
+            </LazyWrapper>
           </UserNotConnected>
         ),
       },
@@ -69,7 +110,9 @@ export const router = createBrowserRouter([
         path: "/register",
         element: (
           <UserNotConnected>
-            <Register />
+            <LazyWrapper>
+              <Register />
+            </LazyWrapper>
           </UserNotConnected>
         ),
       },
@@ -77,7 +120,9 @@ export const router = createBrowserRouter([
         path: "/forgot",
         element: (
           <UserConnected>
-            <ForgotPassword />
+            <LazyWrapper>
+              <ForgotPassword />
+            </LazyWrapper>
           </UserConnected>
         ),
       },
@@ -85,7 +130,9 @@ export const router = createBrowserRouter([
         path: "/reset",
         element: (
           <UserConnected>
-            <ResetPassword />
+            <LazyWrapper>
+              <ResetPassword />
+            </LazyWrapper>
           </UserConnected>
         ),
       },
@@ -96,7 +143,9 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <UserConnected>
-                <Profil />
+                <LazyWrapper>
+                  <Profil />
+                </LazyWrapper>
               </UserConnected>
             ),
           },
@@ -104,7 +153,9 @@ export const router = createBrowserRouter([
             path: "/profil/library",
             element: (
               <UserConnected>
-                <LibraryUser />
+                <LazyWrapper>
+                  <LibraryUser />
+                </LazyWrapper>
               </UserConnected>
             ),
           },
@@ -112,7 +163,9 @@ export const router = createBrowserRouter([
             path: "/profil/statistics",
             element: (
               <UserConnected>
-                <StatisticsUser />
+                <LazyWrapper>
+                  <StatisticsUser />
+                </LazyWrapper>
               </UserConnected>
             ),
           },
@@ -120,15 +173,27 @@ export const router = createBrowserRouter([
       },
       {
         path: "/mentions-legales",
-        element: <MentionsLegales />,
+        element: (
+          <LazyWrapper>
+            <MentionsLegales />
+          </LazyWrapper>
+        ),
       },
       {
         path: "/politique-confidentialite",
-        element: <PolitiqueConfidentialite />,
+        element: (
+          <LazyWrapper>
+            <PolitiqueConfidentialite />
+          </LazyWrapper>
+        ),
       },
       {
         path: "/preferences-cookies",
-        element: <CookiePreferences />,
+        element: (
+          <LazyWrapper>
+            <CookiePreferences />
+          </LazyWrapper>
+        ),
       },
     ],
   },

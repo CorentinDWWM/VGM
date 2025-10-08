@@ -80,6 +80,10 @@ export default function AffichesJeux({ game }) {
           }
           alt={game.name}
           className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          width="280"
+          height="373"
         />
 
         {isHovered && user && (
