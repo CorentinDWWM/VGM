@@ -15,10 +15,10 @@ const Game = require("../models/games.schema");
 const SECRET_KEY = process.env.SECRET_KEY;
 
 const createTokenEmail = (email) => {
-  return jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "300s" });
+  return jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "600s" });
 };
 const createTokenResetPassword = (email) => {
-  return jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "300s" });
+  return jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "600s" });
 };
 
 const signup = async (req, res) => {
