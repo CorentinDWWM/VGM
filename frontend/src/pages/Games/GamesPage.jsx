@@ -40,12 +40,18 @@ export default function GamesPage() {
     }
   }, [message, resetMessage]);
 
-  // Effet pour marquer que le composant a été monté
+  // Effet pour marquer que le composant a été monté ET empêcher le nettoyage lors de l'actualisation
   useEffect(() => {
     hasMounted.current = true;
+
+    // Vérifier si c'est une actualisation ou une navigation
+    const isPageRefresh =
+      performance.navigation?.type === 1 ||
+      performance.getEntriesByType("navigation")[0]?.type === "reload";
+
     return () => {
-      // Nettoyer seulement si le composant était déjà monté (navigation)
-      if (hasMounted.current) {
+      // Nettoyer seulement si ce n'est PAS une actualisation et que le composant était monté
+      if (hasMounted.current && !isPageRefresh) {
         clearAllFilters();
       }
     };

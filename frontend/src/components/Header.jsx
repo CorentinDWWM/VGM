@@ -26,7 +26,7 @@ export default function Header() {
   const { allGamesSimplified } = useContext(DataContext);
 
   return (
-    <header className="bg-white px-6 py-4 flex justify-between items-center shadow-md dark:bg-gray-900 dark:shadow-white/30 min-h-[70px]">
+    <header className="bg-white px-6 py-3 flex justify-between items-center shadow-md dark:bg-gray-900 dark:shadow-white/30 min-h-[70px]">
       <div className="flex-shrink-0 w-[170px] h-[70px]">
         {theme === "dark" ? (
           <Link to="/">

@@ -68,6 +68,26 @@ export default function DataProvider({ children }) {
     [gameCache]
   );
 
+  // Fonction pour charger les jeux de base
+  const loadBaseGames = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const gamesData = await getGames(30, 0);
+
+      setGames(gamesData);
+      setLoaded(gamesData.length);
+      setHasMore(gamesData.length === 30);
+
+      // Mise en cache
+      setGameCache(new Map().set(`games_0_v${cacheVersion}`, gamesData));
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Erreur lors du chargement des jeux de base:", error);
+      setIsLoading(false);
+    }
+  }, [cacheVersion]);
+
   // Fonction pour filtrer par genre
   const filterGamesByGenre = useCallback(async (genreId, genreName) => {
     try {
@@ -130,19 +150,24 @@ export default function DataProvider({ children }) {
   }, [loaded, isLoadingMore, currentGenreFilter]);
 
   // Fonction pour supprimer le filtre
-  const clearGenreFilter = useCallback(() => {
+  const clearGenreFilter = useCallback(async () => {
     setIsFiltered(false);
     setCurrentGenreFilter(null);
     setFilteredGames([]);
-    setLoaded(games.length);
-    setHasMore(games.length === 30); // Rétablir hasMore basé sur les jeux non filtrés
+
+    // Si on n'a pas de jeux de base chargés, les charger
+    if (games.length === 0) {
+      await loadBaseGames();
+    } else {
+      setLoaded(games.length);
+    }
 
     // Supprimer du localStorage
     localStorage.removeItem("genreFilter");
 
     // Déclencher un événement personnalisé pour notifier les autres composants
     window.dispatchEvent(new CustomEvent("genreFilterCleared"));
-  }, [games.length]);
+  }, [games.length, loadBaseGames]);
 
   // Fonction pour supprimer complètement le filtre (y compris localStorage)
   const clearGenreFilterCompletely = useCallback(() => {
@@ -225,28 +250,38 @@ export default function DataProvider({ children }) {
   }, [loaded, isLoadingMore, currentPlatformFilter]);
 
   // Fonction pour supprimer le filtre plateforme
-  const clearPlatformFilter = useCallback(() => {
+  const clearPlatformFilter = useCallback(async () => {
     setIsFiltered(false);
     setCurrentPlatformFilter(null);
     setFilteredGames([]);
-    setLoaded(games.length);
-    setHasMore(games.length === 30); // Rétablir hasMore basé sur les jeux non filtrés
+
+    // Si on n'a pas de jeux de base chargés, les charger
+    if (games.length === 0) {
+      await loadBaseGames();
+    } else {
+      setLoaded(games.length);
+    }
 
     // Supprimer du localStorage
     localStorage.removeItem("platformFilter");
 
     // Déclencher un événement personnalisé pour notifier les autres composants
     window.dispatchEvent(new CustomEvent("platformFilterCleared"));
-  }, [games.length]);
+  }, [games.length, loadBaseGames]);
 
   // Fonction pour supprimer tous les filtres
-  const clearAllFilters = useCallback(() => {
+  const clearAllFilters = useCallback(async () => {
     setIsFiltered(false);
     setCurrentGenreFilter(null);
     setCurrentPlatformFilter(null);
     setFilteredGames([]);
-    setLoaded(games.length);
-    setHasMore(games.length === 30); // Rétablir hasMore basé sur les jeux non filtrés
+
+    // Si on n'a pas de jeux de base chargés, les charger
+    if (games.length === 0) {
+      await loadBaseGames();
+    } else {
+      setLoaded(games.length);
+    }
 
     // Supprimer du localStorage
     localStorage.removeItem("genreFilter");
@@ -255,9 +290,9 @@ export default function DataProvider({ children }) {
     // Déclencher des événements personnalisés
     window.dispatchEvent(new CustomEvent("genreFilterCleared"));
     window.dispatchEvent(new CustomEvent("platformFilterCleared"));
-  }, [games.length]);
+  }, [games.length, loadBaseGames]);
 
-  // Chargement initial des données - modifié pour restaurer les filtres
+  // Chargement initial des données - modifié pour éviter les conflits de pagination
   useEffect(() => {
     let isMounted = true;
 
@@ -265,14 +300,9 @@ export default function DataProvider({ children }) {
       if (!isMounted) return;
 
       try {
-        // Vérifier d'abord s'il y a des filtres sauvegardés
-        const savedGenreFilter = localStorage.getItem("genreFilter");
-        const savedPlatformFilter = localStorage.getItem("platformFilter");
-
-        // Charger en parallèle avec taille réduite pour améliorer les performances
-        const [gamesData, gamesSimplifiedData, genresData, platformsData] =
+        // Charger les données statiques d'abord
+        const [gamesSimplifiedData, genresData, platformsData] =
           await Promise.all([
-            getGames(30, 0),
             getGamesSimplified(),
             getGenres(),
             getPlateformes(),
@@ -280,27 +310,42 @@ export default function DataProvider({ children }) {
 
         if (!isMounted) return;
 
-        // Si pas de filtres sauvegardés, charger les données normalement
-        if (!savedGenreFilter && !savedPlatformFilter) {
-          setGames(gamesData);
-          setLoaded(gamesData.length);
-          setHasMore(gamesData.length === 30);
-        }
-
         setAllGamesSimplified(gamesSimplifiedData);
         setGenres(genresData);
         setPlatforms(platformsData);
 
-        // Mise en cache
-        setGameCache(new Map().set(`games_0_v${cacheVersion}`, gamesData));
+        // Vérifier s'il y a des filtres sauvegardés
+        const savedGenreFilter = localStorage.getItem("genreFilter");
+        const savedPlatformFilter = localStorage.getItem("platformFilter");
 
-        setIsLoading(false);
+        // Si il y a des filtres sauvegardés, les restaurer directement
+        if (savedGenreFilter || savedPlatformFilter) {
+          setIsLoading(false);
 
-        // Restaurer les filtres s'ils existent
-        if (savedGenreFilter) {
-          await restoreGenreFilter();
-        } else if (savedPlatformFilter) {
-          await restorePlatformFilter();
+          // Restaurer les filtres après un court délai
+          setTimeout(async () => {
+            if (isMounted) {
+              if (savedGenreFilter) {
+                await restoreGenreFilter();
+              } else if (savedPlatformFilter) {
+                await restorePlatformFilter();
+              }
+            }
+          }, 50);
+        } else {
+          // Sinon charger les jeux normalement
+          const gamesData = await getGames(30, 0);
+
+          if (!isMounted) return;
+
+          setGames(gamesData);
+          setLoaded(gamesData.length);
+          setHasMore(gamesData.length === 30);
+
+          // Mise en cache
+          setGameCache(new Map().set(`games_0_v${cacheVersion}`, gamesData));
+
+          setIsLoading(false);
         }
       } catch (error) {
         console.error("Erreur lors du chargement:", error);
@@ -441,6 +486,7 @@ export default function DataProvider({ children }) {
         fetchGames,
         invalidateCache,
         getGamesByGenreId,
+        loadBaseGames,
 
         // Nouvelles fonctions de filtrage
         filterGamesByGenre,
