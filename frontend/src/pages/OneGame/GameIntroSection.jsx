@@ -32,7 +32,7 @@ export default function GameIntroSection({
         <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80"></div>
       </div>
 
-      <div className="relative z-20 max-w-6xl mx-auto px-8 flex flex-col items-center lg:flex-row gap-12">
+      <div className="relative z-20 max-w-6xl mx-auto flex flex-col items-center lg:flex-row gap-12">
         <div className="flex-shrink-0">
           <div className="w-72 h-96 relative">
             <img
