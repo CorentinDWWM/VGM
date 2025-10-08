@@ -17,28 +17,38 @@ export default function GameIntroSection({
     <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-gray-50 dark:bg-gray-800 max-lg:py-10">
       <div className="absolute inset-0 z-10">
         {game.screenshots && game.screenshots.length > 0 && (
-          <img
-            src={`https://images.igdb.com/igdb/image/upload/t_1080p/${game.screenshots[0].image_id}.jpg`}
-            alt="Background"
-            className="w-full h-full object-cover filter blur-lg brightness-[0.2] opacity-30"
-            fetchPriority="high"
-          />
+          <div className="w-full h-full">
+            <img
+              src={`https://images.igdb.com/igdb/image/upload/t_1080p/${game.screenshots[0].image_id}.jpg`}
+              alt="Background"
+              width="1920"
+              height="1080"
+              className="absolute inset-0 w-full h-full object-cover filter blur-lg brightness-[0.2] opacity-30"
+              fetchPriority="high"
+              style={{ aspectRatio: "16/9" }}
+            />
+          </div>
         )}
         <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80"></div>
       </div>
 
       <div className="relative z-20 max-w-6xl mx-auto px-8 flex flex-col items-center lg:flex-row gap-12">
         <div className="flex-shrink-0">
-          <img
-            src={
-              game.cover?.url
-                ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
-                : "/placeholder-game.jpg"
-            }
-            alt={game.name}
-            className="w-72 h-96 object-cover rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105 border border-black dark:border-gray-200 "
-            fetchPriority="high"
-          />
+          <div className="w-72 h-96 relative">
+            <img
+              src={
+                game.cover?.url
+                  ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
+                  : "/placeholder-game.jpg"
+              }
+              alt={game.name}
+              width="288"
+              height="384"
+              className="absolute inset-0 w-full h-full object-cover rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105 border border-black dark:border-gray-200"
+              fetchPriority="high"
+              style={{ aspectRatio: "3/4" }}
+            />
+          </div>
         </div>
 
         <div className="flex-1 text-gray-800">

@@ -260,7 +260,10 @@ export default function OneGame() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh] text-gray-800 text-xl">
-        <h2>Chargement...</h2>
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-48 mb-4"></div>
+          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-32"></div>
+        </div>
       </div>
     );
   }
@@ -363,7 +366,7 @@ export default function OneGame() {
         <section className="py-16 bg-white dark:bg-gray-900">
           <div className="max-w-6xl mx-auto px-8">
             <div className="flex items-center justify-center gap-4 mb-12">
-              <h2 className="text-4xl font-bold text-black dark:text-white text-center">
+              <h2 className="text-4xl font-bold text-black dark:text-white text-center mb-12">
                 Galerie
               </h2>
               {isPreloadingMedia && (
@@ -392,14 +395,15 @@ export default function OneGame() {
                       className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-black dark:border-gray-200 shadow-sm cursor-pointer group"
                       onClick={() => openScreenshotModal(index)}
                     >
-                      <div className="relative">
+                      <div className="relative aspect-video">
                         <img
                           src={getImageUrl(screenshot, "screenshot", "med")}
                           alt={`Screenshot ${index + 1} de ${game.name}`}
                           width="400"
                           height="225"
-                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                           loading="lazy"
+                          style={{ aspectRatio: "16/9" }}
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                           <svg
@@ -448,14 +452,15 @@ export default function OneGame() {
                       className="rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-black dark:border-gray-200 shadow-sm cursor-pointer group"
                       onClick={() => openArtworkModal(index)}
                     >
-                      <div className="relative">
+                      <div className="relative aspect-[4/3]">
                         <img
                           src={getImageUrl(artwork, "artwork", "med")}
                           alt={`Artwork ${index + 1} de ${game.name}`}
                           width="400"
-                          height="225"
-                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                          height="300"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                           loading="lazy"
+                          style={{ aspectRatio: "4/3" }}
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                           <svg
@@ -508,8 +513,9 @@ export default function OneGame() {
                             alt={`Vidéo ${index + 1} de ${game.name}`}
                             width="400"
                             height="225"
-                            className="w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-cover"
                             loading="lazy"
+                            style={{ aspectRatio: "16/9" }}
                           />
                           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                             <div className="bg-red-600 rounded-full p-4 group-hover:scale-110 transition-transform">
