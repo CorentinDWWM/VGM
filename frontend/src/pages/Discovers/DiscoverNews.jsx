@@ -293,6 +293,7 @@ export default function DiscoverNews() {
   }
 
   console.log("Games This Week:", gamesThisWeek);
+  console.log("Games Last Three Months:", gamesLastThreeMonths);
 
   return (
     <div className="w-full min-h-screen mt-5">

@@ -7,7 +7,6 @@ const gameSchema = new mongoose.Schema(
     summary: { type: String },
     votes: { type: String },
     total_votes: { type: String },
-    date_sortie: { type: Array },
     category: { type: Number },
     url: { type: String },
     slug: { type: String },

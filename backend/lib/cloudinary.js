@@ -1,6 +1,6 @@
-import { v2 as cloudinary } from "cloudinary";
+const { v2: cloudinary } = require("cloudinary");
 
-import { config } from "dotenv";
+const { config } = require("dotenv");
 
 config();
 
@@ -10,4 +10,4 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export default cloudinary;
+module.exports = cloudinary;
