@@ -174,7 +174,7 @@ export default function Profil() {
             Jeux dans ma liste :
           </h3>
           {user.games && user.games.length >= 1 ? (
-            <div className="flex flex-col items-center overflow-y-auto hide-scrollbar">
+            <div className="flex flex-col items-center overflow-y-auto scrollbar-thin pr-2">
               <div
                 className={`grid ${
                   user.games.length === 1 ? "grid-cols-1" : "grid-cols-2"

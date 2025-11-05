@@ -1,4 +1,4 @@
-import { useContext, useRef, useState, useEffect } from "react";
+import { useContext, useRef, useState, useEffect, useCallback } from "react";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import { DataContext } from "../../context/DataContext";
 import {
@@ -46,9 +46,9 @@ export default function DiscoverNews() {
     gamesThisWeek,
     gamesThisMonth,
     gamesLastThreeMonths,
-    setGamesThisWeekData,
-    setGamesThisMonthData,
-    setGamesLastThreeMonthsData,
+    importWithLock,
+    importLocks,
+    importCompleted,
   } = useContext(DataContext);
 
   const [isImporting, setIsImporting] = useState(false);
@@ -63,82 +63,73 @@ export default function DiscoverNews() {
   const scroll2 = useHorizontalScroll();
   const scroll3 = useHorizontalScroll();
 
-  // Fonction d'import des jeux par période
-  const importGamesByPeriod = async () => {
+  // Fonction d'import optimisée pour éviter les appels simultanés
+  const importGamesByPeriod = useCallback(async () => {
+    // Vérifier si tous les imports sont déjà terminés
+    if (
+      importCompleted.week &&
+      importCompleted.month &&
+      importCompleted.threeMonths
+    ) {
+      console.log("🎯 Tous les imports déjà terminés");
+      return;
+    }
+
     setIsImporting(true);
+    setImportStatus({ week: false, month: false, threeMonths: false });
 
-    // Reset status before starting
-    setImportStatus({
-      week: false,
-      month: false,
-      threeMonths: false,
-    });
-
-    // Fonction pour sanitiser les jeux importés
-    const sanitizeGames = (games) => {
-      return games.map((game, index) => ({
-        ...game,
-        _id: game._id || `temp_${index}`,
-        name: game.name || "Nom non disponible",
-        votes: isNaN(Number(game.votes)) ? 0 : Number(game.votes || 0),
-        total_votes: isNaN(Number(game.total_votes))
-          ? 0
-          : Number(game.total_votes || 0),
-        igdbID: isNaN(Number(game.igdbID)) ? 0 : Number(game.igdbID || 0),
-        release_dates: game.release_dates || null,
-        slug: game.slug || "",
-        summary: game.summary || "",
-        url: game.url || "",
-        genres: game.genres || [],
-        platforms: game.platforms || [],
-        cover: game.cover || null,
-      }));
-    };
-
+    // Import séquentiel pour éviter la surcharge
     try {
-      // Import week games
-      try {
-        const weekResponse = await importGamesThisWeek();
-        if (weekResponse?.games) {
+      // Import semaine
+      if (!importCompleted.week && !importLocks.week) {
+        console.log("🚀 Démarrage import semaine");
+        await importWithLock("week", importGamesThisWeek, () => {
           setImportStatus((prev) => ({ ...prev, week: true }));
-          setGamesThisWeekData(sanitizeGames(weekResponse.games));
-        }
-      } catch (error) {
-        console.error("Erreur import semaine:", error);
+        });
+      } else {
+        setImportStatus((prev) => ({ ...prev, week: true }));
       }
 
-      // Import month games
-      try {
-        const monthResponse = await importGamesThisMonth();
-        if (monthResponse?.games) {
+      // Attendre un peu avant le prochain import
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Import mois
+      if (!importCompleted.month && !importLocks.month) {
+        console.log("🚀 Démarrage import mois");
+        await importWithLock("month", importGamesThisMonth, () => {
           setImportStatus((prev) => ({ ...prev, month: true }));
-          setGamesThisMonthData(sanitizeGames(monthResponse.games));
-        }
-      } catch (error) {
-        console.error("Erreur import mois:", error);
+        });
+      } else {
+        setImportStatus((prev) => ({ ...prev, month: true }));
       }
 
-      // Import three months games
-      try {
-        const threeMonthsResponse = await importGamesLastThreeMonths();
-        if (threeMonthsResponse?.games) {
+      // Attendre un peu avant le prochain import
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Import trois mois
+      if (!importCompleted.threeMonths && !importLocks.threeMonths) {
+        console.log("🚀 Démarrage import trois mois");
+        await importWithLock("threeMonths", importGamesLastThreeMonths, () => {
           setImportStatus((prev) => ({ ...prev, threeMonths: true }));
-          setGamesLastThreeMonthsData(sanitizeGames(threeMonthsResponse.games));
-        }
-      } catch (error) {
-        console.error("Erreur import trois mois:", error);
+        });
+      } else {
+        setImportStatus((prev) => ({ ...prev, threeMonths: true }));
       }
     } catch (error) {
       console.error("Erreur lors de l'import des jeux:", error);
     } finally {
       setIsImporting(false);
     }
-  };
+  }, [importWithLock, importLocks, importCompleted]);
 
-  // Lancer les imports au chargement
+  // Lancer les imports au chargement - avec protection contre les appels multiples
   useEffect(() => {
-    importGamesByPeriod();
-  }, []);
+    const timeoutId = setTimeout(() => {
+      importGamesByPeriod();
+    }, 100); // Petit délai pour éviter les appels simultanés
+
+    return () => clearTimeout(timeoutId);
+  }, []); // Supprimer les dépendances pour éviter les re-exécutions
 
   // Composant de section de jeux amélioré
   const GameSection = ({ title, games, scrollProps, className = "" }) => (
@@ -157,7 +148,7 @@ export default function DiscoverNews() {
 
       <div className="relative px-2">
         <div
-          className="w-full overflow-x-auto overflow-y-visible hide-scrollbar cursor-grab"
+          className="w-full overflow-x-auto overflow-y-visible scrollbar-thin cursor-grab"
           ref={scrollProps.scrollRef}
           onMouseDown={scrollProps.onMouseDown}
         >

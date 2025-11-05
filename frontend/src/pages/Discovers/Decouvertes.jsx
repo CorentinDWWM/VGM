@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import { Link } from "react-router-dom";
 import { DataContext } from "../../context/DataContext";
@@ -7,8 +7,14 @@ import { importGamesThisWeek } from "../../apis/games.api";
 
 export default function Decouvertes() {
   const { user } = useContext(AuthContext);
-  const { games, genres, gamesThisWeek, setGamesThisWeekData } =
-    useContext(DataContext);
+  const {
+    games,
+    genres,
+    gamesThisWeek,
+    importWithLock,
+    importCompleted,
+    importLocks,
+  } = useContext(DataContext);
 
   const [isImporting, setIsImporting] = useState(false);
 
@@ -61,24 +67,35 @@ export default function Decouvertes() {
           .slice(0, 5)
       : filterUserGames(games).slice(0, 5);
 
-  const importGamesByPeriod = async () => {
-    if (gamesThisWeek.length > 0) return;
+  const importGamesByPeriod = useCallback(async () => {
+    // Vérifier si déjà terminé ou en cours
+    if (importCompleted.week || importLocks.week || gamesThisWeek.length > 0) {
+      console.log("🎯 Import semaine déjà fait ou en cours");
+      return;
+    }
 
     setIsImporting(true);
     try {
-      const weekResponse = await importGamesThisWeek();
-      if (weekResponse?.games) {
-        setGamesThisWeekData(weekResponse.games);
-      }
+      await importWithLock("week", importGamesThisWeek);
     } catch (error) {
       console.error("Erreur import semaine:", error);
     } finally {
       setIsImporting(false);
     }
-  };
+  }, [
+    importWithLock,
+    importCompleted.week,
+    importLocks.week,
+    gamesThisWeek.length,
+  ]);
 
   useEffect(() => {
-    importGamesByPeriod();
+    // Délai pour éviter les conflits avec DiscoverNews
+    const timeoutId = setTimeout(() => {
+      importGamesByPeriod();
+    }, 200);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (

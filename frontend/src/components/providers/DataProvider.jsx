@@ -32,6 +32,18 @@ export default function DataProvider({ children }) {
   const [gamesLastThreeMonths, setGamesLastThreeMonths] = useState([]);
   const [useImportedData, setUseImportedData] = useState(false);
 
+  // Nouveau: États pour éviter les imports multiples
+  const [importLocks, setImportLocks] = useState({
+    week: false,
+    month: false,
+    threeMonths: false,
+  });
+  const [importCompleted, setImportCompleted] = useState({
+    week: false,
+    month: false,
+    threeMonths: false,
+  });
+
   // États pour la pagination
   const [loaded, setLoaded] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -423,21 +435,75 @@ export default function DataProvider({ children }) {
     }
   }, [invalidateCache, cacheVersion]);
 
-  // Fonctions pour mettre à jour les données par période
+  // Fonctions pour mettre à jour les données par période avec verrouillage
   const setGamesThisWeekData = useCallback((games) => {
     setGamesThisWeek(games);
     setUseImportedData(true);
+    setImportCompleted((prev) => ({ ...prev, week: true }));
+    setImportLocks((prev) => ({ ...prev, week: false }));
   }, []);
 
   const setGamesThisMonthData = useCallback((games) => {
     setGamesThisMonth(games);
     setUseImportedData(true);
+    setImportCompleted((prev) => ({ ...prev, month: true }));
+    setImportLocks((prev) => ({ ...prev, month: false }));
   }, []);
 
   const setGamesLastThreeMonthsData = useCallback((games) => {
     setGamesLastThreeMonths(games);
     setUseImportedData(true);
+    setImportCompleted((prev) => ({ ...prev, threeMonths: true }));
+    setImportLocks((prev) => ({ ...prev, threeMonths: false }));
   }, []);
+
+  // Nouvelle fonction: Import avec verrouillage
+  const importWithLock = useCallback(
+    async (period, importFunction, onSuccess) => {
+      // Vérifier si déjà en cours ou terminé
+      if (importLocks[period] || importCompleted[period]) {
+        console.log(`🔒 Import ${period} déjà en cours ou terminé`);
+        return;
+      }
+
+      // Verrouiller
+      setImportLocks((prev) => ({ ...prev, [period]: true }));
+
+      try {
+        const response = await importFunction();
+        if (response?.games) {
+          // Mettre à jour les données selon la période
+          switch (period) {
+            case "week":
+              setGamesThisWeekData(response.games);
+              break;
+            case "month":
+              setGamesThisMonthData(response.games);
+              break;
+            case "threeMonths":
+              setGamesLastThreeMonthsData(response.games);
+              break;
+          }
+
+          // Exécuter le callback de succès si fourni
+          if (onSuccess) {
+            onSuccess(response.games);
+          }
+        }
+      } catch (error) {
+        console.error(`Erreur import ${period}:`, error);
+        // Déverrouiller en cas d'erreur
+        setImportLocks((prev) => ({ ...prev, [period]: false }));
+      }
+    },
+    [
+      importLocks,
+      importCompleted,
+      setGamesThisWeekData,
+      setGamesThisMonthData,
+      setGamesLastThreeMonthsData,
+    ]
+  );
 
   // Fonction pour récupérer les jeux par genre
   const getGamesByGenreId = useCallback(async (genreId) => {
@@ -495,6 +561,11 @@ export default function DataProvider({ children }) {
         filterGamesByPlatform,
         clearPlatformFilter,
         clearAllFilters,
+
+        // Nouvelles fonctions avec verrouillage
+        importWithLock,
+        importLocks,
+        importCompleted,
       }}
     >
       {children}

@@ -224,7 +224,7 @@ export default function StatisticsUser() {
             </ResponsiveContainer>
 
             {/* Version mobile simplifiée */}
-            <div className="hidden max-sm:block">
+            <div className="hidden max-sm:block overflow-x-auto scrollbar-thin">
               <div className="grid grid-cols-1 gap-2">
                 {gamesByYearData.map((item) => (
                   <div
@@ -296,7 +296,7 @@ export default function StatisticsUser() {
             </ResponsiveContainer>
 
             {/* Version mobile simplifiée */}
-            <div className="hidden max-sm:block">
+            <div className="hidden max-sm:block overflow-x-auto scrollbar-thin">
               <div className="space-y-3">
                 {gamesByGenreData.map((item, index) => (
                   <div key={item.genre} className="flex items-center gap-3">

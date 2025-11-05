@@ -1,7 +1,6 @@
 import { useContext, useRef } from "react";
 import AffichesJeux from "../../components/Affiches/AffichesJeux";
 import HeaderUser from "../../components/Profil/HeaderUser";
-import { games } from "../../games.json";
 import { AuthContext } from "../../context/AuthContext";
 import Bouton from "../../components/Boutons/Bouton";
 import { useNavigate } from "react-router-dom";
@@ -66,7 +65,7 @@ export default function LibraryUser() {
                 Jeux dans ma bibliothèque :
               </h3>
               <div
-                className="w-full overflow-x-auto hide-scrollbar cursor-grab pb-10 select-none"
+                className="w-full overflow-x-auto scrollbar-thin cursor-grab pb-10 select-none"
                 ref={scroll1.scrollRef}
                 onMouseDown={scroll1.onMouseDown}
               >
@@ -83,7 +82,7 @@ export default function LibraryUser() {
                 Jeux terminés :
               </h3>
               <div
-                className="w-full overflow-x-auto hide-scrollbar cursor-grab pb-10 select-none"
+                className="w-full overflow-x-auto scrollbar-thin cursor-grab pb-10 select-none"
                 ref={scroll2.scrollRef}
                 onMouseDown={scroll2.onMouseDown}
               >
@@ -102,7 +101,7 @@ export default function LibraryUser() {
                 Jeux en cours :
               </h3>
               <div
-                className="w-full overflow-x-auto hide-scrollbar cursor-grab pb-10 select-none"
+                className="w-full overflow-x-auto scrollbar-thin cursor-grab pb-10 select-none"
                 ref={scroll3.scrollRef}
                 onMouseDown={scroll3.onMouseDown}
               >
@@ -121,7 +120,7 @@ export default function LibraryUser() {
                 Jeux abandonnés :
               </h3>
               <div
-                className="w-full overflow-x-auto hide-scrollbar cursor-grab pb-10 select-none"
+                className="w-full overflow-x-auto scrollbar-thin cursor-grab pb-10 select-none"
                 ref={scroll3.scrollRef}
                 onMouseDown={scroll3.onMouseDown}
               >
