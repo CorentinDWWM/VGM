@@ -1,0 +1,100 @@
+{
+  "genres": [
+    {
+      "id": 1,
+      "emoji": "⚔️",
+      "nom": "Action",
+      "nb_jeux": "1452"
+    },
+    {
+      "id": 2,
+      "emoji": "🧭",
+      "nom": "Aventure",
+      "nb_jeux": "1123"
+    },
+    {
+      "id": 3,
+      "emoji": "🤝",
+      "nom": "Coop",
+      "nb_jeux": "896"
+    },
+    {
+      "id": 4,
+      "emoji": "🏎️",
+      "nom": "Course",
+      "nb_jeux": "391"
+    },
+    {
+      "id": 5,
+      "emoji": "🎭",
+      "nom": "Drame",
+      "nb_jeux": "952"
+    },
+    {
+      "id": 6,
+      "emoji": "🧩",
+      "nom": "Énigmes",
+      "nb_jeux": "476"
+    },
+    {
+      "id": 7,
+      "emoji": "🔫",
+      "nom": "FPS",
+      "nb_jeux": "1389"
+    },
+    {
+      "id": 8,
+      "emoji": "👻",
+      "nom": "Horreur",
+      "nb_jeux": "427"
+    },
+    {
+      "id": 9,
+      "emoji": "🧙‍♂️",
+      "nom": "Jeux de rôle",
+      "nb_jeux": "511"
+    },
+    {
+      "id": 10,
+      "emoji": "🌐",
+      "nom": "MMO",
+      "nb_jeux": "421"
+    },
+    {
+      "id": 11,
+      "emoji": "👥",
+      "nom": "Multijoueur",
+      "nb_jeux": "2485"
+    },
+    {
+      "id": 12,
+      "emoji": "🦘",
+      "nom": "Plateforme",
+      "nb_jeux": "1126"
+    },
+    {
+      "id": 13,
+      "emoji": "🏰",
+      "nom": "RPG",
+      "nb_jeux": "325"
+    },
+    {
+      "id": 14,
+      "emoji": "🛩️",
+      "nom": "Simulation",
+      "nb_jeux": "579"
+    },
+    {
+      "id": 15,
+      "emoji": "🧑‍💻",
+      "nom": "Solo",
+      "nb_jeux": "3589"
+    },
+    {
+      "id": 16,
+      "emoji": "🌲",
+      "nom": "Survie",
+      "nb_jeux": "864"
+    }
+  ]
+}
